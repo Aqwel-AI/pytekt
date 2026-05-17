@@ -9,13 +9,18 @@ clustering, time-series, multi-label, and sparse data.
 All loaders return a :class:`Dataset` dataclass with ``data``, ``target``,
 ``feature_names``, ``target_names``, and ``metadata`` fields.
 
+File I/O (CSV, JSON, Parquet, Excel) lives in :mod:`aion.datasets.io` — stdlib
+for CSV/JSON/JSONL; install ``[ai]`` for pandas formats.
+
 Quick start
 -----------
->>> from aion.datasets import load_iris, fetch, list_datasets
+>>> from aion.datasets import load_iris, fetch, read_csv, read_file
 >>> ds = load_iris()
 >>> ds.shape
 (150, 4)
 >>> train, test = fetch("iris", return_split=True)
+>>> ds = read_csv("data.csv", target_column="label")
+>>> ds.to_csv("export.csv")
 """
 
 from ._base import Dataset, train_test_split_dataset
@@ -59,6 +64,28 @@ from .generators import (
 # Registry helpers
 from .loaders import fetch, list_datasets, summary
 
+# File I/O (pandas-style; optional pandas for Parquet/Excel)
+from .io import (
+    read_csv,
+    read_tsv,
+    read_json,
+    read_jsonl,
+    read_file,
+    read_parquet,
+    read_excel,
+    read_feather,
+    read_pickle,
+    from_dataframe,
+    write_csv,
+    write_json,
+    write_jsonl,
+    write_parquet,
+    write_file,
+    to_dataframe,
+    to_numpy,
+    supported_formats,
+)
+
 __all__ = [
     # Base
     "Dataset",
@@ -94,4 +121,23 @@ __all__ = [
     "fetch",
     "list_datasets",
     "summary",
+    # File I/O
+    "read_csv",
+    "read_tsv",
+    "read_json",
+    "read_jsonl",
+    "read_file",
+    "read_parquet",
+    "read_excel",
+    "read_feather",
+    "read_pickle",
+    "from_dataframe",
+    "write_csv",
+    "write_json",
+    "write_jsonl",
+    "write_parquet",
+    "write_file",
+    "to_dataframe",
+    "to_numpy",
+    "supported_formats",
 ]

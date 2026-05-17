@@ -45,7 +45,11 @@ def _get_modules_info() -> List[Dict[str, Any]]:
         {"name": "store", "category": "Infra", "desc": "SQLite key-value store, persistent vector store, chat history", "icon": "db"},
         {"name": "tracker", "category": "Infra", "desc": "Experiment tracking — log params, metrics, artifacts, compare runs", "icon": "chart"},
         {"name": "serve", "category": "Infra", "desc": "FastAPI server for /chat, /rag, /health endpoints", "icon": "server"},
-        {"name": "datasets", "category": "Data", "desc": "Built-in datasets (Iris, Digits, Housing, Moons, Wine, NER, sentiment) + synthetic generators", "icon": "data"},
+        {"name": "datasets", "category": "Data", "desc": "Built-in benchmarks + synthetic generators; file I/O (CSV, JSON, Parquet, Excel) pandas-style", "icon": "data"},
+        {"name": "preprocessing", "category": "ML", "desc": "Scalers, encoders, imputers, polynomial features, ColumnTransformer, PreprocessingPipeline", "icon": "gear"},
+        {"name": "models", "category": "ML", "desc": "NumPy estimators: linear/logistic regression, KNN, KMeans, PCA, Naive Bayes, decision trees", "icon": "brain"},
+        {"name": "metrics", "category": "ML", "desc": "Classification, regression, clustering, NLP (BLEU/ROUGE), ranking (NDCG/MRR) metrics", "icon": "check"},
+        {"name": "hyperopt", "category": "ML", "desc": "GridSearch, RandomSearch, BayesianSearch with k-fold CV, early stopping, tracker logging", "icon": "chart"},
         {"name": "visualization", "category": "Viz", "desc": "1D/2D/3D plots, training metrics, heatmaps, PDF/HTML reports", "icon": "chart"},
         {"name": "former", "category": "ML", "desc": "NumPy-backed transformer training — Tensor autograd, attention, Trainer", "icon": "brain"},
         {"name": "embed", "category": "ML", "desc": "Text embeddings, cosine similarity, PCA, clustering, batch processing", "icon": "vector"},
@@ -59,6 +63,7 @@ def _get_modules_info() -> List[Dict[str, Any]]:
         {"name": "pdf", "category": "Dev", "desc": "API docs generation — PDF, HTML, Markdown, symbol search", "icon": "doc"},
         {"name": "parser", "category": "Dev", "desc": "Language detection for 30+ programming languages", "icon": "lang"},
         {"name": "text", "category": "Dev", "desc": "Text processing and manipulation utilities", "icon": "text"},
+        {"name": "ui", "category": "Dev", "desc": "Hub, HTML dashboards, experiment reports; optional Gradio/Streamlit ([ui])", "icon": "chart"},
     ]
     return modules
 

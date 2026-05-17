@@ -26,6 +26,7 @@ This package provides:
 - LLM evaluation (similarity, faithfulness, toxicity, cost tracking)
 - Agent framework (ReAct, planning, multi-agent, conversation memory)
 - Serving (REST API for models, RAG, and chat via FastAPI)
+- Core ML stack (preprocessing, classical models, metrics, hyperparameter search)
 
 Author: Aksel Aghajanyan
 Developed by: Aqwel AI Team
@@ -139,6 +140,15 @@ from . import serve
 # Built-in benchmark datasets (Iris, Digits, Housing, Moons, NER, generators)
 from . import datasets
 
+# UI: Hub, HTML dashboards, optional Gradio/Streamlit
+from . import ui
+
+# Core ML stack: preprocessing, classical models, metrics, hyperparameter search
+from . import preprocessing
+from . import models
+from . import metrics
+from . import hyperopt
+
 # Optional C++ extension (fast numerical ops; fallback to NumPy if not built)
 from ._core import (
     fast_sum,
@@ -211,6 +221,11 @@ __all__ = [
     "agents",           # ReAct, planning, multi-agent framework
     "serve",            # FastAPI-based model/chat/RAG serving
     "datasets",         # Built-in benchmark datasets and generators
+    "ui",               # Hub launchers, HTML reports, optional Gradio/Streamlit
+    "preprocessing",    # Scalers, encoders, imputers, preprocessing pipelines
+    "models",           # Classical ML estimators (linear, KNN, trees, PCA, …)
+    "metrics",          # Classification, regression, clustering, NLP, ranking metrics
+    "hyperopt",         # Grid/random/Bayesian search with CV and tracker integration
     "fast_sum",         # Fast 1D sum (C++ when built)
     "fast_dot",         # Fast dot product (C++ when built)
     "fast_norm2",       # Fast L2 norm (C++ when built)
