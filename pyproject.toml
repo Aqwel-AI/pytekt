@@ -93,6 +93,10 @@ serve = [
     "fastapi>=0.100.0",
     "uvicorn[standard]>=0.22.0",
 ]
+ui = [
+    "gradio>=4.0.0",
+    "streamlit>=1.28.0",
+]
 full = [
     "scipy>=1.7.0",
     "scikit-learn>=1.0.0",
@@ -113,6 +117,8 @@ full = [
     "fastapi>=0.100.0",
     "uvicorn[standard]>=0.22.0",
     "nvidia-ml-py>=12.0.0",
+    "gradio>=4.0.0",
+    "streamlit>=1.28.0",
 ]
 
 [tool.setuptools.package-data]

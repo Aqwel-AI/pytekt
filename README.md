@@ -8,7 +8,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/aqwel-aion?label=Python)](https://pypi.org/project/aqwel-aion/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-Aion is an open-source Python library by **Aqwel AI** for research and production-style ML workflows: numerics and algorithms, **safe I/O**, **multi-vendor LLM clients**, **tool calling and RAG primitives**, **autonomous agents** (ReAct, planning, multi-agent), **caching**, **data processing and tokenization**, **pipelines**, **persistent storage**, **experiment tracking**, **LLM evaluation**, **API serving**, visualization (including **3D** and multi-page reports), optional **native-accelerated** helpers, and small **infra utilities** (config, env, logging, benchmarks). Install only the extras you need—core usage stays lightweight.
+Aion is an open-source Python library by **Aqwel AI** for research and production-style ML workflows: numerics and algorithms, a **Core ML stack** (preprocessing, classical models, metrics, hyperparameter search — NumPy-first, no scikit-learn required), **safe I/O**, **built-in benchmark datasets** (sklearn-style, no downloads), **pandas-style file loaders**, **multi-vendor LLM clients**, **tool calling and RAG primitives**, **autonomous agents** (ReAct, planning, multi-agent), **caching**, **data processing and tokenization**, **pipelines**, **persistent storage**, **experiment tracking**, **LLM evaluation**, **API serving**, an interactive **Aion Hub** dashboard (`aion start`), visualization (including **3D** and multi-page reports), optional **native-accelerated** helpers, and small **infra utilities** (config, env, logging, benchmarks). Install only the extras you need—core usage stays lightweight.
 
 **Links:** [Website](https://aqwelai.xyz/) · [Documentation](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/aqwel-aion/)
 
@@ -18,10 +18,7 @@ Aion is an open-source Python library by **Aqwel AI** for research and productio
 
 | Name | Role | GitHub | LinkedIn |
 |------|------|--------|----------|
-| Aksel Aghajanyan | CEO & Main Developer, AI Researcher  | [@Aksel588](https://github.com/Aksel588) | [Aksel Aghajanyan](https://www.linkedin.com/in/aksel-aghajanyan/) |
-| Georgi Martirosyan | Developer | [@MrGeorge084](https://github.com/MrGeorge084) | [Georgi Martirosyan](https://www.linkedin.com/in/georgi-martirosyan-9038a43a6/) |
-| Arthur Karapetyan | Developer | [@ArthurKarapetyan17](https://github.com/ArthurKarapetyan17) | [Arthur Karapetyan](https://www.linkedin.com/in/arthur-karapetyan-53b920385/) |
-| David Avanesyan | Developer | [@dav1t1](https://github.com/dav1t1) | [Davit Avanesyan](https://www.linkedin.com/in/դավիթ-ավանեսյան-9a6a733a4/) |
+| Aksel Aghajanyan | CEO & Main Developer, Data Scientist  | [@Aksel588](https://github.com/Aksel588) | [Aksel Aghajanyan](https://www.linkedin.com/in/aksel-aghajanyan/) |
 
 **Author:** Aksel Aghajanyan · **Developed by:** Aqwel AI Team
 
@@ -52,11 +49,11 @@ Aion is an open-source Python library by **Aqwel AI** for research and productio
 
 ## Overview
 
-Aion gives you one coherent **import surface** (`import aion`) for work that usually spans half a dozen ad-hoc utilities: **linear algebra and stats**, **classical algorithms** (search, arrays, **graphs** with shortest paths and components), **plotting** (1D/2D/training/**3D**, PDF/HTML figure bundles), **embeddings and evaluation**, **PDF/docs generation**, and **systems-style helpers** (files, watcher, Git).
+Aion gives you one coherent **import surface** (`import aion`) for work that usually spans half a dozen ad-hoc utilities: **linear algebra and stats**, **classical algorithms** (search, arrays, **graphs** with shortest paths and components), a **Core ML stack** (`preprocessing`, `models`, `metrics`, `hyperopt`), **plotting** (1D/2D/training/**3D**, PDF/HTML figure bundles), **embeddings and evaluation**, **PDF/docs generation**, and **systems-style helpers** (files, watcher, Git).
 
 **LLM-era additions** include **`aion.providers`** (REST chat for OpenAI, Gemini, Anthropic, and OpenAI-compatible servers), **`aion.tools`** (schemas, registry, multi-turn **tool loops** with `complete_turn`), **`aion.rag`** (chunking, **vector stores**, optional FAISS, `SimpleRAGIndex`), plus **`aion.io`** for streaming reads, atomic writes, and checksums.
 
-**New in 0.2.0:** Ten new modules covering the full AI application stack — **`aion.agents`** (ReAct, planning, multi-agent orchestration with conversation memory), **`aion.cache`** (memory/disk/LLM caching with TTL), **`aion.data`** (CSV/JSON/JSONL loaders, dataset splitting, text augmentation, schema validation), **`aion.tokenizer`** (trainable BPE and WordPiece), **`aion.pipeline`** (step-based processing chains), **`aion.store`** (SQLite key-value, persistent vector store, chat history), **`aion.tracker`** (experiment logging and comparison), **`aion.llm_eval`** (similarity, faithfulness, toxicity, cost tracking), **`aion.structures`** (Trie, Bloom filter, LRU cache, heaps, Union-Find), and **`aion.serve`** (FastAPI endpoints for chat, RAG, and models).
+**New in 0.2.0:** **Fifteen** new modules covering classical ML and the full AI application stack — **`aion.preprocessing`**, **`aion.models`**, **`aion.metrics`**, **`aion.hyperopt`** (NumPy-first Core ML), **`aion.agents`** (ReAct, planning, multi-agent orchestration with conversation memory), **`aion.cache`** (memory/disk/LLM caching with TTL), **`aion.data`** (CSV/JSON/JSONL loaders, dataset splitting, text augmentation, schema validation), **`aion.datasets`** (24 built-in benchmarks + synthetic generators + file I/O), **`aion.tokenizer`** (trainable BPE and WordPiece), **`aion.pipeline`** (step-based processing chains), **`aion.store`** (SQLite key-value, persistent vector store, chat history), **`aion.tracker`** (experiment logging and comparison), **`aion.llm_eval`** (similarity, faithfulness, toxicity, cost tracking), **`aion.structures`** (Trie, Bloom filter, LRU cache, heaps, Union-Find), **`aion.serve`** (FastAPI endpoints for chat, RAG, and models), **`aion.ui`** (Hub launchers, HTML reports, optional Gradio/Streamlit), plus **`aion start`** (Aion Hub browser dashboard with module explorer and Python playground).
 
 The design goal is simple: **progressive disclosure**—core installs stay small; heavy stacks are behind **named extras** (`[viz]`, `[ai]`, `[full]`, `[tools]`, `[rag]`, `[serve]`, and others).
 
@@ -64,7 +61,7 @@ The design goal is simple: **progressive disclosure**—core installs stay small
 
 ## What's new in 0.2.0
 
-Version 0.2.0 adds **10 new modules** spanning the full AI application lifecycle — from data loading and tokenization through agent orchestration and API serving.
+Version 0.2.0 adds **15 new modules** spanning the full AI application lifecycle — from the **Core ML stack** and built-in datasets through tokenization, agent orchestration, API serving, and the **Aion Hub** developer UI.
 
 ### Agent framework (`aion.agents`)
 - **`ReActAgent`** — Observe/think/act loop with tool calling, configurable memory, and step logging.
@@ -84,6 +81,23 @@ Version 0.2.0 adds **10 new modules** spanning the full AI application lifecycle
 - **Text augmentation** — `random_delete`, `random_swap`, `random_insert`, `synonym_replace`, `augment_text`.
 - **Schema validation** — `Schema`, `Field`, `validate_record`, `validate_dataset` for tabular data.
 
+### Benchmark datasets (`aion.datasets`)
+- **`Dataset` container** — NumPy `data` / `target`, feature and target names, metadata, `head()`, train/test split helpers.
+- **Classic toy sets (in-memory, no download)** — `load_iris`, `load_digits`, `load_housing`, `load_moons`, `load_circles`, `load_blobs`, `load_wine`, `load_breast_cancer`, `load_diabetes`, `load_linnerud`.
+- **NLP samples** — `load_sentiment`, `load_topics`, `load_ner` (BIO tags), `load_spam`, `load_qa` (RAG-style Q&A with contexts).
+- **Synthetic generators** — `make_classification`, `make_regression`, `make_clusters`, `make_moons`, `make_circles`, `make_blobs`, `make_sparse_classification`, `make_time_series`, `make_multilabel`.
+- **Registry** — `fetch("iris", return_split=True)`, `list_datasets()`, `summary("wine")`.
+- **File I/O (`aion.datasets.io`)** — pandas-style loaders: `read_csv`, `read_json`, `read_jsonl`, `read_file` (auto-detect); with `[ai]`: `read_parquet`, `read_excel`, `from_dataframe`; export via `to_csv`, `to_json`, `to_parquet`, `to_dataframe`, `to_numpy`. Distinct from **`aion.data`** (row dicts for pipelines) and **`aion.former.datasets`** (LM text windows).
+
+### User interfaces (`aion.ui`)
+- **`launch_hub()` / `aion start`** — Aion Hub at `http://127.0.0.1:3000` (module catalog, deps checker, in-browser playground).
+- **`launch_monitor()`** — Hardware dashboard (`aion monitor`, needs `[monitor]`).
+- **`PageBuilder`** — Build dark-themed HTML reports (metrics, tables, code, embedded matplotlib figures).
+- **`build_experiment_dashboard()`** — HTML table of all runs from `aion.tracker`.
+- **`build_dataset_report()`** — HTML preview of any `aion.datasets.Dataset`.
+- **Optional apps (`[ui]` extra)** — `launch_gradio_playground()`, `launch_streamlit_dataset_explorer()` (Gradio + Streamlit).
+- **CLI:** `aion ui --list`, `aion ui --report .aion_experiments`, `aion ui --gradio`, `aion ui --streamlit`.
+
 ### Tokenization (`aion.tokenizer`)
 - **`BPETokenizer`** — Trainable byte-pair encoding: train on a corpus, encode/decode, save/load.
 - **`WordPieceTokenizer`** — BERT-style sub-word tokenizer with `##` continuation tokens.
@@ -101,6 +115,41 @@ Version 0.2.0 adds **10 new modules** spanning the full AI application lifecycle
 ### Experiment tracking (`aion.tracker`)
 - **`Tracker` / `Run`** — Log parameters, metrics (with step tracking), tags, and artifacts to a local directory.
 - **`compare_runs` / `best_run`** — Sort and compare runs by any metric.
+
+### Core ML stack
+
+Four NumPy-first modules for classical ML workflows (sklearn-style `fit` / `transform` / `predict`, no scikit-learn required):
+
+#### Preprocessing (`aion.preprocessing`)
+- **Scalers** — `StandardScaler`, `MinMaxScaler`, `RobustScaler`, `Normalizer`.
+- **Encoders** — `LabelEncoder`, `OneHotEncoder`, `OrdinalEncoder`.
+- **Imputers** — `SimpleImputer` (mean, median, most_frequent, constant).
+- **Transforms** — `PolynomialFeatures`, `Binarizer`, `KBinsDiscretizer`.
+- **Composition** — `ColumnTransformer`, `PreprocessingPipeline` (named steps, `fit_transform`).
+
+#### Models (`aion.models`)
+- **Regression** — `LinearRegression`.
+- **Classification** — `LogisticRegression` (binary), `KNNClassifier`, `GaussianNB`, `DecisionTreeClassifier`.
+- **Regression (nonlinear)** — `KNNRegressor`, `DecisionTreeRegressor`.
+- **Clustering** — `KMeans`.
+- **Decomposition** — `PCA`.
+- All estimators expose `fit`, `predict`, and `score` (accuracy for classifiers, R² for regressors).
+
+#### Metrics (`aion.metrics`)
+- **Classification** — `accuracy_score`, `precision_score`, `recall_score`, `f1_score`, `confusion_matrix`, `roc_auc_score`, `matthews_corrcoef`, `classification_report`.
+- **Regression** — `mean_squared_error`, `root_mean_squared_error`, `mean_absolute_error`, `mean_absolute_percentage_error`, `r2_score`, `adjusted_r2_score`, `explained_variance_score`.
+- **Clustering** — `silhouette_score`, `adjusted_rand_score`.
+- **NLP** — `bleu_score`, `rouge_l_score`, `perplexity`.
+- **Ranking** — `ndcg_score`, `mrr_score`.
+- Distinct from **`aion.evaluate`** (legacy helpers and file-based prediction evaluation).
+
+#### Hyperparameter optimization (`aion.hyperopt`)
+- **`GridSearch`** — Exhaustive search over a discrete parameter grid with k-fold CV.
+- **`RandomSearch`** — Random sampling from the grid.
+- **`BayesianSearch`** — Lightweight acquisition over past trials (good for small grids).
+- **`EarlyStopping`** — Stop search when CV score plateaus.
+- **`cross_val_score` / `kfold_indices`** — Standalone CV utilities.
+- Optional **`tracker`** integration — each trial logs params and `cv_score` to `aion.tracker`.
 
 ### LLM evaluation (`aion.llm_eval`)
 - **Semantic similarity** — `semantic_similarity`, `batch_similarity`, `relevance_score` using embeddings.
@@ -141,6 +190,7 @@ flowchart TB
   Core[Core maths algorithms parser code files text utils watcher evaluate]
   DataIO[io streaming and atomic writes]
   DataProc[data loaders splitting augmentation and tokenizer]
+  Datasets[datasets benchmarks generators file IO]
   LLM[providers tools and embed]
   RAGModule[rag]
   Agents[agents ReAct planning multi-agent]
@@ -153,11 +203,16 @@ flowchart TB
   Tracker[tracker experiment runs]
   LLMEval[llm_eval similarity faithfulness cost]
   Serve[serve FastAPI endpoints]
+  CoreML[preprocessing models metrics hyperopt]
+  UI[ui Hub HTML reports]
   Ops[config env benchmarks]
   Foundation --> Core
   Foundation --> Structures
+  Core --> CoreML
   Core --> DataIO
   Core --> DataProc
+  Core --> Datasets
+  CoreML --> Tracker
   Core --> LLM
   DataIO --> RAGModule
   LLM --> RAGModule
@@ -189,6 +244,7 @@ flowchart LR
     G["aion.agents"]
     H["aion.cache"]
     I["aion.data"]
+    I2["aion.datasets"]
     J["aion.tokenizer"]
     K["aion.pipeline"]
     L["aion.store"]
@@ -196,6 +252,11 @@ flowchart LR
     N["aion.llm_eval"]
     O["aion.serve"]
     P["aion.structures"]
+    Q["aion.preprocessing"]
+    R["aion.models"]
+    S["aion.metrics"]
+    T["aion.hyperopt"]
+    U["aion.ui"]
   end
   A --> B
   A --> C
@@ -205,6 +266,7 @@ flowchart LR
   D --> G
   A --> H
   A --> I
+  A --> I2
   A --> J
   A --> K
   A --> L
@@ -212,6 +274,15 @@ flowchart LR
   A --> N
   A --> O
   A --> P
+  A --> Q
+  A --> R
+  A --> S
+  A --> T
+  A --> U
+  Q --> R
+  R --> S
+  R --> T
+  T --> M
 ```
 
 #### Tool-calling loop (OpenAI-shaped providers)
@@ -252,7 +323,8 @@ flowchart LR
 - **Single package:** Public APIs live under `aion`. Prefer `import aion` and attribute access, or explicit `from aion.X import …` for subpackages.
 - **Core single-file modules:** `maths`, `code`, `embed`, `evaluate`, `files`, `git`, `parser`, `pdf`, `prompt`, `snippets`, `text`, `utils`, `watcher`, `cli`, plus **`_core`** (`fast_*` bridge to optional native code).
 - **Data and control plane:** `io` (streaming, atomic writes, checksums), `config` (implementation in `config/core.py`), `env`.
-- **Data processing:** `data` (CSV/JSON/JSONL loaders, splitting, augmentation, schema validation), `tokenizer` (BPE, WordPiece, vocabulary management).
+- **Data processing:** `data` (CSV/JSON/JSONL loaders as row dicts, splitting, augmentation, schema validation), `datasets` (built-in benchmarks, synthetic generators, `Dataset` + pandas-style file I/O), `tokenizer` (BPE, WordPiece, vocabulary management).
+- **Developer UI:** `aion start` launches **Aion Hub** (`aion/hub/`) — module explorer, dependency checker, and in-browser Python playground (stdlib server).
 - **LLM surface:** `providers` (chat REST, `complete` and `complete_turn` where supported), `tools` (OpenAI-style tool JSON, registry, retries, token bucket, optional tiktoken).
 - **Retrieval:** `rag` (chunking, `MemoryVectorStore`, optional `FaissVectorStore`, `SimpleRAGIndex`).
 - **Agents:** `agents` (ReAct, planning, multi-agent orchestration with sliding-window, summary, and token-budget memory).
@@ -261,6 +333,7 @@ flowchart LR
 - **Storage:** `store` (SQLite key-value, persistent vector store, chat history).
 - **Pipelines:** `pipeline` (step-based chains with retry, fallback, timing, serialization).
 - **Tracking:** `tracker` (experiment run logger with metrics, params, artifacts, comparison).
+- **Core ML:** `preprocessing` (scalers, encoders, imputers, pipelines), `models` (linear, KNN, trees, KMeans, PCA, Naive Bayes), `metrics` (classification, regression, clustering, NLP, ranking), `hyperopt` (grid/random/Bayesian search with CV and tracker hooks).
 - **Data structures:** `structures` (Trie, Bloom filter, LRU cache, heaps, Union-Find).
 - **Serving:** `serve` (FastAPI-based `/chat`, `/rag`, `/health` endpoints).
 - **Algorithms and visualization:** `algorithms` (search, arrays, **graphs**: BFS, DFS, toposort, Dijkstra, A*, components, MST, max flow, PageRank), `visualization` (1D/2D/training/**3D**, `save_figures_pdf`, HTML figure bundles).
@@ -291,12 +364,17 @@ Layout below matches the repository as shipped (file names only; omit your local
 ├── main.py                    # CLI entry script
 ├── src/
 │   └── aion_core.cpp          # C++ sources for optional aion._aion_core (pybind11)
-├── tests/                     # Pytest suite (when present in your clone)
+├── tests/                     # Pytest suite (64 tests: Core ML, algorithms, io, …)
+│   ├── test_preprocessing.py
+│   ├── test_models.py
+│   ├── test_metrics.py
+│   ├── test_hyperopt.py
+│   ├── test_core_ml_integration.py
 │   └── …
 └── aion/                      # Python package (see next tree)
 ```
 
-**Repo check:** The layout above is the **documented** shipping shape. The current Git tree may **omit** a top-level `tests/` directory (CONTRIBUTING still describes adding pytest there). If `import aion` fails after a partial checkout, restore package stubs with  
+**Repo check:** The layout above is the **documented** shipping shape. The repository includes a **`tests/`** directory (64 pytest cases; run `pytest tests/` after `pip install -e ".[dev]"`). If `import aion` fails after a partial checkout, restore package stubs with  
 `git checkout HEAD -- aion/benchmarks/__init__.py`.  
 The library surface is **`aion.code`** (`code.py`); ignore a stray local `aion/code/` folder if it only contains `__pycache__`.
 
@@ -349,6 +427,14 @@ aion/
 │   ├── splitting.py           # train_test_split, train_val_test_split, kfold_split
 │   ├── augmentation.py        # random_delete, random_swap, synonym_replace, augment_text
 │   └── schema.py              # Schema, Field, validate_record, validate_dataset
+├── datasets/
+│   ├── __init__.py
+│   ├── _base.py               # Dataset dataclass, train_test_split_dataset
+│   ├── toy.py                 # load_iris, load_digits, load_moons, load_wine, …
+│   ├── text.py                # load_sentiment, load_topics, load_ner, load_spam, load_qa
+│   ├── generators.py          # make_classification, make_regression, make_clusters, …
+│   ├── loaders.py             # fetch, list_datasets, summary
+│   └── io.py                  # read_csv, read_file, read_parquet, to_dataframe, …
 ├── embed.py
 ├── env/
 │   └── __init__.py            # load_dotenv_file, require_env
@@ -434,6 +520,24 @@ aion/
 │           ├── __init__.py
 │           └── demo_attention_plot.py
 ├── git.py
+├── hyperopt/
+│   ├── __init__.py
+│   ├── _cv.py                 # kfold_indices, cross_val_score
+│   ├── search.py              # GridSearch, RandomSearch
+│   ├── bayesian.py            # BayesianSearch
+│   └── early_stopping.py      # EarlyStopping
+├── hub/
+│   ├── __init__.py
+│   ├── launch.py              # aion start → open browser
+│   ├── server.py              # stdlib HTTP API + static dashboard
+│   └── static/
+│       └── index.html         # Aion Hub UI (overview, playground, quick ref)
+├── ui/
+│   ├── __init__.py
+│   ├── html.py                # PageBuilder, metrics_row_html, table_html
+│   ├── dashboard.py           # build_experiment_dashboard, build_dataset_report
+│   ├── launchers.py           # launch_hub, launch_monitor, list_ui_interfaces
+│   └── apps.py                # Gradio / Streamlit (optional [ui] extra)
 ├── llm_eval/
 │   ├── __init__.py
 │   ├── similarity.py          # semantic_similarity, batch_similarity, relevance_score
@@ -451,12 +555,36 @@ aion/
 │       ├── __init__.py
 │       └── demo_atomic_checksum.py
 ├── maths.py
+├── metrics/
+│   ├── __init__.py
+│   ├── classification.py    # accuracy, precision, recall, F1, ROC-AUC, MCC
+│   ├── regression.py        # MSE, RMSE, MAE, MAPE, R²
+│   ├── clustering.py        # silhouette, adjusted Rand
+│   ├── nlp.py               # BLEU, ROUGE-L, perplexity
+│   └── ranking.py           # NDCG, MRR
+├── models/
+│   ├── __init__.py
+│   ├── _base.py               # BaseEstimator (fit / predict / score)
+│   ├── linear.py              # LinearRegression, LogisticRegression
+│   ├── neighbors.py           # KNNClassifier, KNNRegressor
+│   ├── clustering.py          # KMeans
+│   ├── decomposition.py       # PCA
+│   ├── naive_bayes.py         # GaussianNB
+│   └── trees.py               # DecisionTreeClassifier, DecisionTreeRegressor
 ├── parser.py
 ├── pdf.py
 ├── pipeline/
 │   ├── __init__.py
 │   ├── core.py                # Pipeline, Step, PipelineResult
 │   └── steps.py               # FunctionStep, MapStep, FilterStep, BatchStep
+├── preprocessing/
+│   ├── __init__.py
+│   ├── _base.py               # TransformerMixin
+│   ├── scalers.py             # StandardScaler, MinMaxScaler, RobustScaler, Normalizer
+│   ├── encoders.py            # LabelEncoder, OneHotEncoder, OrdinalEncoder
+│   ├── imputers.py            # SimpleImputer
+│   ├── transforms.py          # PolynomialFeatures, Binarizer, KBinsDiscretizer
+│   └── pipeline.py            # ColumnTransformer, PreprocessingPipeline
 ├── prompt.py
 ├── providers/
 │   ├── README.md
@@ -558,7 +686,7 @@ aion/
 
 After a local build, you may also see **`aion/_aion_core*.so`** (macOS/Linux) or **`aion/_aion_core*.pyd`** (Windows) next to these sources; those binaries are compiled outputs, not part of the documented source tree. **`__pycache__/`** is created at import time.
 
-**Current `aion` surface (trimmed layout):** Subpackages on disk are **`agents`**, **`algorithms`**, **`benchmarks`**, **`cache`**, **`config`**, **`data`**, **`env`**, **`former`**, **`io`**, **`llm_eval`**, **`pipeline`**, **`providers`**, **`rag`**, **`serve`**, **`store`**, **`structures`**, **`tokenizer`**, **`tools`**, **`tracker`**, and **`visualization`**, plus the single-file modules shown above (`maths.py`, `code.py`, …). Data loading uses **`aion.data`** for CSV/JSON/JSONL; Former keeps **`aion.former.datasets`** for tokenizer + LM windows. Tokenization uses **`aion.tokenizer`** for BPE/WordPiece.
+**Current `aion` surface (trimmed layout):** Subpackages on disk are **`agents`**, **`algorithms`**, **`benchmarks`**, **`cache`**, **`config`**, **`data`**, **`datasets`**, **`env`**, **`former`**, **`hub`**, **`hyperopt`**, **`io`**, **`llm_eval`**, **`metrics`**, **`models`**, **`pipeline`**, **`preprocessing`**, **`providers`**, **`rag`**, **`serve`**, **`store`**, **`structures`**, **`tokenizer`**, **`tools`**, **`tracker`**, **`ui`**, and **`visualization`**, plus the single-file modules shown above (`maths.py`, `code.py`, …). **`aion.data`** loads CSV/JSON/JSONL as row dicts for pipelines; **`aion.datasets`** provides sklearn-style **`Dataset`** objects, 24 built-in benchmarks, generators, and file I/O; **`aion.preprocessing`** / **`aion.models`** / **`aion.metrics`** / **`aion.hyperopt`** form the Core ML stack (NumPy-only); **`aion.former.datasets`** handles LM text windows; **`aion start`** serves the Hub UI from **`aion.hub`** via **`aion.ui`**.
 
 ### Design principles
 
@@ -573,7 +701,7 @@ After a local build, you may also see **`aion/_aion_core*.so`** (macOS/Linux) or
 
 | Extra | Purpose | Notable dependencies |
 |-------|---------|----------------------|
-| *(base)* | Core library (incl. data, cache, structures, pipeline, store, tracker, tokenizer, llm_eval, agents) | `numpy`, `watchdog`, `gitpython` |
+| *(base)* | Core library (incl. Core ML stack, data, datasets, cache, structures, pipeline, store, tracker, tokenizer, llm_eval, agents, hub) | `numpy`, `watchdog`, `gitpython` |
 | `[viz]` | Plots (1D/2D/3D, reports) | `matplotlib`, `seaborn` |
 | `[former]` | Aion Former training | `matplotlib`, `pyyaml` |
 | `[ai]` | ML / transformers / pandas | `torch`, `transformers`, `pandas`, `scikit-learn`, … |
@@ -584,6 +712,7 @@ After a local build, you may also see **`aion/_aion_core*.so`** (macOS/Linux) or
 | `[config]` | TOML on older Python + YAML | `tomli` (3.8–3.10), `pyyaml` |
 | `[serve]` | REST API serving | `fastapi`, `uvicorn` |
 | `[monitor]` | Hardware dashboard | `psutil`, `fastapi`, `uvicorn`, `nvidia-ml-py` |
+| `[ui]` | Gradio / Streamlit app launchers | `gradio`, `streamlit` |
 | `[full]` | Convenience “everything” set | Combines most stacks above (+ OpenAI client, tiktoken, etc.) |
 
 Combine extras as needed, e.g. `pip install "aqwel-aion[viz,tools,serve]"` or editable `pip install -e ".[dev,full]"` from a clone.
@@ -625,6 +754,7 @@ pip install aqwel-aion[tools]  # tiktoken for token estimates
 pip install aqwel-aion[rag]    # sentence-transformers + faiss-cpu
 pip install aqwel-aion[config] # tomli on Python 3.8–3.10 + PyYAML
 pip install aqwel-aion[serve]  # FastAPI + uvicorn for aion.serve
+pip install aqwel-aion[ui]     # Gradio + Streamlit for aion.ui apps
 ```
 
 ### Editable install (for development)
@@ -698,12 +828,46 @@ idx = aion.algorithms.binary_search([1, 3, 5, 7, 9], 7)  # 4
 flat = aion.algorithms.flatten_array([[1, 2], [3, 4]])   # [1, 2, 3, 4]
 ```
 
+### Minimal Core ML example (no scikit-learn)
+
+```python
+from aion.datasets import load_iris
+from aion.preprocessing import StandardScaler
+from aion.models import GaussianNB
+from aion.metrics import accuracy_score
+
+ds = load_iris()
+X = StandardScaler().fit_transform(ds.data)
+clf = GaussianNB().fit(X, ds.target)
+print(accuracy_score(ds.target, clf.predict(X)))
+```
+
 ### Run the CLI (if installed)
 
 ```bash
 python -m aion.cli
 # or, if entry point is installed:
-aion
+aion --help
+```
+
+**High-value commands:**
+
+| Command | Description |
+|---------|-------------|
+| `aion start` / `aion ui` | Open **Aion Hub** (module explorer, playground, quick reference) |
+| `aion ui --report DIR` | Build experiment HTML dashboard from tracker directory |
+| `aion ui --list` | List all available UIs (hub, monitor, reports, Gradio, Streamlit) |
+| `aion info` | Environment and optional dependency status |
+| `aion monitor` / `aion dashboard` | Hardware metrics dashboard (`[monitor]` extra) |
+| `aion embed <file>` | Embed a file or `--text` |
+| `aion eval <preds> <answers>` | Evaluate predictions |
+| `aion chat` | Interactive prompt REPL |
+| `aion git status` | Git repository tools (needs GitPython) |
+
+```bash
+aion start                    # http://127.0.0.1:3000
+aion start --port 8080        # custom port
+aion start --no-browser      # server only
 ```
 
 The repository includes root **`example.py`**: algorithms and visualization (sections 1–3), plus v0.1.9 areas ( **`aion.io`**, providers, tools, RAG, config, env, benchmarks, graphs, 3D/PDF, **`aion.pdf`** ). Run **`python example.py`** after installing dependencies for the sections you need (e.g. matplotlib for plots; **`[config]`** for the TOML sample in section 4).
@@ -760,7 +924,7 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 - **RAG (`aion.rag`, extra `[rag]`):** `chunk_text`, `MemoryVectorStore`, `FaissVectorStore`, `SimpleRAGIndex` over `aion.embed`. Local demo: `python -m aion.rag.examples.demo_simple_index`.
 - **Config & runtime:** `aion.config` (TOML/YAML + env merge), `aion.env` (`.env` parsing). Use **`logging.basicConfig`** (stdlib) for log levels.
 - **Benchmarks:** `aion.benchmarks` (timings, NumPy vs `fast_*` comparison).
-- **Analytics:** Classification/regression summaries live in **`aion.evaluate`**; pandas workflows use **`pandas`** directly or **`[ai]`** extras.
+- **Analytics:** Use **`aion.metrics`** for classification, regression, clustering, NLP, and ranking metrics; **`aion.evaluate`** remains for legacy/file-based workflows. Tabular ML prototyping uses **`aion.datasets`** (built-in sets + file I/O) with **`aion.models`** and **`aion.hyperopt`**; row-based ETL uses **`aion.data`**; full pandas/scikit-learn workflows are available via **`[ai]`** extras.
 - **Former checkpoints:** `save_checkpoint_sidecar_meta` writes `.meta.json` via stdlib JSON.
 - **Fast numerics (`aion` / `_core`):** Same `fast_*` API with or without the C++ extension—native build accelerates the hot paths; `using_native_extension` reports which path is active.
 - **Visualization extras:** `plot_3d_scatter`, `plot_3d_surface`, `save_figures_pdf`, `figures_to_html_img_tags` in `aion.visualization` (matplotlib; `[viz]`).
@@ -777,7 +941,15 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 ### Data Processing and Tokenization (new in 0.2.0)
 
 - **Data (`aion.data`):** `load_csv`, `load_json`, `load_jsonl` loaders with matching savers; `train_test_split`, `train_val_test_split`, `kfold_split` with stratification; text augmentation (`random_delete`, `random_swap`, `random_insert`, `synonym_replace`, `augment_text`); schema validation (`Schema`, `Field`, `validate_record`, `validate_dataset`).
+- **Datasets (`aion.datasets`):** 24 built-in benchmarks and generators; `Dataset` dataclass; `fetch`, `list_datasets`, `summary`; file I/O via `read_csv`, `read_file`, `read_parquet` (with `[ai]`), `to_dataframe`, `to_numpy` — see [What's new — Benchmark datasets](#benchmark-datasets-aiondatasets).
 - **Tokenization (`aion.tokenizer`):** Trainable `BPETokenizer` (byte-pair encoding) and `WordPieceTokenizer` (BERT-style `##` continuations); `Vocabulary` with special tokens, save/load to JSON.
+
+### User interfaces (new in 0.2.0)
+
+- **`aion.ui`:** Unified UI layer — `launch_hub`, `launch_monitor`, `PageBuilder` HTML reports, experiment/dataset dashboards, `list_ui_interfaces()`.
+- **Aion Hub:** `aion start` or `aion ui` — browse modules, check deps, run playground code (stdlib server).
+- **HTML reports:** `build_experiment_dashboard(".aion_experiments")`, `build_dataset_report(load_iris())`.
+- **Optional:** `pip install 'aqwel-aion[ui]'` for Gradio and Streamlit app launchers.
 
 ### Data Structures (new in 0.2.0)
 
@@ -787,6 +959,13 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 
 - **Pipelines (`aion.pipeline`):** `Pipeline` with composable `Step` objects; built-in `FunctionStep`, `MapStep`, `FilterStep`, `BatchStep`; per-step timing, retry, fallback, dry-run, JSON serialization.
 - **Experiment tracking (`aion.tracker`):** `Tracker`/`Run` for logging parameters, metrics (with step tracking), tags, and artifacts to local JSON files; `compare_runs`/`best_run` for experiment comparison.
+
+### Core ML stack (`aion.preprocessing`, `aion.models`, `aion.metrics`, `aion.hyperopt`)
+
+- **Preprocessing:** Scalers, encoders, imputers, polynomial/binning transforms; `PreprocessingPipeline` and `ColumnTransformer` for composed feature engineering.
+- **Models:** NumPy implementations of linear/logistic regression, KNN, decision trees, KMeans, PCA, and Gaussian Naive Bayes — sklearn-like API without sklearn.
+- **Metrics:** Full metric suite for supervised learning, clustering, NLP generation quality, and ranking; use alongside or instead of `aion.evaluate`.
+- **Hyperopt:** `GridSearch`, `RandomSearch`, `BayesianSearch` with k-fold cross-validation, `EarlyStopping`, and optional `Tracker` logging per trial.
 
 ### LLM Evaluation (new in 0.2.0)
 
@@ -993,21 +1172,54 @@ fig2 = plot_3d_surface(x, y, Z, title="Loss landscape (example)", show=False)
 save_figures_pdf([fig1, fig2], "report_figures.pdf")
 ```
 
-### Model evaluation
+### Core ML — preprocessing, models, metrics, hyperopt
+
+```python
+from aion.datasets import load_iris
+from aion.preprocessing import StandardScaler, PreprocessingPipeline
+from aion.models import GaussianNB
+from aion.metrics import accuracy_score, classification_report
+from aion.hyperopt import GridSearch
+from aion.tracker import Tracker
+
+ds = load_iris()
+X = StandardScaler().fit_transform(ds.data)
+clf = GaussianNB()
+clf.fit(X, ds.target)
+print("accuracy:", accuracy_score(ds.target, clf.predict(X)))
+print(classification_report(ds.target, clf.predict(X)))
+
+# Hyperparameter search with experiment tracking
+tracker = Tracker(".aion_experiments")
+from aion.models import KNNClassifier
+search = GridSearch(
+    KNNClassifier(),
+    {"n_neighbors": [3, 5, 7, 11]},
+    cv=3,
+    tracker=tracker,
+    tracker_run_name="iris_knn",
+)
+search.fit(ds.data, ds.target)
+print(search.best_params_, search.best_score_)
+```
+
+### Model evaluation (legacy `aion.evaluate`)
 
 ```python
 import aion
 
-# In-memory metrics
+# In-memory metrics (legacy API)
 y_true = [0, 1, 1, 0, 1]
 y_pred = [0, 1, 0, 0, 1]
 metrics = aion.evaluate.calculate_classification_metrics(y_pred, y_true)
-# accuracy, precision, recall, f1_score, etc.
+
+# Prefer aion.metrics for new code:
+from aion.metrics import accuracy_score, f1_score, mean_squared_error, r2_score
+print(accuracy_score(y_true, y_pred), f1_score(y_true, y_pred))
 
 pred_vals = [1.2, 2.1, 3.0]
 true_vals = [1.0, 2.0, 3.2]
-reg_metrics = aion.evaluate.calculate_regression_metrics(pred_vals, true_vals)
-# mse, rmse, mae, r2
+print(r2_score(true_vals, pred_vals), mean_squared_error(true_vals, pred_vals))
 
 # File-based evaluation (JSON or CSV)
 file_metrics = aion.evaluate.evaluate_predictions("preds.json", "answers.json")
@@ -1172,6 +1384,82 @@ schema = Schema(fields=[
 ])
 result = validate_dataset(rows, schema)
 # {"valid": True/False, "total": N, "errors": {...}}
+```
+
+### Benchmark datasets
+
+```python
+from aion.datasets import (
+    load_iris, load_sentiment, make_classification,
+    fetch, list_datasets, summary,
+    read_csv, read_file, train_test_split_dataset,
+)
+
+# Built-in benchmarks (no download)
+iris = load_iris()
+print(iris.shape)          # (150, 4)
+print(iris.feature_names)  # sepal_length, sepal_width, …
+print(iris.head())
+
+# Train/test split on Dataset objects
+train, test = fetch("iris", return_split=True)
+# or: train, test = train_test_split_dataset(iris, test_ratio=0.2, seed=42)
+
+# Synthetic data at any scale
+ds = make_classification(n_samples=10_000, n_features=50, n_classes=5, n_informative=20)
+
+# NLP samples
+sent = load_sentiment()    # 50 binary reviews
+ner = load_ner()           # 20 BIO-tagged sentences
+
+# Load from disk (pandas-style → Dataset)
+ds = read_csv("train.csv", target_column="label")
+ds = read_file("data.parquet", target_column="y")  # needs [ai] for Parquet
+
+# Export
+ds.to_csv("export.csv")
+X, y = ds.to_numpy()       # sklearn-style
+df = ds.to_dataframe()     # needs pandas
+
+print(summary("wine"))
+print(f"Available: {len(list_datasets())} datasets")
+```
+
+**`aion.data` vs `aion.datasets`:** use **`aion.data`** when you need a list of row dicts for pipelines and schema validation; use **`aion.datasets`** when you need a **`Dataset`** with NumPy arrays for ML prototyping, built-in benchmarks, or file round-trips.
+
+### User interfaces
+
+```python
+from aion.ui import (
+    launch_hub,
+    PageBuilder,
+    build_experiment_dashboard,
+    build_dataset_report,
+    list_ui_interfaces,
+)
+from aion.datasets import load_iris
+
+# Browser hub (or: aion start)
+# launch_hub(port=3000)
+
+# Static HTML report
+page = PageBuilder("Training summary", subtitle="Run 42")
+page.add_metrics({"accuracy": 0.94, "loss": 0.08})
+page.save("summary.html")
+
+# Tracker + dataset dashboards
+build_experiment_dashboard(".aion_experiments", output="runs.html", open_browser=True)
+build_dataset_report(load_iris(), output="iris_preview.html")
+
+for ui in list_ui_interfaces():
+    print(ui["name"], "->", ui["command"])
+```
+
+```bash
+aion ui --list
+aion ui --report .aion_experiments -o experiments.html
+aion ui --gradio          # needs pip install 'aqwel-aion[ui]'
+aion ui --streamlit
 ```
 
 ### Tokenization
@@ -1379,7 +1667,11 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.visualization` | 1D/2D/training plots; heatmaps, confusion matrices, attention maps; **3D** plots; multi-page **PDF** / HTML figure reports; `save_plot` utility. |
 | `aion.former` | Transformer training: Transformer, Trainer, TextDataset, tokenizer, attention/training/weight-spectrum plots. Install with `[former]`. See [`aion/former/README.md`](aion/former/README.md) and per-subpackage `examples/` (e.g. `aion/former/core/examples/`). |
 | `aion.embed` | Text embeddings and vector similarity (optional: sentence-transformers). |
-| `aion.evaluate` | Classification and regression metrics; file-based evaluation. |
+| `aion.evaluate` | Legacy classification/regression metrics; file-based evaluation. Prefer `aion.metrics` for new code. |
+| `aion.preprocessing` | Scalers, encoders, imputers, transforms; `PreprocessingPipeline`, `ColumnTransformer`. |
+| `aion.models` | `LinearRegression`, `LogisticRegression`, `KNNClassifier`/`KNNRegressor`, `KMeans`, `PCA`, `GaussianNB`, decision trees. |
+| `aion.metrics` | `accuracy_score`, `f1_score`, `confusion_matrix`, `r2_score`, `silhouette_score`, `bleu_score`, `ndcg_score`, … |
+| `aion.hyperopt` | `GridSearch`, `RandomSearch`, `BayesianSearch`, `EarlyStopping`, `cross_val_score`; integrates with `aion.tracker`. |
 | `aion.code` | Code explanation, extraction, complexity, docstrings, code smells. |
 | `aion.prompt` | Prompt templates and utilities. |
 | `aion.snippets` | Code snippet utilities. |
@@ -1390,7 +1682,9 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.git` | Git repository operations (optional: GitPython). |
 | `aion.utils` | General utilities. |
 | `aion.text` | Text processing. |
-| `aion.cli` | Command-line interface. |
+| `aion.cli` | Command-line interface: `aion start` (Hub), `info`, `embed`, `eval`, `chat`, `monitor`, `git`, … |
+| `aion.ui` | `launch_hub`, `launch_monitor`, `PageBuilder`, experiment/dataset HTML dashboards; optional Gradio/Streamlit (`[ui]`). |
+| `aion.hub` | Aion Hub static server (used by `aion.ui.launch_hub` / `aion start`). |
 | `aion.tools` | Tool schemas, registry, `run_tool_loop`, `FakeToolProvider` / `make_tool_turn`, retry/rate-limit, token estimates (`[tools]`). [`aion/tools/README.md`](aion/tools/README.md), [`aion/tools/examples/`](aion/tools/examples/). |
 | `aion.rag` | Chunking, vector stores, `SimpleRAGIndex` (`[rag]`). [`aion/rag/README.md`](aion/rag/README.md), [`aion/rag/examples/`](aion/rag/examples/). |
 | `aion.config` | TOML/YAML load, layered files, dotted keys, env merge, typed coercion (`[config]`). See [`aion/config/README.md`](aion/config/README.md) and [`aion/config/examples/`](aion/config/examples/). |
@@ -1398,7 +1692,8 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.benchmarks` | `timed_run`, NumPy vs `fast_sum` comparison. |
 | `aion.cache` | `MemoryCache`, `DiskCache` (SQLite), `LLMCache`, `@cached` decorator — all with TTL. |
 | `aion.structures` | `Trie`, `BloomFilter`, `LRUCache`, `MinHeap`, `MaxHeap`, `PriorityQueue`, `UnionFind`. |
-| `aion.data` | CSV/JSON/JSONL loaders, `train_val_test_split`, `kfold_split`, text augmentation, `Schema` validation. |
+| `aion.data` | CSV/JSON/JSONL loaders (row dicts), `train_val_test_split`, `kfold_split`, text augmentation, `Schema` validation. |
+| `aion.datasets` | Built-in benchmarks (Iris, Digits, Moons, Wine, …), NLP sets (sentiment, NER, spam, Q&A), `make_*` generators, `Dataset`, `fetch`/`list_datasets`/`summary`, file I/O (`read_csv`, `read_file`, `read_parquet`, `to_dataframe`). |
 | `aion.tokenizer` | `BPETokenizer`, `WordPieceTokenizer`, `Vocabulary` (save/load, special tokens). |
 | `aion.pipeline` | `Pipeline`, `Step`, `FunctionStep`, `MapStep`, `FilterStep`, `BatchStep` — retry, fallback, timing. |
 | `aion.store` | `KeyValueStore` (SQLite), `PersistentVectorStore`, `ChatHistoryStore` (threads + search). |
@@ -1441,6 +1736,7 @@ See `aion.parser` and `aion.code` for language-specific behavior and APIs.
   - Config: `aion/config/examples/` (layered TOML/YAML + `01_config_loading_merge.ipynb`).
   - I/O & LLM stack (runnable `python -m …`): `aion/io/examples/`, `aion/providers/examples/`, `aion/rag/examples/`, `aion/tools/examples/`.
   - Former: `aion/former/examples/` (attention, text generation) plus `aion/former/*/examples/` (core, datasets, experiments, models, training, visualization).
+- **Tests:** `pytest tests/` from the repo root (64 cases; includes Core ML stack). Install dev deps: `pip install -e ".[dev]"`.
 - **Changelog:** [CHANGELOG.md](CHANGELOG.md) for version history.
 - **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code style, and pull request process.
 
@@ -1455,7 +1751,7 @@ This repository is open source. The following **should show** (and are committed
 | **Docs** | `README.md`, `LICENSE`, `CHANGELOG.md`, `CONTRIBUTING.md` |
 | **Config** | `pyproject.toml`, `setup.py`, `MANIFEST.in`, `requirements.txt` |
 | **Source** | `aion/**/*.py`, `src/aion_core.cpp` |
-| **Tests** | Top-level `tests/` when present (pytest; `pip install -e ".[dev]"`); not always committed yet—see [Contributing](#contributing) |
+| **Tests** | `tests/` — 64 pytest cases (algorithms, io, maths, text, snippets, pdf, Core ML stack); `pip install -e ".[dev]"` then `pytest tests/` |
 | **Examples** | `example.py`, `main.py`; notebooks in `aion/algorithms/examples/`, `aion/visualization/examples/`, `aion/config/examples/`; `python -m` demos under `aion/io/examples/`, `aion/providers/examples/`, `aion/rag/examples/`, `aion/tools/examples/`, `aion/former/*/examples/` |
 | **Example assets** | `aion/visualization/examples_visualization/*.png` (plot previews); `aion/former/examples/*.png` (attention demos); `aion/former/examples_results/*.png` when committed (see folder README) |
 | **Repo meta** | `.gitignore` |
@@ -1499,15 +1795,18 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ## Library Statistics
 
-- **`aion/`** contains **20 subpackages** (`agents`, `algorithms`, `benchmarks`, `cache`, `config`, `data`, `env`, `former`, `io`, `llm_eval`, `pipeline`, `providers`, `rag`, `serve`, `store`, `structures`, `tokenizer`, `tools`, `tracker`, `visualization`) and **16 top-level `.py` modules** (`__init__.py`, `_core.py`, `cli.py`, `code.py`, `embed.py`, `evaluate.py`, `files.py`, `git.py`, `maths.py`, `parser.py`, `pdf.py`, `prompt.py`, `snippets.py`, `text.py`, `utils.py`, `watcher.py`), plus optional native **`fast_*`** re-exports on the package.
-- **61 public exports** in `aion.__all__` (up from 51 in v0.1.9).
+- **`aion/`** contains **27 subpackages** (`agents`, `algorithms`, `benchmarks`, `cache`, `config`, `data`, `datasets`, `env`, `former`, `hub`, `hyperopt`, `io`, `llm_eval`, `metrics`, `models`, `pipeline`, `preprocessing`, `providers`, `rag`, `serve`, `store`, `structures`, `tokenizer`, `tools`, `tracker`, `ui`, `visualization`) and **16 top-level `.py` modules** (`__init__.py`, `_core.py`, `cli.py`, `code.py`, `embed.py`, `evaluate.py`, `files.py`, `git.py`, `maths.py`, `parser.py`, `pdf.py`, `prompt.py`, `snippets.py`, `text.py`, `utils.py`, `watcher.py`), plus optional native **`fast_*`** re-exports on the package.
+- **63 public exports** in `aion.__all__` (up from 51 in v0.1.9), including **`preprocessing`**, **`models`**, **`metrics`**, **`hyperopt`**, and **`ui`**.
+- **64 pytest cases** in `tests/` (Core ML, algorithms, io, maths, text, snippets, pdf).
+- **24 built-in datasets** via `aion.datasets` (10 toy/tabular, 5 NLP, 9 generators) plus pandas-style file loaders.
+- **Core ML stack:** 4 subpackages — preprocessing (12 transformers), models (10 estimators), metrics (22 functions), hyperopt (grid/random/Bayesian search + CV).
 - **19 `fast_*` entry points** (plus `using_native_extension`) for 1D/2D vector numerics, re-exported from `aion`.
 - **71+ mathematical functions** in the maths module.
 - **Aion Former:** Decoder-only transformer training with NumPy autograd, multi-head attention, and visualization (optional `[former]` extra).
 - **Agent framework:** ReAct, planning, and multi-agent orchestration with pluggable conversation memory.
 - **Full AI pipeline** from data loading, tokenization, and augmentation through training, evaluation, caching, experiment tracking, and API serving.
-- **Optional dependencies** for embeddings, PDF generation, serving, and full ML stack; core modules (maths, algorithms, data, structures, cache, pipeline, store, tracker, tokenizer, agents, llm_eval) work with minimal dependencies (numpy + stdlib).
+- **Optional dependencies** for embeddings, PDF generation, serving, Parquet/Excel file I/O, and full PyTorch/sklearn stack; core modules (maths, algorithms, **Core ML stack**, data, datasets, structures, cache, pipeline, store, tracker, tokenizer, agents, llm_eval) work with minimal dependencies (numpy + stdlib).
 
 ---
 
-Aion is built so teams can move from **numeric and algorithmic baselines** to **LLM-assisted workflows**, **autonomous agents**, **retrieval**, **experiment tracking**, and **production serving**—with a single, versioned library and clear optional extras.
+Aion is built so teams can move from **numeric and algorithmic baselines** through **classical ML** (preprocess → train → evaluate → tune) to **LLM-assisted workflows**, **autonomous agents**, **retrieval**, **experiment tracking**, and **production serving**—with a single, versioned library and clear optional extras.

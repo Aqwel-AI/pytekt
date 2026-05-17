@@ -68,7 +68,7 @@ def _build_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 High-value commands:
-  aion start                     Open the Aion Hub dashboard in the browser
+  aion start / aion ui           Open the Aion Hub dashboard in the browser
   aion info                      Show environment and optional dependencies
   aion embed <file>              Embed a file (or use --text)
   aion eval <preds> <answers>    Evaluate predictions
@@ -93,6 +93,23 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
     start_parser.add_argument("--host", default="127.0.0.1", help="Bind address")
     start_parser.add_argument("--port", "-p", type=int, default=3000, help="Port (default 3000)")
     start_parser.add_argument("--no-browser", action="store_true", help="Do not open a browser tab")
+
+    # ui (hub, monitor, reports, optional gradio/streamlit)
+    ui_parser = subparsers.add_parser("ui", help="User interfaces: hub, monitor, HTML reports, Gradio/Streamlit")
+    ui_parser.add_argument("--host", default="127.0.0.1", help="Bind address")
+    ui_parser.add_argument("--port", "-p", type=int, default=None, help="Port (hub default 3000, monitor 8000)")
+    ui_parser.add_argument("--no-browser", action="store_true", help="Do not open a browser tab")
+    ui_parser.add_argument("--monitor", action="store_true", help="Launch hardware monitor instead of Hub")
+    ui_parser.add_argument(
+        "--report",
+        metavar="TRACKER_DIR",
+        default=None,
+        help="Build experiment HTML report from tracker directory and exit",
+    )
+    ui_parser.add_argument("-o", "--output", default="experiments.html", help="Output path for --report")
+    ui_parser.add_argument("--gradio", action="store_true", help="Launch Gradio playground (needs [ui] extra)")
+    ui_parser.add_argument("--streamlit", action="store_true", help="Launch Streamlit dataset explorer (needs [ui] extra)")
+    ui_parser.add_argument("--list", action="store_true", help="List available UI interfaces")
 
     # info
     subparsers.add_parser("info", help="Show environment and optional dependencies")
@@ -477,11 +494,44 @@ def main():
     if getattr(args, "version", False) or args.command == "version":
         version_command()
         return
-    if args.command == "start":
-        from .hub.launch import run_hub
-        run_hub(
+    if args.command in ("start", "ui"):
+        if args.command == "ui" and getattr(args, "list", False):
+            from .ui import list_ui_interfaces
+            for item in list_ui_interfaces():
+                print(f"{item['name']} ({item['id']})")
+                print(f"  {item['description']}")
+                print(f"  Command: {item['command']}  |  API: {item['api']}")
+                print()
+            return
+        if args.command == "ui" and getattr(args, "report", None):
+            from .ui import build_experiment_dashboard
+            path = build_experiment_dashboard(
+                args.report,
+                output=args.output,
+                open_browser=not args.no_browser,
+            )
+            print(f"Report saved: {path}")
+            return
+        if args.command == "ui" and getattr(args, "gradio", False):
+            from .ui import launch_gradio_playground
+            launch_gradio_playground(server_port=args.port or 7860)
+            return
+        if args.command == "ui" and getattr(args, "streamlit", False):
+            from .ui import launch_streamlit_dataset_explorer
+            launch_streamlit_dataset_explorer(server_port=args.port or 8501)
+            return
+        if args.command == "ui" and getattr(args, "monitor", False):
+            from .ui import launch_monitor
+            launch_monitor(
+                host=args.host,
+                port=args.port or 8000,
+                open_browser=not args.no_browser,
+            )
+            return
+        from .ui import launch_hub
+        launch_hub(
             host=args.host,
-            port=args.port,
+            port=args.port or 3000,
             open_browser=not args.no_browser,
         )
         return

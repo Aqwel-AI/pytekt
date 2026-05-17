@@ -79,6 +79,36 @@ class Dataset:
             lines.append(f"{self.target[i]}\t{vals}")
         return "\n".join(lines)
 
+    def to_csv(self, path: str, **kwargs: Any) -> None:
+        """Write this dataset to a CSV file (see :mod:`aion.datasets.io`)."""
+        from .io import write_csv
+        write_csv(self, path, **kwargs)
+
+    def to_json(self, path: str, **kwargs: Any) -> None:
+        """Write this dataset to a JSON file."""
+        from .io import write_json
+        write_json(self, path, **kwargs)
+
+    def to_jsonl(self, path: str, **kwargs: Any) -> None:
+        """Write this dataset to JSON Lines."""
+        from .io import write_jsonl
+        write_jsonl(self, path, **kwargs)
+
+    def to_parquet(self, path: str, **kwargs: Any) -> None:
+        """Write this dataset to Parquet (requires pandas)."""
+        from .io import write_parquet
+        write_parquet(self, path, **kwargs)
+
+    def to_dataframe(self, **kwargs: Any) -> Any:
+        """Convert to a pandas DataFrame (requires pandas)."""
+        from .io import to_dataframe
+        return to_dataframe(self, **kwargs)
+
+    def to_numpy(self) -> Tuple[np.ndarray, np.ndarray]:
+        """Return ``(X, y)`` for sklearn-style APIs."""
+        from .io import to_numpy
+        return to_numpy(self)
+
 
 def train_test_split_dataset(
     ds: Dataset,
