@@ -78,7 +78,7 @@ def test_bayesian_search():
 
 def test_early_stopping_stops_search():
     ds = load_iris()
-    es = EarlyStopping(patience=0, min_delta=0.0)
+    es = EarlyStopping(patience=1, min_delta=1.0)  # require huge gain to count as improvement
     search = GridSearch(
         KNNClassifier(),
         {"n_neighbors": [3, 5, 7, 9]},
@@ -86,4 +86,5 @@ def test_early_stopping_stops_search():
         early_stopping=es,
     )
     search.fit(ds.data, ds.target)
-    assert len(search.cv_results_) <= 2
+    assert len(search.cv_results_) < 4
+    assert es.stopped

@@ -1,4 +1,4 @@
-![Aion 0.2.0 — Complete AI Research and Development Library by Aqwel AI](0.1.9.png)
+![AION — Aqwel AI research library for data science and ML](aion-logo.png)
 
 # Aqwel-Aion
 
@@ -34,6 +34,7 @@ Aion is an open-source Python library by **Aqwel AI** for research and productio
 - [Optional dependency matrix](#optional-dependency-matrix)
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Aion install animation](#aion-install-animation)
 - [Getting Started](#getting-started)
 - [Features](#features)
 - [Usage Examples](#usage-examples)
@@ -89,14 +90,17 @@ Version 0.2.0 adds **15 new modules** spanning the full AI application lifecycle
 - **Registry** — `fetch("iris", return_split=True)`, `list_datasets()`, `summary("wine")`.
 - **File I/O (`aion.datasets.io`)** — pandas-style loaders: `read_csv`, `read_json`, `read_jsonl`, `read_file` (auto-detect); with `[ai]`: `read_parquet`, `read_excel`, `from_dataframe`; export via `to_csv`, `to_json`, `to_parquet`, `to_dataframe`, `to_numpy`. Distinct from **`aion.data`** (row dicts for pipelines) and **`aion.former.datasets`** (LM text windows).
 
-### User interfaces (`aion.ui`)
-- **`launch_hub()` / `aion start`** — Aion Hub at `http://127.0.0.1:3000` (module catalog, deps checker, in-browser playground).
-- **`launch_monitor()`** — Hardware dashboard (`aion monitor`, needs `[monitor]`).
-- **`PageBuilder`** — Build dark-themed HTML reports (metrics, tables, code, embedded matplotlib figures).
-- **`build_experiment_dashboard()`** — HTML table of all runs from `aion.tracker`.
-- **`build_dataset_report()`** — HTML preview of any `aion.datasets.Dataset`.
-- **Optional apps (`[ui]` extra)** — `launch_gradio_playground()`, `launch_streamlit_dataset_explorer()` (Gradio + Streamlit).
-- **CLI:** `aion ui --list`, `aion ui --report .aion_experiments`, `aion ui --gradio`, `aion ui --streamlit`.
+### User interfaces (`aion.ui`) — React-style frontend in Python
+- **Component model** — `Component` base class + `@function_component` (like React class/function components).
+- **`html` tags** — `html.div`, `html.button`, `html.h1`, … (like JSX; props use `className`, `onClick`).
+- **`h()` / `Fragment`** — low-level `createElement` and fragment grouping (`<>...</>`).
+- **Layout components** — `AppShell`, `Card`, `Stack`, `Row`, `MetricGrid`, `DataTable`, `Button`.
+- **`render_app()` / `serve_app()`** — export a full HTML page or run a local dev server (stdlib).
+- **Legacy reports** — `PageBuilder`, `build_experiment_dashboard()`, `build_dataset_report()`.
+- **Hub & monitor** — `launch_hub()` / `aion start`, `launch_monitor()` (`[monitor]`).
+- **Optional apps (`[ui]` extra)** — Gradio/Streamlit launchers.
+- **CLI:** `aion ui --list`, `aion ui --report`, `aion ui --gradio`, `aion ui --streamlit`.
+- **Install animation:** `aion welcome` — replay the animated module install screen ([see README](#aion-install-animation)).
 
 ### Tokenization (`aion.tokenizer`)
 - **`BPETokenizer`** — Trainable byte-pair encoding: train on a corpus, encode/decode, save/load.
@@ -150,6 +154,14 @@ Four NumPy-first modules for classical ML workflows (sklearn-style `fit` / `tran
 - **`EarlyStopping`** — Stop search when CV score plateaus.
 - **`cross_val_score` / `kfold_indices`** — Standalone CV utilities.
 - Optional **`tracker`** integration — each trial logs params and `cv_score` to `aion.tracker`.
+- **`MLPipeline`** — chain preprocessing + estimator; **`save_model` / `load_model`** for checkpoints.
+
+### Research experiments (`aion.experiments`)
+- **`Experiment`** — context manager: fixed `seed`, `tracker` logging, `manifest.json` for reproduction.
+- **`export_results_table`** — paper-ready **LaTeX**, CSV, Markdown, HTML from tracker runs.
+- **`BenchmarkSuite`** — multi-seed baselines on iris, wine, breast cancer, digits (`aion benchmark` CLI).
+- **`aion doctor`** — environment check (Python, numpy, optional extras, tracker dir, C++ extension).
+- **Stats** — `bootstrap_ci`, `compare_models`, `mcnemar_test` in `aion.metrics`.
 
 ### LLM evaluation (`aion.llm_eval`)
 - **Semantic similarity** — `semantic_similarity`, `batch_similarity`, `relevance_score` using embeddings.
@@ -352,7 +364,8 @@ Layout below matches the repository as shipped (file names only; omit your local
 ```
 .                              # Project root (clone / sdist)
 ├── README.md
-├── 0.1.9.png                  # README banner (release hero image)
+├── aion-logo.png              # README hero / install animation branding
+├── 0.1.9.png                  # Legacy release banner (optional)
 ├── LICENSE
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
@@ -534,9 +547,15 @@ aion/
 │       └── index.html         # Aion Hub UI (overview, playground, quick ref)
 ├── ui/
 │   ├── __init__.py
-│   ├── html.py                # PageBuilder, metrics_row_html, table_html
+│   ├── component.py           # Component, @function_component
+│   ├── vdom.py                # VNode, h(), Fragment, render_vnode
+│   ├── html_tags.py           # html.div, html.button, … (JSX-like)
+│   ├── builtins.py            # AppShell, Card, MetricGrid, Stack, …
+│   ├── render.py              # render_app, serve_app
+│   ├── theme.py               # REACT_THEME_CSS
+│   ├── html.py                # PageBuilder (legacy reports)
 │   ├── dashboard.py           # build_experiment_dashboard, build_dataset_report
-│   ├── launchers.py           # launch_hub, launch_monitor, list_ui_interfaces
+│   ├── launchers.py           # launch_hub, launch_monitor
 │   └── apps.py                # Gradio / Streamlit (optional [ui] extra)
 ├── llm_eval/
 │   ├── __init__.py
@@ -787,11 +806,16 @@ pip install -e .[dev,full]
    pip install aqwel-aion[full]
    ```
 
-4. Verify the install:
+4. Verify the install (you should see an **animated install screen** with large module names and ✓ INSTALLED lines):
 
    ```bash
    python -c "import aion; print(aion.__version__)"
+   aion welcome    # replay the install animation anytime
    ```
+
+   Disable the animation: `AION_NO_SPLASH=1 pip install aqwel-aion` or `aion welcome --no-animation`.
+
+   See [Aion install animation](#aion-install-animation) for the logo and a full preview of the welcome screen.
 
 5. (Optional) Run smoke tests from a clone:
 
@@ -799,6 +823,47 @@ pip install -e .[dev,full]
    pip install -e ".[dev]"
    pytest tests/
    ```
+
+---
+
+## Aion install animation
+
+<p align="center">
+  <img src="aion-logo.png" alt="AION logo — Aqwel AI data science and ML research library" width="480"/>
+</p>
+
+<p align="center">
+  <strong>Replay the install celebration in your terminal</strong>
+</p>
+
+After `pip install aqwel-aion` (or `pip install -e .` from a clone), Aion prints an animated screen: the **AION** banner, a large **INSTALLED** label, a progress bar, and each module name in **big spaced letters** with **✓ INSTALLED** (Core ML, datasets, agents, UI, and more).
+
+### Command
+
+```bash
+# After pip install -e .  (or pip install aqwel-aion)
+aion welcome
+```
+
+If `aion` is not on your `PATH` (common with conda / python.org installs):
+
+```bash
+python -m aion welcome
+```
+
+Static list (no animation delays, useful in CI or logs):
+
+```bash
+aion welcome --no-animation
+# or
+python -m aion welcome --no-animation
+```
+
+The animation also runs automatically at the end of **`pip install aqwel-aion`** and **`pip install -e .`**. To skip it:
+
+```bash
+AION_NO_SPLASH=1 pip install aqwel-aion
+```
 
 ---
 
@@ -946,9 +1011,10 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 
 ### User interfaces (new in 0.2.0)
 
-- **`aion.ui`:** Unified UI layer — `launch_hub`, `launch_monitor`, `PageBuilder` HTML reports, experiment/dataset dashboards, `list_ui_interfaces()`.
+- **`aion.ui` (React-style):** Build frontends in Python with `Component`, `html.*` tags, `AppShell`, `MetricGrid`, and `render_app()` — no React/Node install required; renders to static HTML.
 - **Aion Hub:** `aion start` or `aion ui` — browse modules, check deps, run playground code (stdlib server).
-- **HTML reports:** `build_experiment_dashboard(".aion_experiments")`, `build_dataset_report(load_iris())`.
+- **HTML reports:** `PageBuilder`, `build_experiment_dashboard()`, `build_dataset_report()`.
+- **Dev server:** `serve_app(MyApp(), port=8765)` for quick local preview.
 - **Optional:** `pip install 'aqwel-aion[ui]'` for Gradio and Streamlit app launchers.
 
 ### Data Structures (new in 0.2.0)
@@ -1203,6 +1269,39 @@ search.fit(ds.data, ds.target)
 print(search.best_params_, search.best_score_)
 ```
 
+### Research workflow — experiments, benchmarks, papers
+
+```python
+from aion.experiments import Experiment, BenchmarkSuite, export_results_table
+from aion.experiments import export_results_file
+from aion.tracker import Tracker
+from aion.datasets import load_iris
+from aion.models import GaussianNB, MLPipeline, save_model
+from aion.preprocessing import StandardScaler
+from aion.metrics import accuracy_score
+
+# Reproducible run with manifest + tracker
+with Experiment("iris_nb_v1", seed=42) as exp:
+    ds = load_iris(seed=42)
+    pipe = MLPipeline(StandardScaler(), GaussianNB())
+    pipe.fit(ds.data, ds.target)
+    exp.log_metrics(accuracy=accuracy_score(ds.target, pipe.predict(ds.data)))
+    save_model(pipe.estimator, f"{exp.run_dir}/model", metadata={"dataset": "iris"})
+
+# LaTeX table for a paper
+runs = Tracker(".aion_experiments").list_runs()
+print(export_results_table(runs, format="latex", metric_columns=["accuracy"]))
+
+# Standard benchmark leaderboard
+suite = BenchmarkSuite(seeds=[0, 1, 2, 3, 4])
+print(suite.leaderboard_markdown(suite.run()))
+```
+
+```bash
+python -m aion doctor
+python -m aion benchmark --seeds 5 -o leaderboard.md
+```
+
 ### Model evaluation (legacy `aion.evaluate`)
 
 ```python
@@ -1427,32 +1526,59 @@ print(f"Available: {len(list_datasets())} datasets")
 
 **`aion.data` vs `aion.datasets`:** use **`aion.data`** when you need a list of row dicts for pipelines and schema validation; use **`aion.datasets`** when you need a **`Dataset`** with NumPy arrays for ML prototyping, built-in benchmarks, or file round-trips.
 
-### User interfaces
+### User interfaces — React-style frontend
 
 ```python
 from aion.ui import (
-    launch_hub,
-    PageBuilder,
-    build_experiment_dashboard,
-    build_dataset_report,
-    list_ui_interfaces,
+    Component,
+    html,
+    AppShell,
+    MetricGrid,
+    Card,
+    Stack,
+    render_app,
+    function_component,
 )
 from aion.datasets import load_iris
+from aion.models import GaussianNB
+from aion.metrics import accuracy_score
+from aion.preprocessing import StandardScaler
 
-# Browser hub (or: aion start)
-# launch_hub(port=3000)
+# --- React-like component tree ---
+@function_component
+def MetricsPanel(props):
+    return MetricGrid(metrics=props["metrics"])
 
-# Static HTML report
+class ExperimentDashboard(Component):
+    def render(self):
+        ds = load_iris()
+        X = StandardScaler().fit_transform(ds.data)
+        clf = GaussianNB().fit(X, ds.target)
+        acc = accuracy_score(ds.target, clf.predict(X))
+        return AppShell(
+            title="ML Experiment",
+            subtitle="Iris · Gaussian Naive Bayes",
+            children=Stack(
+                children=[
+                    MetricsPanel(metrics={"accuracy": acc, "samples": ds.n_samples}),
+                    Card(title="Next steps", children=[
+                        html.p({}, "Tune with aion.hyperopt or log runs to aion.tracker."),
+                    ]),
+                ]
+            ),
+        )
+
+render_app(ExperimentDashboard(), output="dashboard.html", open_browser=True)
+# serve_app(ExperimentDashboard(), port=8765)  # local dev server
+
+# --- Imperative HTML reports (legacy) ---
+from aion.ui import PageBuilder, build_experiment_dashboard, launch_hub
+
 page = PageBuilder("Training summary", subtitle="Run 42")
 page.add_metrics({"accuracy": 0.94, "loss": 0.08})
 page.save("summary.html")
-
-# Tracker + dataset dashboards
-build_experiment_dashboard(".aion_experiments", output="runs.html", open_browser=True)
-build_dataset_report(load_iris(), output="iris_preview.html")
-
-for ui in list_ui_interfaces():
-    print(ui["name"], "->", ui["command"])
+build_experiment_dashboard(".aion_experiments", output="runs.html")
+# launch_hub()  # Aion Hub at http://127.0.0.1:3000
 ```
 
 ```bash
@@ -1672,6 +1798,7 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.models` | `LinearRegression`, `LogisticRegression`, `KNNClassifier`/`KNNRegressor`, `KMeans`, `PCA`, `GaussianNB`, decision trees. |
 | `aion.metrics` | `accuracy_score`, `f1_score`, `confusion_matrix`, `r2_score`, `silhouette_score`, `bleu_score`, `ndcg_score`, … |
 | `aion.hyperopt` | `GridSearch`, `RandomSearch`, `BayesianSearch`, `EarlyStopping`, `cross_val_score`; integrates with `aion.tracker`. |
+| `aion.experiments` | `Experiment`, `BenchmarkSuite`, `export_results_table` (LaTeX/CSV/MD); research reproducibility. |
 | `aion.code` | Code explanation, extraction, complexity, docstrings, code smells. |
 | `aion.prompt` | Prompt templates and utilities. |
 | `aion.snippets` | Code snippet utilities. |
@@ -1683,7 +1810,7 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.utils` | General utilities. |
 | `aion.text` | Text processing. |
 | `aion.cli` | Command-line interface: `aion start` (Hub), `info`, `embed`, `eval`, `chat`, `monitor`, `git`, … |
-| `aion.ui` | `launch_hub`, `launch_monitor`, `PageBuilder`, experiment/dataset HTML dashboards; optional Gradio/Streamlit (`[ui]`). |
+| `aion.ui` | **React-style:** `Component`, `html`, `render_app`, `AppShell`, `MetricGrid`, …; **legacy:** `PageBuilder`, `launch_hub`, dashboards; optional Gradio/Streamlit (`[ui]`). |
 | `aion.hub` | Aion Hub static server (used by `aion.ui.launch_hub` / `aion start`). |
 | `aion.tools` | Tool schemas, registry, `run_tool_loop`, `FakeToolProvider` / `make_tool_turn`, retry/rate-limit, token estimates (`[tools]`). [`aion/tools/README.md`](aion/tools/README.md), [`aion/tools/examples/`](aion/tools/examples/). |
 | `aion.rag` | Chunking, vector stores, `SimpleRAGIndex` (`[rag]`). [`aion/rag/README.md`](aion/rag/README.md), [`aion/rag/examples/`](aion/rag/examples/). |
@@ -1748,7 +1875,7 @@ This repository is open source. The following **should show** (and are committed
 
 | Category | What shows |
 |----------|------------|
-| **Docs** | `README.md`, `LICENSE`, `CHANGELOG.md`, `CONTRIBUTING.md` |
+| **Docs** | `README.md`, `aion-logo.png` (hero + install animation), `LICENSE`, `CHANGELOG.md`, `CONTRIBUTING.md` |
 | **Config** | `pyproject.toml`, `setup.py`, `MANIFEST.in`, `requirements.txt` |
 | **Source** | `aion/**/*.py`, `src/aion_core.cpp` |
 | **Tests** | `tests/` — 64 pytest cases (algorithms, io, maths, text, snippets, pdf, Core ML stack); `pip install -e ".[dev]"` then `pytest tests/` |
@@ -1797,7 +1924,7 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 - **`aion/`** contains **27 subpackages** (`agents`, `algorithms`, `benchmarks`, `cache`, `config`, `data`, `datasets`, `env`, `former`, `hub`, `hyperopt`, `io`, `llm_eval`, `metrics`, `models`, `pipeline`, `preprocessing`, `providers`, `rag`, `serve`, `store`, `structures`, `tokenizer`, `tools`, `tracker`, `ui`, `visualization`) and **16 top-level `.py` modules** (`__init__.py`, `_core.py`, `cli.py`, `code.py`, `embed.py`, `evaluate.py`, `files.py`, `git.py`, `maths.py`, `parser.py`, `pdf.py`, `prompt.py`, `snippets.py`, `text.py`, `utils.py`, `watcher.py`), plus optional native **`fast_*`** re-exports on the package.
 - **63 public exports** in `aion.__all__` (up from 51 in v0.1.9), including **`preprocessing`**, **`models`**, **`metrics`**, **`hyperopt`**, and **`ui`**.
-- **64 pytest cases** in `tests/` (Core ML, algorithms, io, maths, text, snippets, pdf).
+- **69 pytest cases** in `tests/` (Core ML, React-style UI, algorithms, io, maths, text, snippets, pdf).
 - **24 built-in datasets** via `aion.datasets` (10 toy/tabular, 5 NLP, 9 generators) plus pandas-style file loaders.
 - **Core ML stack:** 4 subpackages — preprocessing (12 transformers), models (10 estimators), metrics (22 functions), hyperopt (grid/random/Bayesian search + CV).
 - **19 `fast_*` entry points** (plus `using_native_extension`) for 1D/2D vector numerics, re-exported from `aion`.

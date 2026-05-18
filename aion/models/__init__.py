@@ -19,6 +19,8 @@ from .clustering import KMeans
 from .decomposition import PCA
 from .naive_bayes import GaussianNB
 from .trees import DecisionTreeClassifier, DecisionTreeRegressor
+from .pipeline import MLPipeline
+from .io import save_model, load_model
 
 __all__ = [
     "BaseEstimator",
@@ -31,4 +33,7 @@ __all__ = [
     "GaussianNB",
     "DecisionTreeClassifier",
     "DecisionTreeRegressor",
+    "MLPipeline",
+    "save_model",
+    "load_model",
 ]

@@ -1,19 +1,46 @@
 """
-User interface tools for Aion — dashboards, HTML reports, and app launchers.
+User interface layer for Aion — **React-style frontend in Python**.
 
-Provides a single import surface for browser UIs and static HTML dashboards
-without requiring a separate front-end stack. Core features use the stdlib;
-optional Gradio/Streamlit helpers need ``pip install 'aqwel-aion[ui]'``.
+Build declarative UIs with components, props, and ``html.*`` tags (like JSX),
+then render to static HTML or serve locally. No Node.js or React install required.
 
-Quick start
------------
->>> from aion.ui import launch_hub, PageBuilder
->>> launch_hub()  # same as ``aion start`` — Aion Hub in the browser
->>> page = PageBuilder("My experiment")
->>> page.add_metrics({"accuracy": 0.94, "loss": 0.12})
->>> page.save("report.html")
+Quick start (React-like)
+------------------------
+>>> from aion.ui import Component, html, render_app, AppShell, MetricGrid
+>>> class Dashboard(Component):
+...     def render(self):
+...         return AppShell(
+...             title="My ML App",
+...             subtitle="Training run #42",
+...             children=MetricGrid(metrics={"accuracy": 0.94, "loss": 0.08}),
+...         )
+>>> render_app(Dashboard(), output="dashboard.html", open_browser=True)
+
+Legacy helpers (reports & launchers)
+------------------------------------
+>>> from aion.ui import PageBuilder, launch_hub
+>>> launch_hub()
 """
 
+# React-style core
+from .vdom import VNode, h, Fragment, render_vnode
+from .html_tags import html
+from .component import Component, function_component, render_component
+from .render import render, render_app, serve_app
+from .builtins import (
+    AppShell,
+    Button,
+    Card,
+    DataTable,
+    Metric,
+    MetricGrid,
+    Row,
+    Stack,
+    Text,
+)
+from .theme import REACT_THEME_CSS
+
+# HTML reports (imperative builder)
 from .html import PageBuilder, escape_html, table_html, metrics_row_html
 from .dashboard import (
     build_experiment_dashboard,
@@ -34,6 +61,29 @@ from .apps import (
 )
 
 __all__ = [
+    # React-style API
+    "VNode",
+    "h",
+    "Fragment",
+    "render_vnode",
+    "html",
+    "Component",
+    "function_component",
+    "render_component",
+    "render",
+    "render_app",
+    "serve_app",
+    "AppShell",
+    "Button",
+    "Card",
+    "DataTable",
+    "Metric",
+    "MetricGrid",
+    "Row",
+    "Stack",
+    "Text",
+    "REACT_THEME_CSS",
+    # Legacy / launchers
     "PageBuilder",
     "escape_html",
     "table_html",

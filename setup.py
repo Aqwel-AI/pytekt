@@ -11,6 +11,29 @@ License: Apache-2.0
 
 import os
 from setuptools import setup, find_packages, Extension
+from setuptools.command.develop import develop as _develop_cmd
+from setuptools.command.install import install as _install_cmd
+
+
+def _post_install_splash() -> None:
+    try:
+        from aion.install_splash import show_install_splash
+
+        show_install_splash(animated=True)
+    except Exception:
+        pass
+
+
+class InstallCommand(_install_cmd):
+    def run(self) -> None:
+        super().run()
+        _post_install_splash()
+
+
+class DevelopCommand(_develop_cmd):
+    def run(self) -> None:
+        super().run()
+        _post_install_splash()
 
 
 def read_readme():
@@ -198,6 +221,10 @@ setup(
         "console_scripts": [
             "aion=aion.cli:main",
         ],
+    },
+    cmdclass={
+        "install": InstallCommand,
+        "develop": DevelopCommand,
     },
     include_package_data=True,
     zip_safe=False,
