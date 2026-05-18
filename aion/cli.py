@@ -80,6 +80,9 @@ Other commands:
   aion git --help                Git repository tools
   aion monitor / dashboard       Hardware dashboard + API (needs pip install 'aqwel-aion[monitor]')
   aion --version                 Show version
+  aion welcome                   Animated install screen (module list)
+  aion doctor                    Check research environment (deps, tracker, native ext)
+  aion benchmark                 Run standard ML benchmark suite
 
 If ``aion`` is not found after pip install, your Python scripts directory is not on PATH.
 Use the same commands as: python3 -m aion …   (example: python3 -m aion monitor)
@@ -160,6 +163,36 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
 
     # version
     subparsers.add_parser("version", help="Show package version")
+
+    # welcome (install animation)
+    welcome_parser = subparsers.add_parser(
+        "welcome",
+        help="Show install celebration screen with animated module list",
+    )
+    welcome_parser.add_argument(
+        "--no-animation",
+        action="store_true",
+        help="Print static list (no delays)",
+    )
+
+    subparsers.add_parser("doctor", help="Diagnose environment for research workflows")
+
+    bench_parser = subparsers.add_parser(
+        "benchmark",
+        help="Run multi-seed ML benchmark suite on built-in datasets",
+    )
+    bench_parser.add_argument(
+        "--seeds",
+        type=int,
+        default=3,
+        help="Number of random seeds (0..n-1) (default: 3)",
+    )
+    bench_parser.add_argument(
+        "-o", "--output",
+        type=str,
+        default=None,
+        help="Save leaderboard markdown to file",
+    )
 
     # monitor / dashboard (optional deps: fastapi, uvicorn, psutil, nvidia-ml-py)
     def _add_monitor_args(p):
@@ -534,6 +567,28 @@ def main():
             port=args.port or 3000,
             open_browser=not args.no_browser,
         )
+        return
+    if args.command == "welcome":
+        from .install_splash import show_install_splash
+
+        show_install_splash(animated=not getattr(args, "no_animation", False))
+        return
+    if args.command == "doctor":
+        from .doctor import main as doctor_main
+
+        doctor_main()
+        return
+    if args.command == "benchmark":
+        from .experiments import BenchmarkSuite
+
+        suite = BenchmarkSuite(seeds=list(range(args.seeds)))
+        results = suite.run()
+        md = suite.leaderboard_markdown(results)
+        print(md)
+        if args.output:
+            with open(args.output, "w", encoding="utf-8") as f:
+                f.write(md)
+            print(f"\nSaved: {args.output}")
         return
     if args.command == "info":
         info_command()

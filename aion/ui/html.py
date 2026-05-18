@@ -61,18 +61,11 @@ def metrics_row_html(metrics: dict) -> str:
         display = f"{val:.4g}" if isinstance(val, float) else escape_html(val)
         lbl = escape_html(key)
         lines.append(
-            '<motion>'.replace(
-                "motion",
-                '<div class="metric"><div class="val">'
-                + display
-                + '</div><div class="lbl">'
-                + lbl
-                + "</div></div>",
-            )
+            f'<div class="metric"><div class="val">{display}</div>'
+            f'<div class="lbl">{lbl}</div></div>'
         )
     lines.append("</div>")
     return "\n".join(lines)
-
 
 def table_html(headers: Sequence[str], rows: Sequence[Sequence[Any]]) -> str:
     """Render an HTML table."""
@@ -131,8 +124,7 @@ class PageBuilder:
             from aion.visualization.report import figures_to_html_img_tags
 
             imgs = figures_to_html_img_tags(figures, fmt=fmt)
-            wrap = '<div class="figure-wrap">' + imgs + "</div>"
-            self._blocks.append(wrap)
+            self._blocks.append('<div class="figure-wrap">' + imgs + "</div>")
         except Exception as exc:
             self._blocks.append(f"<p><em>Figures unavailable: {escape_html(exc)}</em></p>")
         return self

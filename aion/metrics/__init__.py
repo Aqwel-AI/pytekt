@@ -30,6 +30,7 @@ from .regression import (
 from .clustering import silhouette_score, adjusted_rand_score
 from .nlp import bleu_score, rouge_l_score, perplexity
 from .ranking import ndcg_score, mrr_score
+from .stats import bootstrap_ci, mcnemar_test, compare_models
 
 __all__ = [
     "accuracy_score",
@@ -54,4 +55,7 @@ __all__ = [
     "perplexity",
     "ndcg_score",
     "mrr_score",
+    "bootstrap_ci",
+    "mcnemar_test",
+    "compare_models",
 ]

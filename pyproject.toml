@@ -121,6 +121,10 @@ full = [
     "streamlit>=1.28.0",
 ]
 
+[tool.setuptools.cmdclass]
+install = "aion._install_hooks:InstallCommand"
+develop = "aion._install_hooks:DevelopCommand"
+
 [tool.setuptools.package-data]
 "aion.monitor" = ["static/*.html", "*.md"]
 "aion.monitor.examples" = ["*.md"]

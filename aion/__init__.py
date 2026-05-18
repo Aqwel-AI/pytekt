@@ -149,6 +149,9 @@ from . import models
 from . import metrics
 from . import hyperopt
 
+# Research experiments: reproducibility, benchmarks, paper exports
+from . import experiments
+
 # Optional C++ extension (fast numerical ops; fallback to NumPy if not built)
 from ._core import (
     fast_sum,
@@ -226,6 +229,7 @@ __all__ = [
     "models",           # Classical ML estimators (linear, KNN, trees, PCA, …)
     "metrics",          # Classification, regression, clustering, NLP, ranking metrics
     "hyperopt",         # Grid/random/Bayesian search with CV and tracker integration
+    "experiments",      # Experiment context, benchmark suite, LaTeX/CSV export
     "fast_sum",         # Fast 1D sum (C++ when built)
     "fast_dot",         # Fast dot product (C++ when built)
     "fast_norm2",       # Fast L2 norm (C++ when built)
