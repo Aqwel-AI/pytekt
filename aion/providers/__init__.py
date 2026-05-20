@@ -17,9 +17,11 @@ Environment variables
 - ``OPENAI_API_KEY`` — OpenAI
 - ``GEMINI_API_KEY`` or ``GOOGLE_API_KEY`` — Gemini
 - ``ANTHROPIC_API_KEY`` — Anthropic
+- ``DEEPSEEK_API_KEY`` — DeepSeek
 """
 
 from .anthropic_provider import AnthropicProvider
+from .deepseek_provider import DeepSeekProvider
 from .base import ChatMessage, ChatProvider
 from .errors import ProviderError
 from .factory import create_provider, supported_providers
@@ -33,6 +35,7 @@ __all__ = [
     "AssistantTurn",
     "ChatMessage",
     "ChatProvider",
+    "DeepSeekProvider",
     "GeminiProvider",
     "OpenAIProvider",
     "NormalizedToolCall",

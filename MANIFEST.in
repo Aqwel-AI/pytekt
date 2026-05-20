@@ -1,6 +1,12 @@
 include README.md
+include SECURITY.md
+include .env.example
 include aion-logo.png
 include 0.1.9.png
+include docs/PROJECT_STRUCTURE.md
+include aion/cli_agent/README.md
+recursive-include aion/usage/static *
+recursive-include aion/usage/static/assets *
 include aion/py.typed
 recursive-include aion *.py
 recursive-include aion/monitor/static *.html

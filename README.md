@@ -1,16 +1,151 @@
-![AION — Aqwel AI research library for data science and ML](aion-logo.png)
+![AION — Aqwel AI product for research, data science, and terminal coding](aion-logo.png)
 
 # Aqwel-Aion
 
-**Aqwel-Aion v0.2.0 — Complete AI Research and Development Library**
+**Official open-source product from [Aqwel AI](https://aqwelai.xyz/) · v0.2.0**
 
 [![PyPI](https://img.shields.io/pypi/v/aqwel-aion?label=PyPI)](https://pypi.org/project/aqwel-aion/)
 [![Python](https://img.shields.io/pypi/pyversions/aqwel-aion?label=Python)](https://pypi.org/project/aqwel-aion/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Aqwel AI](https://img.shields.io/badge/Product-Aqwel%20AI-0066cc)](https://aqwelai.xyz/)
 
-Aion is an open-source Python library by **Aqwel AI** for research and production-style ML workflows: numerics and algorithms, a **Core ML stack** (preprocessing, classical models, metrics, hyperparameter search — NumPy-first, no scikit-learn required), **safe I/O**, **built-in benchmark datasets** (sklearn-style, no downloads), **pandas-style file loaders**, **multi-vendor LLM clients**, **tool calling and RAG primitives**, **autonomous agents** (ReAct, planning, multi-agent), **caching**, **data processing and tokenization**, **pipelines**, **persistent storage**, **experiment tracking**, **LLM evaluation**, **API serving**, an interactive **Aion Hub** dashboard (`aion start`), visualization (including **3D** and multi-page reports), optional **native-accelerated** helpers, and small **infra utilities** (config, env, logging, benchmarks). Install only the extras you need—core usage stays lightweight.
+**Aion** is the flagship Python platform from **Aqwel AI**: one install for **research-grade ML** in notebooks and a **terminal coding agent** for day-to-day development. Apache-2.0, published on [PyPI](https://pypi.org/project/aqwel-aion/) as `aqwel-aion`.
 
-**Links:** [Website](https://aqwelai.xyz/) · [Documentation](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/aqwel-aion/)
+| Pillar | Audience | Entry point |
+|--------|----------|-------------|
+| **Research library** (~50%) | AI researchers, data scientists, ML engineers | `import aion` |
+| **Terminal agent** (~50%) | Developers who want a local coding assistant in the shell | `aion agent` |
+
+Shared stack: **`aion.providers`** (OpenAI, Gemini, Anthropic, Ollama, DeepSeek, …), **`aion.agents`** (ReAct, planning), **`aion.tools`** (files, grep, shell). Install only what you need: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[full]`.
+
+**Official links:** [Aqwel AI website](https://aqwelai.xyz/) · [Product docs](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/aqwel-aion/) · [This repo — structure](docs/PROJECT_STRUCTURE.md) · [Security](SECURITY.md) · [`.env.example`](.env.example)
+
+---
+
+## About Aqwel AI
+
+**Aqwel AI** builds practical AI tools for researchers and developers. **Aion** is our primary open-source product: a single Python package that replaces scattered scripts for numerics, classical ML, LLM workflows, experiment tracking, and—new in v0.2.0—a **terminal agent** that helps you read, edit, and run code in your project.
+
+- **Company:** [aqwelai.xyz](https://aqwelai.xyz/)
+- **Product:** Aqwel-Aion (`pip install aqwel-aion`)
+- **Maintainer:** Aqwel AI Team · **Lead author:** Aksel Aghajanyan
+- **License:** Apache-2.0 · **Support:** [CONTRIBUTING.md](CONTRIBUTING.md) · security: [SECURITY.md](SECURITY.md)
+
+---
+
+## Aion product documentation
+
+This README is the **main documentation** for the GitHub repository. Deeper maps and agent-specific notes live in linked files below.
+
+### Documentation map
+
+| Document | What it covers |
+|----------|----------------|
+| **This README** | Full product overview, install, features, examples, architecture diagrams |
+| [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) | Two-pillar layout (library vs `cli_agent`) |
+| [aion/cli_agent/README.md](aion/cli_agent/README.md) | Terminal agent commands and module layout |
+| [SECURITY.md](SECURITY.md) | API keys, `~/.aion.yaml`, trust mode, safe publishing |
+| [.env.example](.env.example) | Environment variables (copy to `.env` locally only) |
+| [CHANGELOG.md](CHANGELOG.md) | Version history |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Development and PR process |
+| [aion/algorithms/README.md](aion/algorithms/README.md) | Algorithms module |
+| [aion/visualization/README.md](aion/visualization/README.md) | Plotting and reports |
+| [aqwelai.xyz/#/docs](https://aqwelai.xyz/#/docs) | Official web documentation (Aqwel AI) |
+
+### Pillar 1 — Research library (`import aion`)
+
+For **notebooks, papers, and pipelines**: NumPy-first classical ML, built-in datasets (no downloads), algorithms, RAG, tokenizers, `former` transformer training, trackers, LLM eval, Hub UI (`aion start`).
+
+```bash
+pip install "aqwel-aion[ai,viz]"    # or pip install -e ".[ai,viz]" from this repo
+```
+
+```python
+import aion
+from aion.datasets import load_iris
+from aion.preprocessing import StandardScaler
+from aion.models import GaussianNB
+from aion.metrics import accuracy_score
+
+ds = load_iris()
+X = StandardScaler().fit_transform(ds.data)
+clf = GaussianNB().fit(X, ds.target)
+print(accuracy_score(ds.target, clf.predict(X)))
+```
+
+| Module area | Capabilities |
+|-------------|--------------|
+| `aion.maths`, `aion.algorithms` | Linear algebra, search, graphs, arrays |
+| `aion.preprocessing`, `aion.models`, `aion.metrics`, `aion.hyperopt` | Core ML stack (sklearn-style, NumPy-first) |
+| `aion.datasets`, `aion.data` | 24+ built-in benchmarks, loaders, splits |
+| `aion.providers`, `aion.tools`, `aion.rag`, `aion.agents` | LLM clients, tool loops, RAG, ReAct agents |
+| `aion.tracker`, `aion.llm_eval`, `aion.cache`, `aion.store` | Experiments, eval metrics, caching, SQLite stores |
+| `aion.former`, `aion.visualization`, `aion.ui` | Transformer training, plots/3D, Aion Hub |
+
+CLI helpers: `aion start`, `aion usage` (token & cost dashboard), `aion embed`, `aion eval`, `aion benchmark`, `aion doctor` — see [Getting Started](#getting-started) and [Features](#features).
+
+### Pillar 2 — Terminal coding agent (`aion agent`)
+
+For **developers**: interactive shell assistant in your repo—connect to **Ollama** (all local models) or cloud APIs, chat naturally, and use tools to read/edit files when needed.
+
+```bash
+pip install -e ".[ai,config]"
+cp .env.example .env              # optional; never commit .env
+aion agent
+```
+
+**First-time setup (API keys — private, not in git):**
+
+| Method | Where keys are stored |
+|--------|------------------------|
+| `aion api add Gemini YOUR_KEY` | `~/.aion.yaml` (home directory) |
+| Environment variables | `.env` on your machine (see [.env.example](.env.example)) |
+| `/connect gemini new` | Prompts for key, saves to `~/.aion.yaml` |
+
+**Supported providers:** OpenAI, Gemini (Google), Anthropic, DeepSeek, Groq, Ollama (local), and OpenAI-compatible servers.
+
+**Slash commands inside the agent:**
+
+| Command | Description |
+|---------|-------------|
+| `/` or `/help` | List commands (partial match supported) |
+| `/connect ollama` | List all installed Ollama models; pick one |
+| `/connect <provider> [model]` | Connect to a cloud or local provider |
+| `/connect <provider> new` | Enter a new API key and connect |
+| `/reconnect <provider>` | Replace API key and reconnect |
+| `/disconnect [name]` | Go offline, or disconnect a named provider/model |
+| `/disconnect forget` | Clear saved keys for disconnected providers |
+| `/idle [minutes or off]` | Auto-disconnect after idle (`off` = stay connected) |
+| `/models` | Refresh session dashboard |
+| `/init` | Create `AION.md` project notes in the workspace |
+| `/quit` | Exit agent |
+| `/usage` | Open usage dashboard in browser |
+
+**Behavior:** Casual messages (e.g. “Hey”) use **chat-only** mode; coding tasks use **tool-assisted** ReAct (read file, edit, grep, run command when workspace trust is enabled). Session restores last provider/model from `~/.aion.yaml` on restart.
+
+**Workspace trust:** When enabled, the agent can modify files and run shell commands in your project—only use in directories you control. See [SECURITY.md](SECURITY.md).
+
+```mermaid
+flowchart LR
+  Dev[Developer] --> CLI[aion agent]
+  CLI --> Conn[connect.py providers]
+  Conn --> Ollama[Ollama local]
+  Conn --> Cloud[OpenAI Gemini Anthropic DeepSeek]
+  CLI --> Agent[aion.agents ReAct]
+  Agent --> Tools[aion.tools filesystem workspace]
+  Tools --> Repo[Your project files]
+  Conn --> Config["~/.aion.yaml private"]
+```
+
+More detail: [aion/cli_agent/README.md](aion/cli_agent/README.md).
+
+### Quick start — choose your path
+
+| I am a… | Do this |
+|---------|---------|
+| **Data scientist / researcher** | `pip install "aqwel-aion[ai]"` → `import aion` → see [Getting Started](#getting-started) |
+| **Developer using terminal AI** | `pip install -e ".[ai,config]"` → `aion agent` → `/connect ollama` or `/connect gemini` |
+| **Both** | `pip install -e ".[full]"` from this repo |
 
 ---
 
@@ -26,6 +161,12 @@ Aion is an open-source Python library by **Aqwel AI** for research and productio
 
 ## Table of Contents
 
+- [About Aqwel AI](#about-aqwel-ai)
+- [Aion product documentation](#aion-product-documentation)
+  - [Documentation map](#documentation-map)
+  - [Pillar 1 — Research library](#pillar-1--research-library-import-aion)
+  - [Pillar 2 — Terminal coding agent](#pillar-2--terminal-coding-agent-aion-agent)
+  - [Quick start — choose your path](#quick-start--choose-your-path)
 - [Team Aqwel AI](#team-aqwel-ai)
 - [Overview](#overview)
 - [What's new in 0.2.0](#whats-new-in-020)
@@ -50,7 +191,9 @@ Aion is an open-source Python library by **Aqwel AI** for research and productio
 
 ## Overview
 
-Aion gives you one coherent **import surface** (`import aion`) for work that usually spans half a dozen ad-hoc utilities: **linear algebra and stats**, **classical algorithms** (search, arrays, **graphs** with shortest paths and components), a **Core ML stack** (`preprocessing`, `models`, `metrics`, `hyperopt`), **plotting** (1D/2D/training/**3D**, PDF/HTML figure bundles), **embeddings and evaluation**, **PDF/docs generation**, and **systems-style helpers** (files, watcher, Git).
+**Aqwel-Aion** is a **dual-purpose Aqwel AI product**: the same package powers **library workflows** (`import aion`) and the **terminal agent** (`aion agent`). Both share providers, agents, and tools.
+
+The research library gives you one coherent **import surface** for work that usually spans half a dozen ad-hoc utilities: **linear algebra and stats**, **classical algorithms** (search, arrays, **graphs** with shortest paths and components), a **Core ML stack** (`preprocessing`, `models`, `metrics`, `hyperopt`), **plotting** (1D/2D/training/**3D**, PDF/HTML figure bundles), **embeddings and evaluation**, **PDF/docs generation**, and **systems-style helpers** (files, watcher, Git).
 
 **LLM-era additions** include **`aion.providers`** (REST chat for OpenAI, Gemini, Anthropic, and OpenAI-compatible servers), **`aion.tools`** (schemas, registry, multi-turn **tool loops** with `complete_turn`), **`aion.rag`** (chunking, **vector stores**, optional FAISS, `SimpleRAGIndex`), plus **`aion.io`** for streaming reads, atomic writes, and checksums.
 
@@ -58,11 +201,22 @@ Aion gives you one coherent **import surface** (`import aion`) for work that usu
 
 The design goal is simple: **progressive disclosure**—core installs stay small; heavy stacks are behind **named extras** (`[viz]`, `[ai]`, `[full]`, `[tools]`, `[rag]`, `[serve]`, and others).
 
+The **terminal agent** (`aion/cli_agent/`) adds an interactive layer on top: persisted connections in `~/.aion.yaml`, Ollama model menus, slash commands, and workspace-aware coding tools—documented in [Aion product documentation](#pillar-2--terminal-coding-agent-aion-agent).
+
 ---
 
 ## What's new in 0.2.0
 
 Version 0.2.0 adds **15 new modules** spanning the full AI application lifecycle — from the **Core ML stack** and built-in datasets through tokenization, agent orchestration, API serving, and the **Aion Hub** developer UI.
+
+### Terminal coding agent (`aion agent`) — Aqwel AI CLI product
+
+- **`aion agent`** — Full-screen terminal assistant with Aion branding, intro animation, and slash commands.
+- **Multi-provider connect** — `/connect ollama` (all local models), OpenAI, Gemini, Anthropic, DeepSeek, Groq; auto-reconnect from `~/.aion.yaml`.
+- **Session persistence** — Saved provider, model, trust level, idle disconnect policy.
+- **Coding tools** — Read/edit files, grep, run commands (with workspace trust).
+- **Chat vs tools** — Greetings and Q&A without tool spam; coding tasks use ReAct + JSON tools.
+- **API management** — `aion api add/list/disconnect`; keys never committed to git ([SECURITY.md](SECURITY.md)).
 
 ### Agent framework (`aion.agents`)
 - **`ReActAgent`** — Observe/think/act loop with tool calling, configurable memory, and step logging.
@@ -188,7 +342,7 @@ Four NumPy-first modules for classical ML workflows (sklearn-style `fit` / `tran
 
 ## Architecture and structure
 
-This part of the README is the **structural map** of Aion: conceptual layers (diagrams), design rules, and a **file-level tree** of the `aion/` package that matches the repository.
+This part of the README is the **structural map** of the Aqwel AI **Aion** product: conceptual layers (diagrams), design rules, and a **file-level tree** of the `aion/` package. The **terminal agent** lives in `aion/cli_agent/` (see [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)).
 
 ### Package architecture and diagrams
 
@@ -217,6 +371,7 @@ flowchart TB
   Serve[serve FastAPI endpoints]
   CoreML[preprocessing models metrics hyperopt]
   UI[ui Hub HTML reports]
+  CLIAgent[cli_agent terminal coding agent]
   Ops[config env benchmarks]
   Foundation --> Core
   Foundation --> Structures
@@ -229,6 +384,8 @@ flowchart TB
   DataIO --> RAGModule
   LLM --> RAGModule
   LLM --> Agents
+  LLM --> CLIAgent
+  Agents --> CLIAgent
   LLM --> LLMEval
   LLM --> Serve
   RAGModule --> Agents
@@ -353,7 +510,8 @@ flowchart LR
 - **Quality:** `benchmarks`.
 - **Optional dependencies:** Heavy stacks behind extras (`[viz]`, `[ai]`, `[docs]`, `[full]`, `[tools]`, `[rag]`, `[config]`, …). LLM calls need network + API keys. **No `eval`** in tool execution—arguments are JSON-parsed and passed to registered callables only.
 - **Native extension:** `src/aion_core.cpp` + pybind11 produces `aion._aion_core`; otherwise NumPy fallbacks.
-- **Entry points:** `aion.cli`, package metadata on `aion`, and repo `main.py` for CLI experiments.
+- **Terminal agent:** `aion/cli_agent/` — `aion agent`, `aion api`, `aion config`; config in `~/.aion.yaml` (private).
+- **Entry points:** `aion.cli` (`aion` console script), package metadata on `aion`, shims `agent_cli.py` / `api_cli.py` / `auth_cli.py`, repo `main.py`.
 
 ### Directory structure
 
@@ -369,6 +527,10 @@ Layout below matches the repository as shipped (file names only; omit your local
 ├── LICENSE
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
+├── SECURITY.md
+├── .env.example                 # Template only — copy to .env locally (gitignored)
+├── docs/
+│   └── PROJECT_STRUCTURE.md     # Library vs terminal agent map
 ├── MANIFEST.in
 ├── pyproject.toml
 ├── setup.py
@@ -387,9 +549,9 @@ Layout below matches the repository as shipped (file names only; omit your local
 └── aion/                      # Python package (see next tree)
 ```
 
-**Repo check:** The layout above is the **documented** shipping shape. The repository includes a **`tests/`** directory (64 pytest cases; run `pytest tests/` after `pip install -e ".[dev]"`). If `import aion` fails after a partial checkout, restore package stubs with  
+**Repo check:** The layout above is the **documented** shipping shape. The repository includes a **`tests/`** directory (run `pytest tests/` after `pip install -e ".[dev,ai]"`). If `import aion` fails after a partial checkout, restore package stubs with  
 `git checkout HEAD -- aion/benchmarks/__init__.py`.  
-The library surface is **`aion.code`** (`code.py`); ignore a stray local `aion/code/` folder if it only contains `__pycache__`.
+The library surface is **`aion.code`** (`code.py` module only—not a `aion/code/` package). Do not keep empty `aion/agent/` or `aion/code/` folders (legacy cache-only dirs).
 
 #### Package `aion/` (complete source tree)
 
@@ -401,10 +563,17 @@ aion/
 ├── _core.py                   # fast_* → optional aion._aion_core or NumPy
 ├── agents/
 │   ├── __init__.py
+│   ├── action_detect.py       # Route chat-only vs tool-assisted turns
+│   ├── json_tools.py          # Parse model JSON tool calls (CLI agent)
 │   ├── memory.py              # SlidingWindowMemory, SummaryMemory, TokenBudgetMemory
 │   ├── react.py               # ReActAgent (observe/think/act loop)
 │   ├── planner.py             # PlanningAgent (decompose → execute)
 │   └── multi.py               # MultiAgent (role-based delegation)
+├── agent_cli.py               # Shim → cli_agent (``aion agent``)
+├── agent_ui/                  # Shim → cli_agent.ui (``aion help``)
+│   └── __init__.py
+├── api_cli.py                 # Shim → cli_agent.api
+├── auth_cli.py                # Shim → cli_agent.auth
 ├── algorithms/
 │   ├── README.md
 │   ├── __init__.py
@@ -422,7 +591,32 @@ aion/
 │   ├── core.py                # Cache protocol, MemoryCache, DiskCache
 │   ├── decorator.py           # @cached decorator
 │   └── llm_cache.py           # LLMCache (prompt-keyed response cache)
-├── cli.py
+├── cli.py                     # Main CLI router (``aion`` entry point)
+├── cli_agent/                 # Terminal coding agent (``aion agent``)
+│   ├── README.md
+│   ├── __init__.py
+│   ├── app.py                 # Chat loop, slash commands
+│   ├── api.py                 # ``aion api`` connect/list/remove
+│   ├── auth.py                # ``aion auth`` (login status)
+│   ├── commands.py
+│   ├── config.py              # ~/.aion.yaml load/save
+│   ├── connect.py             # Provider wiring (Ollama menu, cloud APIs)
+│   ├── connect_args.py        # Parse /connect, /disconnect, /reconnect
+│   ├── constants.py
+│   ├── session_prefs.py       # Persist provider, model, trust, idle
+│   ├── tools.py               # Workspace tool registry for agent
+│   ├── trust.py
+│   └── ui/
+│       ├── __init__.py
+│       ├── aion_shell.py      # Dashboard, input prompt
+│       ├── console.py         # Boot / intro
+│       ├── glitch.py          # Logo intro animation
+│       ├── help.py            # CLI command catalog
+│       ├── menus.py
+│       ├── messages.py
+│       ├── slash_help.py
+│       ├── status.py
+│       └── style.py
 ├── code.py
 ├── config/
 │   ├── README.md
@@ -610,11 +804,14 @@ aion/
 │   ├── __init__.py
 │   ├── anthropic_provider.py
 │   ├── base.py
-│   ├── errors.py
+│   ├── deepseek_provider.py
+│   ├── errors.py              # friendly_message() for API errors
 │   ├── factory.py
 │   ├── gemini_provider.py
 │   ├── generic_openai.py
 │   ├── http_utils.py
+│   ├── keys.py                # resolve_api_key, ~/.aion.yaml + env
+│   ├── ollama.py              # Local Ollama chat
 │   ├── openai_provider.py
 │   ├── structured.py          # AssistantTurn, NormalizedToolCall, parse_chat_completion_response
 │   └── examples/
@@ -660,7 +857,10 @@ aion/
 ├── tools/
 │   ├── README.md
 │   ├── __init__.py
+│   ├── code_agent.py          # Coding-agent tool helpers
 │   ├── fake_provider.py       # FakeToolProvider, make_tool_turn (offline demos)
+│   ├── filesystem.py          # read_file, write_file, list_dir
+│   ├── workspace.py           # Project-root scoped file ops
 │   ├── loop.py                # run_tool_loop
 │   ├── rate_limit.py
 │   ├── registry.py
@@ -705,7 +905,7 @@ aion/
 
 After a local build, you may also see **`aion/_aion_core*.so`** (macOS/Linux) or **`aion/_aion_core*.pyd`** (Windows) next to these sources; those binaries are compiled outputs, not part of the documented source tree. **`__pycache__/`** is created at import time.
 
-**Current `aion` surface (trimmed layout):** Subpackages on disk are **`agents`**, **`algorithms`**, **`benchmarks`**, **`cache`**, **`config`**, **`data`**, **`datasets`**, **`env`**, **`former`**, **`hub`**, **`hyperopt`**, **`io`**, **`llm_eval`**, **`metrics`**, **`models`**, **`pipeline`**, **`preprocessing`**, **`providers`**, **`rag`**, **`serve`**, **`store`**, **`structures`**, **`tokenizer`**, **`tools`**, **`tracker`**, **`ui`**, and **`visualization`**, plus the single-file modules shown above (`maths.py`, `code.py`, …). **`aion.data`** loads CSV/JSON/JSONL as row dicts for pipelines; **`aion.datasets`** provides sklearn-style **`Dataset`** objects, 24 built-in benchmarks, generators, and file I/O; **`aion.preprocessing`** / **`aion.models`** / **`aion.metrics`** / **`aion.hyperopt`** form the Core ML stack (NumPy-only); **`aion.former.datasets`** handles LM text windows; **`aion start`** serves the Hub UI from **`aion.hub`** via **`aion.ui`**.
+**Current `aion` surface (trimmed layout):** Subpackages include **`agents`**, **`algorithms`**, **`bench`**, **`benchmarks`**, **`cache`**, **`cli_agent`**, **`config`**, **`data`**, **`datasets`**, **`env`**, **`experiments`**, **`former`**, **`hub`**, **`hyperopt`**, **`io`**, **`llm_eval`**, **`metrics`**, **`models`**, **`monitor`**, **`pipeline`**, **`preprocessing`**, **`providers`**, **`rag`**, **`serve`**, **`store`**, **`structures`**, **`tokenizer`**, **`tools`**, **`tracker`**, **`ui`**, **`vision`**, and **`visualization`**, plus top-level modules (`cli.py`, `code.py`, `agent_cli.py`, …) and shims **`agent_ui/`**. **`aion.cli_agent`** powers **`aion agent`**; **`aion.data`** / **`aion.datasets`** / Core ML / **`aion.former`** / **`aion start`** (Hub) as above.
 
 ### Design principles
 
@@ -919,6 +1119,10 @@ aion --help
 
 | Command | Description |
 |---------|-------------|
+| `aion agent` | **Terminal coding agent** — connect LLMs, chat, edit project files ([docs](#pillar-2--terminal-coding-agent-aion-agent)) |
+| `aion usage` / `aion stats` | **Usage dashboard** (React) — tokens, cost, animated charts · [http://127.0.0.1:3847](http://127.0.0.1:3847) |
+| `aion api connect` / `aion api add` | Manage provider API keys (stored in `~/.aion.yaml`) |
+| `aion config` | CLI and agent settings |
 | `aion start` / `aion ui` | Open **Aion Hub** (module explorer, playground, quick reference) |
 | `aion ui --report DIR` | Build experiment HTML dashboard from tracker directory |
 | `aion ui --list` | List all available UIs (hub, monitor, reports, Gradio, Streamlit) |
@@ -1852,20 +2056,63 @@ See `aion.parser` and `aion.code` for language-specific behavior and APIs.
 
 ## Documentation and Resources
 
-- **Official site:** [https://aqwelai.xyz/](https://aqwelai.xyz/)
-- **PyPI:** [https://pypi.org/project/aqwel-aion/](https://pypi.org/project/aqwel-aion/)
-- **Package metadata and URLs:** See [pyproject.toml](pyproject.toml) for project links and optional dependencies.
-- **This README:** Architecture **Mermaid diagrams** (sequence-diagram actor IDs avoid reserved words such as `loop`—see tool-calling diagram), full `aion/` **source tree**, and an **optional extras matrix** for onboarding.
-- **In-package docs:** Use `aion.pdf.generate_complete_documentation(output_dir)` for API + user-guide bundles, or `create_api_documentation_html` / `create_api_documentation_md` for a single browsable reference. Algorithm and visualization details live in `aion/algorithms/README.md` and `aion/visualization/README.md`.
-- **Example notebooks and demos:**
-  - Algorithms: `aion/algorithms/examples/` (`01_search_algorithms.ipynb`, `02_array_utilities.ipynb`).
-  - Visualization: `aion/visualization/examples/` (`01_array_visualization.ipynb`, `02_matrix_visualization.ipynb`, `03_training_visualization.ipynb`).
-  - Config: `aion/config/examples/` (layered TOML/YAML + `01_config_loading_merge.ipynb`).
-  - I/O & LLM stack (runnable `python -m …`): `aion/io/examples/`, `aion/providers/examples/`, `aion/rag/examples/`, `aion/tools/examples/`.
-  - Former: `aion/former/examples/` (attention, text generation) plus `aion/former/*/examples/` (core, datasets, experiments, models, training, visualization).
-- **Tests:** `pytest tests/` from the repo root (64 cases; includes Core ML stack). Install dev deps: `pip install -e ".[dev]"`.
-- **Changelog:** [CHANGELOG.md](CHANGELOG.md) for version history.
-- **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code style, and pull request process.
+### Aqwel AI — official
+
+| Resource | URL |
+|----------|-----|
+| **Aqwel AI (company & products)** | [https://aqwelai.xyz/](https://aqwelai.xyz/) |
+| **Aion product documentation (web)** | [https://aqwelai.xyz/#/docs](https://aqwelai.xyz/#/docs) |
+| **PyPI package** | [https://pypi.org/project/aqwel-aion/](https://pypi.org/project/aqwel-aion/) |
+
+### Repository documentation (this project)
+
+| Resource | Description |
+|----------|-------------|
+| [README.md](README.md) | **Primary doc** — product overview, both pillars, install, features, Mermaid architecture, module tree, examples |
+| [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) | Library vs terminal agent layout |
+| [aion/cli_agent/README.md](aion/cli_agent/README.md) | `aion agent` slash commands and code map |
+| [SECURITY.md](SECURITY.md) | Secrets, `~/.aion.yaml`, publishing checklist |
+| [.env.example](.env.example) | Env var template (private `.env` is gitignored) |
+| [CHANGELOG.md](CHANGELOG.md) | Release notes |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute to Aqwel-Aion |
+| [pyproject.toml](pyproject.toml) | Version, extras (`[ai]`, `[full]`, …), PyPI metadata |
+
+### In-package and generated docs
+
+- **`aion.pdf`:** `generate_complete_documentation(output_dir)` — API + user-guide bundles; or `create_api_documentation_html` / `create_api_documentation_md` for a single reference.
+- **Module READMEs:** [aion/algorithms/README.md](aion/algorithms/README.md), [aion/visualization/README.md](aion/visualization/README.md).
+
+### Example notebooks and runnable demos
+
+| Area | Path |
+|------|------|
+| Algorithms | `aion/algorithms/examples/` — search, arrays |
+| Visualization | `aion/visualization/examples/` — arrays, matrices, training |
+| Config | `aion/config/examples/` — TOML/YAML merge |
+| I/O & LLM | `aion/io/examples/`, `aion/providers/examples/`, `aion/rag/examples/`, `aion/tools/examples/` |
+| Former (transformers) | `aion/former/examples/` and `aion/former/*/examples/` |
+| Root scripts | `example.py`, `main.py` |
+
+### CLI reference (summary)
+
+| Command | Product area |
+|---------|----------------|
+| `aion agent` | Terminal coding agent |
+| `aion api` / `aion auth` | Provider keys and auth |
+| `aion start` / `aion ui` | Aion Hub browser UI |
+| `aion embed`, `aion eval`, `aion rag`, `aion prompt` | Research / LLM utilities |
+| `aion benchmark`, `aion doctor` | ML benchmarks and environment check |
+| `aion welcome` | Install animation overview |
+| `aion --help` / `aion help` | Full command catalog |
+
+### Testing
+
+```bash
+pip install -e ".[dev,ai]"
+pytest tests/
+```
+
+Includes Core ML, providers, connect args, JSON tools, and code-agent tools.
 
 ---
 
@@ -1875,7 +2122,7 @@ This repository is open source. The following **should show** (and are committed
 
 | Category | What shows |
 |----------|------------|
-| **Docs** | `README.md`, `aion-logo.png` (hero + install animation), `LICENSE`, `CHANGELOG.md`, `CONTRIBUTING.md` |
+| **Docs** | `README.md`, `docs/PROJECT_STRUCTURE.md`, `SECURITY.md`, `.env.example`, `aion/cli_agent/README.md`, `aion-logo.png`, `LICENSE`, `CHANGELOG.md`, `CONTRIBUTING.md` |
 | **Config** | `pyproject.toml`, `setup.py`, `MANIFEST.in`, `requirements.txt` |
 | **Source** | `aion/**/*.py`, `src/aion_core.cpp` |
 | **Tests** | `tests/` — 64 pytest cases (algorithms, io, maths, text, snippets, pdf, Core ML stack); `pip install -e ".[dev]"` then `pytest tests/` |
@@ -1888,11 +2135,17 @@ The following **do not show** (ignored via `.gitignore`):
 - Build artifacts: `build/`, `dist/`, `*.egg`, `*.egg-info/`, compiled extension modules under `aion/_aion_core*.so` / `aion/_aion_core*.pyd`
 - Python cache: `__pycache__/`, `*.pyc`, `*.pyo`
 - Virtual environments: `.venv/`, `venv/`, `env/`
-- Secrets: `.env`, `.env.*` (never commit; use `.env.example` as a template if needed)
+- Secrets: `.env`, `.env.*` (never commit; copy from [`.env.example`](.env.example))
+- User config: `~/.aion.yaml`, `.aion.yaml`, `*.local.yaml` (API keys and agent settings — **private**)
+- Credentials: `secrets/`, `credentials/`, `*.pem`, `*.key`
+- ML artifacts: `wandb/`, `checkpoints/`, `*.pt`, `*.pth`, `*.ckpt`, `mlruns/`, local `data/private/`
 - IDE/editor: `.idea/`, `.vscode/`, `.cursor/`
 - OS files: `.DS_Store`
 - Test/coverage: `.coverage`, `htmlcov/`, `.pytest_cache/`, `.mypy_cache/`, `.ipynb_checkpoints/`
-- Generated output: optionally `example_output/` (uncomment in `.gitignore` if you regenerate those PNGs and don’t want them on GitHub)
+- Generated output: `example_output/`, optional `aion/former/examples_results/*.png`
+- Native builds: `aion/_aion_core*.so`, `aion/_aion_core*.pyd`
+
+Full list: [`.gitignore`](.gitignore). Security notes: [`SECURITY.md`](SECURITY.md).
 
 If something that should be hidden still appears, it was committed before being added to `.gitignore`. Remove it from tracking with `git rm -r --cached <path>` and commit.
 
@@ -1912,17 +2165,20 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ## Author and License
 
+**Aqwel-Aion** is an **Aqwel AI** open-source product.
+
+- **Product:** Aqwel-Aion (Aion)  
 - **Author:** Aksel Aghajanyan  
 - **Developed by:** Aqwel AI Team  
-- **Company Gmail:** aqwelai.company@gmail.com  
-- **Copyright:** 2025 Aqwel AI  
+- **Company:** [Aqwel AI](https://aqwelai.xyz/) · **Contact:** aqwelai.company@gmail.com  
+- **Copyright:** 2025–2026 Aqwel AI  
 - **License:** Apache-2.0 (see [LICENSE](LICENSE))
 
 ---
 
 ## Library Statistics
 
-- **`aion/`** contains **27 subpackages** (`agents`, `algorithms`, `benchmarks`, `cache`, `config`, `data`, `datasets`, `env`, `former`, `hub`, `hyperopt`, `io`, `llm_eval`, `metrics`, `models`, `pipeline`, `preprocessing`, `providers`, `rag`, `serve`, `store`, `structures`, `tokenizer`, `tools`, `tracker`, `ui`, `visualization`) and **16 top-level `.py` modules** (`__init__.py`, `_core.py`, `cli.py`, `code.py`, `embed.py`, `evaluate.py`, `files.py`, `git.py`, `maths.py`, `parser.py`, `pdf.py`, `prompt.py`, `snippets.py`, `text.py`, `utils.py`, `watcher.py`), plus optional native **`fast_*`** re-exports on the package.
+- **`aion/`** contains **30+ subpackages** including **`cli_agent`** (terminal agent), **`agents`**, **`providers`**, **`tools`**, Core ML, **`former`**, **`hub`**, **`ui`**, and the rest listed in [Directory structure](#directory-structure). Top-level modules include **`cli.py`**, shims **`agent_cli.py`** / **`api_cli.py`** / **`auth_cli.py`**, plus **`code.py`**, **`maths.py`**, … and optional native **`fast_*`** via **`_core.py`**.
 - **63 public exports** in `aion.__all__` (up from 51 in v0.1.9), including **`preprocessing`**, **`models`**, **`metrics`**, **`hyperopt`**, and **`ui`**.
 - **69 pytest cases** in `tests/` (Core ML, React-style UI, algorithms, io, maths, text, snippets, pdf).
 - **24 built-in datasets** via `aion.datasets` (10 toy/tabular, 5 NLP, 9 generators) plus pandas-style file loaders.
@@ -1936,4 +2192,6 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ---
 
-Aion is built so teams can move from **numeric and algorithmic baselines** through **classical ML** (preprocess → train → evaluate → tune) to **LLM-assisted workflows**, **autonomous agents**, **retrieval**, **experiment tracking**, and **production serving**—with a single, versioned library and clear optional extras.
+**Aqwel-Aion** is built so teams can move from **numeric and algorithmic baselines** through **classical ML** (preprocess → train → evaluate → tune) to **LLM-assisted workflows**, **autonomous agents**, **retrieval**, **experiment tracking**, and **production serving**—and, when you need it, **`aion agent`** in the terminal for everyday coding—all in one **Aqwel AI** product with clear optional extras.
+
+*Developed by [Aqwel AI](https://aqwelai.xyz/) · [Documentation](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/aqwel-aion/)*

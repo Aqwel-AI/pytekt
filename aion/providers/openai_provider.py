@@ -79,6 +79,7 @@ class OpenAIProvider:
                 payload[k] = v
         headers = {"Authorization": f"Bearer {self._api_key}"}
         data = post_json(url, payload, headers=headers)
+        self._last_raw_response = data  # type: ignore[attr-defined]
         return parse_chat_completion_response(data)
 
     def complete(
@@ -99,6 +100,7 @@ class OpenAIProvider:
         payload.update(kwargs)
         headers = {"Authorization": f"Bearer {self._api_key}"}
         data = post_json(url, payload, headers=headers)
+        self._last_raw_response = data  # type: ignore[attr-defined]
         try:
             return data["choices"][0]["message"]["content"] or ""
         except (KeyError, IndexError, TypeError) as e:

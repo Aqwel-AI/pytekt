@@ -1,7 +1,7 @@
 [project]
 name = "aqwel-aion"
 version = "0.2.0"
-description = "Complete AI Research & Development Library with Advanced Mathematics and ML Tools"
+description = "Open-source AI library for researchers and data scientists, plus a terminal coding agent (aion agent)"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [
@@ -11,7 +11,7 @@ maintainers = [
     {name = "Aqwel AI Team"}
 ]
 
-keywords = ["ai-research", "machine-learning", "mathematics", "statistics", "data-science", "embeddings", "agents", "tokenizer", "pipeline", "aqwel-ai"]
+keywords = ["ai-research", "machine-learning", "data-science", "coding-agent", "ollama", "llm", "terminal", "agents", "aqwel-ai"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
