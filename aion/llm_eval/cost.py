@@ -5,8 +5,13 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, List, Optional
 
-# Approximate per-1K-token pricing (USD) as of 2025.
+# Local / self-hosted — no cloud API billing.
+_FREE_LOCAL_PROVIDERS = frozenset({"ollama", "local", "localhost"})
+
+# Approximate per-1K-token cloud pricing (USD) — not your real invoice.
 _PRICING: Dict[str, Dict[str, float]] = {
+    "ollama": {"prompt": 0.0, "completion": 0.0},
+    "local": {"prompt": 0.0, "completion": 0.0},
     "openai": {"prompt": 0.0005, "completion": 0.0015},
     "openai-gpt4": {"prompt": 0.03, "completion": 0.06},
     "openai-gpt4o": {"prompt": 0.005, "completion": 0.015},
@@ -14,6 +19,8 @@ _PRICING: Dict[str, Dict[str, float]] = {
     "anthropic-haiku": {"prompt": 0.00025, "completion": 0.00125},
     "gemini": {"prompt": 0.00025, "completion": 0.0005},
     "gemini-pro": {"prompt": 0.00125, "completion": 0.005},
+    "deepseek": {"prompt": 0.00014, "completion": 0.00028},
+    "deepseek-chat": {"prompt": 0.00014, "completion": 0.00028},
 }
 
 
@@ -38,7 +45,15 @@ def estimate_cost(
     dict
         ``cost_usd``, ``prompt_cost``, ``completion_cost``, breakdown.
     """
-    pricing = _PRICING.get(provider.lower(), {"prompt": 0.001, "completion": 0.002})
+    key = provider.lower().strip()
+    if key in _FREE_LOCAL_PROVIDERS or key.startswith("ollama"):
+        pricing = {"prompt": 0.0, "completion": 0.0}
+    elif key in ("google", "gemini"):
+        pricing = _PRICING.get("gemini", {"prompt": 0.00025, "completion": 0.0005})
+    elif key in ("claude", "anthropic"):
+        pricing = _PRICING.get("anthropic", {"prompt": 0.008, "completion": 0.024})
+    else:
+        pricing = _PRICING.get(key, {"prompt": 0.001, "completion": 0.002})
     p_cost = (prompt_tokens / 1000) * pricing["prompt"]
     c_cost = (completion_tokens / 1000) * pricing["completion"]
     return {
