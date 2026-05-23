@@ -122,8 +122,8 @@ full = [
 ]
 
 [tool.setuptools.cmdclass]
-install = "aion._install_hooks:InstallCommand"
-develop = "aion._install_hooks:DevelopCommand"
+install = "aion._install_hooks.InstallCommand"
+develop = "aion._install_hooks.DevelopCommand"
 
 [tool.setuptools.package-data]
 "aion.monitor" = ["static/*.html", "*.md"]
