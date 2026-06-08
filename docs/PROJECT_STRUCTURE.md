@@ -73,13 +73,13 @@ aion/
 ├── data/, datasets/
 ├── providers/, tools/, rag/, agents/
 ├── former/, visualization/, ui/, hub/
-├── tracker/, llm_eval/, cache/, store/, pipeline/
+├── tracker/, llm_eval/, db/, cache/, store/, pipeline/
 ├── experiments/, bench/, benchmarks/
 ├── io/, config/, env/, serve/, monitor/, vision/
 └── cli.py
 ```
 
-Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[full]`.
+Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[full]`.
 
 ---
 

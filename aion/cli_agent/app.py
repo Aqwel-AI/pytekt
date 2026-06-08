@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import os
 import time
-from typing import Optional
+import uuid
+from typing import Any, Optional
 
 from ..providers.errors import ProviderError
 from . import ui
@@ -19,6 +20,7 @@ from .session_prefs import (
     saved_trust,
 )
 from .tools import build_tool_registry, tools_schema
+from .db_cmds import handle_db_command
 from .trust import ensure_trust_for_coding
 
 
@@ -27,6 +29,7 @@ def _handle_command(
     *,
     connector: AgentConnector,
     workspace: str,
+    db_memory: Optional[Any] = None,
 ) -> Optional[str]:
     """Returns 'quit' to exit loop, None to continue."""
     if text == "?":
@@ -76,17 +79,12 @@ def _handle_command(
         return None
 
     if cmd in ("connect", "reconnect"):
-        if not args:
-            ui.error_print(
-                "Usage: /connect openai | gemini | ollama …  "
-                "or /connect gemini new  (new API key)"
-            )
-            return None
         if not ensure_trust_for_coding(connector):
             return None
-        prov, mod, new_key = parse_connect_args(args)
-        if cmd == "reconnect":
-            new_key = True
+        if args:
+            prov, mod, new_key = parse_connect_args(args)
+        else:
+            prov, mod, new_key = None, None, False
         if connector.connect(
             prov=prov,
             mod=mod,
@@ -182,6 +180,10 @@ def _handle_command(
             ui.info_print(f"Opened {ui.cyan(url)} (already running)")
         return None
 
+    if cmd == "db":
+        handle_db_command(args, cfg=connector.cfg, memory=db_memory)
+        return None
+
     ui.print_slash_help(cmd)
     ui.error_print(f"Unknown command {ui.bold(text)}. See matches above.")
     return None
@@ -216,9 +218,21 @@ def run_agent_command(
     cfg = get_config()
     session = ui.AgentSession(mode="offline", is_trusted=False)
 
+    from .constants import AGENT_PROVIDER, COMING_SOON_PROVIDERS, provider_display_name
+
     if provider_name:
-        session.provider = provider_name
-        session.mode = "ollama" if provider_name == "ollama" else "cloud"
+        if provider_name in COMING_SOON_PROVIDERS:
+            ui.info_print(
+                f"{provider_display_name(provider_name)} is coming soon — not available yet. "
+                f"Use {ui.cyan('/connect ollama')} for now."
+            )
+        elif provider_name != AGENT_PROVIDER:
+            ui.info_print(
+                f"Only Ollama is available now. Use {ui.cyan('/connect ollama')}."
+            )
+        else:
+            session.provider = AGENT_PROVIDER
+            session.mode = "ollama"
 
     connector = AgentConnector(
         cfg=cfg,
@@ -234,7 +248,11 @@ def run_agent_command(
         connector.apply_trust(True)
         connector.trust_confirmed = True
 
-    auto_provider = provider_name or saved_provider(cfg)
+    saved = saved_provider(cfg)
+    if provider_name == AGENT_PROVIDER or (provider_name is None and saved == AGENT_PROVIDER):
+        auto_provider = AGENT_PROVIDER
+    else:
+        auto_provider = None
     auto_model = model or saved_model(cfg)
     if auto_provider:
         if not connector.trust_confirmed and saved_trust(cfg):
@@ -255,8 +273,8 @@ def run_agent_command(
                 f"Could not restore {ui.bold(auto_provider)}. "
                 f"Use {ui.cyan('/connect ' + auto_provider)} when ready."
             )
-    elif provider_name and ensure_trust_for_coding(connector):
-        connector.connect(prov=provider_name, mod=model)
+    elif provider_name == AGENT_PROVIDER and ensure_trust_for_coding(connector):
+        connector.connect(prov=AGENT_PROVIDER, mod=model)
 
     ui.print_aion_dashboard(
         cfg=cfg,
@@ -266,6 +284,27 @@ def run_agent_command(
     )
     ui.print_input_area(connected=session.connected)
     last_activity = time.time()
+
+    db_memory = None
+    try:
+        from ..db import agent_memory
+        from ..db.settings import get_db_connection
+        from ..config.core import get_nested, set_nested
+
+        thread_id = get_nested(cfg, "agent.thread_id") or uuid.uuid4().hex[:12]
+        if not get_nested(cfg, "agent.thread_id"):
+            set_nested(cfg, "agent.thread_id", thread_id)
+            from .config import save_config
+
+            save_config(cfg)
+        db_conn = get_db_connection(cfg)
+        db_memory = agent_memory(db_conn, thread_id=thread_id)
+        ui.info_print(
+            f"Agent memory → {ui.dim('~/.aion/agent.db')} "
+            f"· thread {ui.accent_muted(thread_id)}"
+        )
+    except Exception:
+        pass
 
     while True:
         idle_mins = idle_disconnect_minutes(cfg)
@@ -308,7 +347,10 @@ def run_agent_command(
 
         try:
             action = _handle_command(
-                user_input, connector=connector, workspace=workspace_root
+                user_input,
+                connector=connector,
+                workspace=workspace_root,
+                db_memory=db_memory,
             )
         except KeyboardInterrupt:
             print(f"\n  {ui.dim('Cancelled.')}\n")
@@ -323,12 +365,18 @@ def run_agent_command(
             continue
 
         if not connector.agent:
-            ui.error_print("Connect first: /connect openai (or ollama, anthropic, …)")
+            ui.error_print(f"Connect first: {ui.cyan('/connect')} or {ui.cyan('/connect ollama')}")
             continue
 
         try:
             response = connector.agent.chat(user_input)
             last_activity = time.time()
+            if db_memory is not None:
+                try:
+                    db_memory.append("user", user_input)
+                    db_memory.append("assistant", response)
+                except Exception:
+                    pass
             print()
             ui.agent_print(response, name="Aion")
             print()

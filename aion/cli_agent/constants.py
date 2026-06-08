@@ -3,40 +3,39 @@
 from __future__ import annotations
 
 AGENT_MODES = [
-    "💻  Coding Agent (OpenAI, DeepSeek…)",
     "🦙  Local AI (Ollama)",
     "📴  Offline (disconnect)",
     "📖  Show Help Catalog",
 ]
 
-# Shown in menus; not connectable until the hosted API ships
-COMING_SOON_PROVIDERS = frozenset({"aqwel"})
+AGENT_PROVIDER = "ollama"
 
-CLOUD_PROVIDERS = [
-    "✨ Aqwel AI (coming soon)",
-    "🟢 OpenAI (recommended for coding)",
-    "🐋 DeepSeek (coding + tools)",
-    "🔌 OpenAI Compatible",
-    "🔵 Gemini (chat only)",
-    "🟠 Anthropic (chat only)",
-    "🦙 Ollama",
+# Shown in the dashboard; only Ollama is connectable today.
+DISPLAY_PROVIDERS = [
+    ("ollama", "Ollama"),
+    ("aqwel", "Aqwel AI"),
+    ("openai", "OpenAI"),
+    ("deepseek", "DeepSeek"),
+    ("gemini", "Gemini"),
+    ("anthropic", "Anthropic"),
+    ("groq", "Groq"),
 ]
 
-DEFAULT_MODELS = {
-    "openai": "gpt-4o",
-    "deepseek": "deepseek-chat",
-    "gemini": "gemini-2.0-flash",
-    "anthropic": "claude-3-5-sonnet-20240620",
-    "openai_compatible": "default-model",
-}
+COMING_SOON_PROVIDERS = frozenset(
+    pid for pid, _ in DISPLAY_PROVIDERS if pid != AGENT_PROVIDER
+)
 
-# Providers that implement native OpenAI-style tool calling
-NATIVE_TOOL_PROVIDERS = frozenset({
-    "openai",
-    "deepseek",
-    "openai_compatible",
-    "compatible",
-})
+
+def provider_display_name(provider_id: str) -> str:
+    for pid, label in DISPLAY_PROVIDERS:
+        if pid == provider_id:
+            return label
+    return provider_id.replace("_", " ").title()
+
+
+def is_provider_available(provider_id: str) -> bool:
+    return provider_id == AGENT_PROVIDER
+
 
 CODING_AGENT_PROMPT = """You are Aion, a helpful coding assistant with optional filesystem tools.
 
@@ -52,13 +51,4 @@ After tool work, summarize what changed."""
 
 
 def mode_key(choice: int) -> str:
-    return {1: "cloud", 2: "ollama", 3: "offline", 4: "help"}.get(choice, "cloud")
-
-
-def provider_id_from_menu_label(label: str) -> str:
-    low = label.lower()
-    if "aqwel" in low:
-        return "aqwel"
-    # "🟢 OpenAI (recommended...)" -> openai
-    part = label.split(maxsplit=1)[1].lower()
-    return part.split("(")[0].strip().replace(" ", "_")
+    return {1: "ollama", 2: "offline", 3: "help"}.get(choice, "ollama")

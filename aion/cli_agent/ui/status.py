@@ -27,7 +27,7 @@ from .style import (
 class AgentSession:
     """Current agent CLI session for the status bar."""
 
-    mode: str = "offline"  # offline | cloud | ollama
+    mode: str = "offline"  # offline | ollama
     provider: Optional[str] = None
     model: Optional[str] = None
     is_trusted: bool = False
@@ -38,8 +38,6 @@ class AgentSession:
     def mode_label(self) -> str:
         if self.mode == "ollama":
             return f"{ICON_OLLAMA} Local (Ollama)"
-        if self.mode == "cloud":
-            return f"{ICON_GLOBE} Cloud AI"
         return f"{ICON_OFFLINE} Offline"
 
     @property

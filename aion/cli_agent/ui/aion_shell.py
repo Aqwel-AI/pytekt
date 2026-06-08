@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
+from ..constants import AGENT_PROVIDER, DISPLAY_PROVIDERS
 from .style import (
     accent,
     accent_bright,
@@ -16,13 +17,7 @@ from .style import (
 )
 
 API_PROVIDERS: List[Tuple[str, str, Optional[str]]] = [
-    ("aqwel", "Aqwel AI", None),
-    ("openai", "OpenAI", "OPENAI_API_KEY"),
-    ("anthropic", "Anthropic", "ANTHROPIC_API_KEY"),
-    ("gemini", "Gemini", "GEMINI_API_KEY"),
-    ("deepseek", "DeepSeek", "DEEPSEEK_API_KEY"),
-    ("groq", "Groq", "GROQ_API_KEY"),
-    ("ollama", "Ollama", None),
+    (pid, label, None) for pid, label in DISPLAY_PROVIDERS
 ]
 
 BOX_WIDTH = 74
@@ -42,30 +37,24 @@ def _rule() -> str:
     return accent("├" + "─" * INNER + "┤")
 
 
-def _has_api_key(cfg: Dict[str, Any], provider_id: str, env_var: Optional[str]) -> bool:
-    if provider_id == "ollama":
-        try:
-            from ...providers.ollama import OllamaProvider
-            return bool(OllamaProvider.list_models())
-        except Exception:
-            return False
-    from ...providers.keys import resolve_api_key
+def _ollama_available() -> bool:
+    try:
+        from ...providers.ollama import OllamaProvider
 
-    return bool(resolve_api_key(provider_id, cfg))
+        return bool(OllamaProvider.list_models())
+    except Exception:
+        return False
 
 
 def _provider_status(cfg: Dict[str, Any], session: Any, provider_id: str, env_var: Optional[str]) -> str:
-    if provider_id == "aqwel":
+    del cfg, env_var
+    if provider_id != AGENT_PROVIDER:
         return accent_muted("◎ coming soon")
     if session.connected and session.provider == provider_id:
         return accent_bright("● active")
-    if provider_id == "ollama":
-        if _has_api_key(cfg, provider_id, env_var):
-            return accent("● local")
-        return dim("○ offline")
-    if _has_api_key(cfg, provider_id, env_var):
-        return accent("● ready")
-    return accent_muted("○ not set")
+    if _ollama_available():
+        return accent("● local")
+    return dim("○ offline")
 
 
 def _provider_row(label: str, status: str) -> str:
@@ -114,7 +103,7 @@ def print_aion_dashboard(
         pass
     print(_line(""))
     print(_split(accent_muted("SESSION"), accent_muted("QUICK START")))
-    print(_split(f"  {session_txt}", dim("  /connect <provider>")))
+    print(_split(f"  {session_txt}", dim("  /connect ollama")))
     print(_split(dim(f"  {cwd}"), dim("  /init → AION.md")))
     print(_split("", dim("  Ask in plain language")))
     print(_rule())
@@ -148,8 +137,8 @@ def print_shortcuts() -> None:
     print(dim("  ─────────────────────────────────────"))
     for cmd, desc in (
         ("/", "List slash commands (or /partial to filter)"),
-        ("/connect ollama", "Pick from all installed Ollama models"),
-        ("/connect <name>", "Connect to a provider"),
+        ("/connect", "Pick from installed Ollama models"),
+        ("/connect <model>", "Connect to a specific Ollama model"),
         ("/disconnect [name]", "Go offline"),
         ("/idle off", "Keep connection after restart (default)"),
         ("/idle 30", "Auto-disconnect after 30 min idle"),

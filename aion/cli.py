@@ -229,7 +229,7 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
     agent_parser.add_argument(
         "--provider",
         "-p",
-        help="Provider name (openai, deepseek, gemini, anthropic, ollama)",
+        help="Provider name (ollama available; others coming soon)",
     )
     agent_parser.add_argument("--model", "-m", help="Model name")
     agent_parser.add_argument("--system", "-s", help="System prompt")
@@ -288,6 +288,19 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
         help="Alias for aion usage — LLM usage analytics dashboard",
     )
     _add_usage_args(stats_parser)
+
+    # db
+    db_parser = subparsers.add_parser("db", help="Database sync, status, and demos")
+    db_sub = db_parser.add_subparsers(dest="db_action", help="Database actions")
+    db_sub.add_parser("status", help="Show configured database URL and connection")
+    db_sync_usage = db_sub.add_parser("sync-usage", help="Import usage JSONL into DB")
+    db_sync_usage.add_argument("--url", help="Database URL (default from ~/.aion.yaml db.url)")
+    db_sync_usage.add_argument("--table", default="usage_events", help="Target table")
+    db_sync_tracker = db_sub.add_parser("sync-tracker", help="Import experiment runs into DB")
+    db_sync_tracker.add_argument("--url", help="Database URL")
+    db_sync_tracker.add_argument("--root", default=".aion_runs", help="Tracker root directory")
+    db_sync_tracker.add_argument("--table", default="experiments", help="Target table")
+    db_sub.add_parser("demo", help="Quick in-memory SQLite demo")
 
     return parser, git_parser
 
@@ -739,6 +752,12 @@ def main():
         from .cli_agent import config_command
 
         config_command(key=args.key, value=args.value)
+        return
+
+    if args.command == "db":
+        from .db.cli import db_main
+
+        db_main(args)
         return
 
     if args.command == "git" and hasattr(args, "git_command"):

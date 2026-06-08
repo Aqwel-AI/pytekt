@@ -125,6 +125,9 @@ from . import pipeline
 # Persistent storage (key-value, vector, chat history)
 from . import store
 
+# Unified database layer (SQLite, MySQL, PostgreSQL, MongoDB, Redis)
+from . import db
+
 # Experiment tracking (runs, metrics, comparison)
 from . import tracker
 
@@ -219,6 +222,7 @@ __all__ = [
     "tokenizer",        # BPE, WordPiece tokenizers, vocabulary management
     "pipeline",         # Step-based data/ML pipelines
     "store",            # SQLite key-value, vector store, chat history
+    "db",               # Unified DB: SQLite, MySQL, Postgres, Mongo, Redis
     "tracker",          # Experiment tracking (runs, metrics, comparison)
     "llm_eval",         # LLM output evaluation and cost tracking
     "agents",           # ReAct, planning, multi-agent framework

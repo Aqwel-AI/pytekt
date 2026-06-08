@@ -105,12 +105,63 @@ def _locale_tag() -> Optional[str]:
     return None
 
 
+_CACHED_LOCATION: Optional[Dict[str, Any]] = None
+_LOCATION_FETCHED: bool = False
+
+
+def _get_device_location() -> Optional[Dict[str, Any]]:
+    import urllib.request
+    import json
+
+    # Try ip-api.com first, then ipapi.co as a fallback
+    urls = [
+        ("http://ip-api.com/json/", "countryCode", "country", "city", "regionName", "timezone"),
+        ("https://ipapi.co/json/", "country_code", "country_name", "city", "region", "timezone")
+    ]
+    for url, code_key, name_key, city_key, region_key, tz_key in urls:
+        try:
+            req = urllib.request.Request(
+                url, 
+                headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'}
+            )
+            with urllib.request.urlopen(req, timeout=1.5) as response:
+                data = json.loads(response.read().decode('utf-8'))
+                if url.startswith("http://ip-api.com") and data.get("status") != "success":
+                    continue
+                return {
+                    "code": data.get(code_key, ""),
+                    "name": data.get(name_key, ""),
+                    "city": data.get(city_key, ""),
+                    "region": data.get(region_key, ""),
+                    "timezone": data.get(tz_key, "")
+                }
+        except Exception:
+            continue
+    return None
+
+
+def _fetch_location_cached() -> Optional[Dict[str, Any]]:
+    global _CACHED_LOCATION, _LOCATION_FETCHED
+    if not _LOCATION_FETCHED:
+        _CACHED_LOCATION = _get_device_location()
+        _LOCATION_FETCHED = True
+    return _CACHED_LOCATION
+
+
 def get_country_display() -> Dict[str, str]:
     """
-    Best-effort country from system locale (not GPS/IP).
+    Best-effort country from device geolocation or system locale.
 
     Returns ``code``, ``name``, ``locale``.
     """
+    loc = _fetch_location_cached()
+    if loc and loc.get("code"):
+        return {
+            "code": loc["code"],
+            "name": loc["name"],
+            "locale": _locale_tag() or "—"
+        }
+
     tag = _locale_tag() or ""
     code = ""
     if "_" in tag:
@@ -125,6 +176,10 @@ def get_country_display() -> Dict[str, str]:
 
 def get_timezone_display() -> str:
     """Local timezone name or offset."""
+    loc = _fetch_location_cached()
+    if loc and loc.get("timezone"):
+        return loc["timezone"]
+
     tz_env = os.environ.get("TZ", "").strip()
     if tz_env:
         return tz_env
@@ -157,15 +212,27 @@ def get_datetime_display() -> Dict[str, str]:
 
 
 def _country_label(country: Dict[str, str]) -> str:
+    loc = _fetch_location_cached()
+    city_parts = []
+    if loc:
+        if loc.get("city"):
+            city_parts.append(loc["city"])
+        if loc.get("region"):
+            city_parts.append(loc["region"])
+
     code = country.get("code", "")
     name = country.get("name", "")
+    country_part = ""
     if code and name and name != code:
-        return f"{name} ({code})"
-    if code:
-        return code
-    if name and name != "—":
-        return name
-    return ""
+        country_part = f"{name} ({code})"
+    elif code:
+        country_part = code
+    elif name and name != "—":
+        country_part = name
+
+    if city_parts and country_part:
+        return f"{', '.join(city_parts)}, {country_part}"
+    return country_part or ", ".join(city_parts)
 
 
 def get_agent_context() -> Dict[str, Any]:

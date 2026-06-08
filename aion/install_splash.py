@@ -65,15 +65,6 @@ LOGO = r"""
     ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 """
 
-INSTALLED_BANNER = r"""
- ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗     ██╗     ███████╗██████╗
- ██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║     ██║     ██╔════╝██╔══██╗
- ██║██╔██╗ ██║███████╗   ██║   ███████║██║     ██║     █████╗  ██║  ██║
- ██║██║╚██╗██║╚════██║   ██║   ██╔══██║██║     ██║     ██╔══╝  ██║  ██║
- ██║██║ ╚████║███████║   ██║   ██║  ██║███████╗███████╗███████╗██████╔╝
- ╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚═════╝
-"""
-
 # (display_name, internal_module) — shown big during install animation
 INSTALL_SECTIONS: Sequence[Tuple[str, Sequence[Tuple[str, str]]]] = (
     ("Core", (
@@ -101,6 +92,7 @@ INSTALL_SECTIONS: Sequence[Tuple[str, Sequence[Tuple[str, str]]]] = (
         ("LLM EVAL", "llm_eval"),
     )),
     ("Infra & UI", (
+        ("DB", "db"),
         ("CACHE", "cache"),
         ("STORE", "store"),
         ("TRACKER", "tracker"),
@@ -136,31 +128,51 @@ def _write_line(text: str = "", *, flush: bool = True) -> None:
         sys.stdout.flush()
 
 
-def _animate_module(
-    display: str,
-    module: str,
-    *,
-    color_on: bool,
-    delay: float,
-) -> None:
-    """Reveal one module with a short typewriter + installed flash."""
-    label = _big_letters(display, color_on=color_on)
-    prefix = dim("  ▸ ", on=color_on)
-    for i in range(1, len(label) + 1):
-        sys.stdout.write("\r" + prefix + label[:i] + " " * (len(label) - i))
-        sys.stdout.flush()
-        time.sleep(delay * 0.15)
-    check = green("  ✓ INSTALLED", on=color_on)
-    mod = dim(f"  ({module})", on=color_on)
-    sys.stdout.write("\r" + prefix + label + check + mod + "\n")
-    sys.stdout.flush()
-    time.sleep(delay * 0.5)
+def _show_logo_glitch(*, color_on: bool) -> None:
+    """Same cyberpunk glitch intro as ``aion agent``."""
+    try:
+        from aion.cli_agent.ui.glitch import show_aion_glitch_intro
+
+        show_aion_glitch_intro(duration=2.0, indent="")
+        return
+    except Exception:
+        pass
+    for line in LOGO.rstrip("\n").split("\n"):
+        _write_line(cyan(line, on=color_on))
+    _write_line()
+
+
+def _show_static_modules(*, color_on: bool) -> None:
+    for section, modules in INSTALL_SECTIONS:
+        _write_line(bold(f"  {section}", on=color_on))
+        for display, mod in modules:
+            _write_line(f"    ✓ {_big_letters(display, color_on=False)}  ({mod})")
+
+
+def _show_quick_module_reveal(*, color_on: bool, delay: float) -> None:
+    """Fast staggered checklist after the glitch intro."""
+    all_modules: List[Tuple[str, str, str]] = []
+    for section, modules in INSTALL_SECTIONS:
+        for display, mod in modules:
+            all_modules.append((section, display, mod))
+
+    total = len(all_modules)
+    for idx, (section, display, mod) in enumerate(all_modules, start=1):
+        if idx == 1 or all_modules[idx - 2][0] != section:
+            _write_line()
+            _write_line(bold(f"  ── {section} ──", on=color_on))
+        _write_line(_progress_bar(idx, total, color_on=color_on), flush=True)
+        label = _big_letters(display, color_on=color_on)
+        check = green(" ✓", on=color_on)
+        mod_txt = dim(f" ({mod})", on=color_on)
+        _write_line(f"  ▸ {label}{check}{mod_txt}")
+        time.sleep(delay)
 
 
 def show_install_splash(
     *,
     animated: bool = True,
-    delay: float = 0.06,
+    delay: float = 0.04,
     version: Optional[str] = None,
 ) -> None:
     """
@@ -178,9 +190,13 @@ def show_install_splash(
     use_anim = animated and color_on
 
     _write_line()
-    for line in LOGO.rstrip("\n").split("\n"):
-        _write_line(cyan(line, on=color_on))
-    _write_line()
+    if use_anim:
+        _show_logo_glitch(color_on=color_on)
+    else:
+        for line in LOGO.rstrip("\n").split("\n"):
+            _write_line(cyan(line, on=color_on))
+        _write_line()
+
     _write_line(bold(f"  Aqwel-Aion  v{version}", on=color_on))
     _write_line(dim("  Complete AI Research & Development Library", on=color_on))
     _write_line()
@@ -188,32 +204,13 @@ def show_install_splash(
     if not use_anim:
         _write_line(green("  Installation complete!", on=color_on))
         _write_line()
-        for section, modules in INSTALL_SECTIONS:
-            _write_line(bold(f"  {section}", on=color_on))
-            for display, mod in modules:
-                _write_line(f"    ✓ {_big_letters(display, color_on=False)}  ({mod})")
+        _show_static_modules(color_on=color_on)
         _write_footer(color_on)
         return
 
-    # Animated "INSTALLED" banner (flash in)
-    for line in INSTALLED_BANNER.rstrip("\n").split("\n"):
-        _write_line(dim(line, on=color_on))
-        time.sleep(0.02)
+    _write_line(green(bold("  ✓ Installation complete", on=color_on), on=color_on))
     _write_line()
-
-    all_modules: List[Tuple[str, str, str]] = []
-    for section, modules in INSTALL_SECTIONS:
-        for display, mod in modules:
-            all_modules.append((section, display, mod))
-
-    total = len(all_modules)
-    for idx, (section, display, mod) in enumerate(all_modules, start=1):
-        if idx == 1 or all_modules[idx - 2][0] != section:
-            _write_line()
-            _write_line(bold(f"  ── {section} ──", on=color_on))
-        _write_line(_progress_bar(idx, total, color_on=color_on), flush=True)
-        _animate_module(display, mod, color_on=color_on, delay=delay)
-
+    _show_quick_module_reveal(color_on=color_on, delay=delay)
     _write_line()
     _write_line(green(bold("  ✓ ALL MODULES INSTALLED", on=color_on), on=color_on))
     _write_footer(color_on)
@@ -223,8 +220,10 @@ def _write_footer(color_on: bool) -> None:
     _write_line()
     _write_line(dim("  Quick start:", on=color_on))
     _write_line("    python -c \"import aion; print(aion.__version__)\"")
+    _write_line("    aion agent          # terminal coding agent (Ollama)")
     _write_line("    aion start          # open Aion Hub")
-    _write_line("    aion welcome        # show this screen again")
+    _write_line("    aion welcome        # replay this install animation")
+    _write_line(dim("  Skip animation: AION_NO_SPLASH=1 pip install aqwel-aion", on=color_on))
     _write_line(dim("  https://aqwelai.xyz/", on=color_on))
     _write_line()
 
