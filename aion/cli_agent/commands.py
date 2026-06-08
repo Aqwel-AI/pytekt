@@ -45,9 +45,6 @@ def handle_slash(
         return "continue"
 
     if cmd == "model":
-        if session.provider != "ollama":
-            ui.info_print("/model is for Ollama. Use /mode to change provider.")
-            return "continue"
         if not args:
             try:
                 models = OllamaProvider.list_models()
@@ -73,15 +70,10 @@ def handle_slash(
         if new_mode == "offline":
             connector.disconnect()
             ui.success_print("Offline mode.")
-        elif new_mode == "cloud":
-            if not ensure_trust_for_coding(connector):
-                return "continue"
-            prov = saved_provider(connector.cfg) or "openai"
-            connector.connect(prov=prov, quiet=bool(saved_provider(connector.cfg)))
         elif new_mode == "ollama":
             if not ensure_trust_for_coding(connector):
                 return "continue"
-            connector.connect(prov="ollama", quiet=bool(saved_provider(connector.cfg)))
+            connector.connect(quiet=bool(saved_provider(connector.cfg) == "ollama"))
         ui.print_status_bar(session)
         return "continue"
 

@@ -270,6 +270,13 @@ Version 0.2.0 adds **15 new modules** spanning the full AI application lifecycle
 - **`PersistentVectorStore`** — SQLite-backed vector store with brute-force cosine similarity search.
 - **`ChatHistoryStore`** — Persistent conversation threads with message history, listing, and full-text search.
 
+### Unified database (`aion.db`)
+- **`connect(url)`** — One API for SQLite (core), MySQL, PostgreSQL, MongoDB, Redis (`pip install aqwel-aion[db]`).
+- **Dict API** — `conn.users.insert({...})`, `conn.users.find(name="Alice")`, `find(score__gte=5)`.
+- **Query builder** — `conn.table("users").where(conn.col.age > 25).select("name").all()`.
+- **Aion-only** — `hybrid_search`, `agent_memory`, `bulk_upsert`, `sync_usage`, pipeline `DbReadStep` / `DbWriteStep`.
+- See [`aion/db/README.md`](aion/db/README.md).
+
 ### Experiment tracking (`aion.tracker`)
 - **`Tracker` / `Run`** — Log parameters, metrics (with step tracking), tags, and artifacts to a local directory.
 - **`compare_runs` / `best_run`** — Sort and compare runs by any metric.
@@ -1880,6 +1887,26 @@ chat.add_message(thread_id, "assistant", "Go to Settings > Security...")
 thread = chat.get_thread(thread_id)
 ```
 
+### Unified database (`aion.db`)
+
+```python
+import aion.db as db
+
+conn = db.connect("sqlite://./app.db")  # zero extra deps
+conn.users.insert({"name": "Alice", "score": 10})
+print(conn.users.find(name="Alice"))
+
+# Query builder
+rows = conn.table("users").where(conn.col.score > 5).select("name", "score").all()
+
+# Remote DBs: pip install aqwel-aion[db]
+# conn = db.connect("mysql://user:pass@localhost/mydb")
+# conn = db.connect("mongodb://localhost:27017/mydb")
+
+# CLI: aion db status | sync-usage | sync-tracker
+# Agent: /db status | /db sync all
+```
+
 ### Experiment tracking
 
 ```python
@@ -2028,6 +2055,7 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.tokenizer` | `BPETokenizer`, `WordPieceTokenizer`, `Vocabulary` (save/load, special tokens). |
 | `aion.pipeline` | `Pipeline`, `Step`, `FunctionStep`, `MapStep`, `FilterStep`, `BatchStep` — retry, fallback, timing. |
 | `aion.store` | `KeyValueStore` (SQLite), `PersistentVectorStore`, `ChatHistoryStore` (threads + search). |
+| `aion.db` | Unified DB: SQLite, MySQL, Postgres, Mongo, Redis — dict API + query builder. [`aion/db/README.md`](aion/db/README.md). |
 | `aion.tracker` | `Tracker`, `Run` — log params, metrics, artifacts; `compare_runs`, `best_run`. |
 | `aion.llm_eval` | `semantic_similarity`, `faithfulness_score`, `check_groundedness`, `toxicity_check`, `contains_pii`, `estimate_cost`, `CostTracker`. |
 | `aion.agents` | `ReActAgent`, `PlanningAgent`, `MultiAgent`, `AgentRole`, `SlidingWindowMemory`, `SummaryMemory`, `TokenBudgetMemory`. |

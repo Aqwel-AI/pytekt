@@ -10,6 +10,8 @@ _FORGET_FLAGS = frozenset({"forget", "--forget", "-f", "stay"})
 
 # User-facing names → internal provider id (extend as needed).
 _COMPANY_ALIASES: Dict[str, str] = {
+    "ollama": "ollama",
+    "local": "ollama",
     "aqwel": "aqwel",
     "aqwelai": "aqwel",
     "aqwel_ai": "aqwel",
@@ -21,11 +23,7 @@ _COMPANY_ALIASES: Dict[str, str] = {
     "deepseek": "deepseek",
     "anthropic": "anthropic",
     "claude": "anthropic",
-    "ollama": "ollama",
     "groq": "groq",
-    "mistral": "mistral",
-    "openai_compatible": "openai_compatible",
-    "compatible": "openai_compatible",
 }
 
 
@@ -93,35 +91,26 @@ def normalize_company(name: str) -> Optional[str]:
 
 def infer_provider_from_model(model: str) -> Optional[str]:
     m = model.lower().strip().removeprefix("models/")
-    if m.startswith("gemini"):
-        return "gemini"
-    if m.startswith("gpt") or m.startswith("o1") or m.startswith("o3") or m.startswith("o4"):
-        return "openai"
-    if "deepseek" in m:
-        return "deepseek"
-    if m.startswith("claude"):
-        return "anthropic"
-    if m.startswith("llama") or m.startswith("qwen") or m.startswith("mistral"):
+    if looks_like_model_name(m):
         return "ollama"
     return None
 
 
 def looks_like_model_name(text: str) -> bool:
     t = text.lower().strip()
-    if "-" in t or any(c.isdigit() for c in t):
-        return (
-            t.startswith("gemini")
-            or t.startswith("gpt")
-            or t.startswith("claude")
-            or t.startswith("llama")
-            or t.startswith("o1")
-            or t.startswith("o3")
-            or t.startswith("o4")
-            or t.startswith("deepseek")
-            or t.startswith("qwen")
-            or t.startswith("mistral")
-        )
-    return False
+    if not t or t in _COMPANY_ALIASES or t == "ollama":
+        return False
+    if "-" in t or ":" in t or "." in t or any(c.isdigit() for c in t):
+        return True
+    return t in {
+        "llama",
+        "mistral",
+        "qwen",
+        "phi",
+        "gemma",
+        "mixtral",
+        "codellama",
+    }
 
 
 def _provider_from_free_text(text: str) -> Optional[str]:

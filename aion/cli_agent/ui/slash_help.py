@@ -8,14 +8,15 @@ from .style import accent, accent_muted, bold, dim
 
 # (command, args hint, description)
 SLASH_COMMANDS: List[Tuple[str, str, str]] = [
-    ("connect", "<provider> [model]", "Connect (e.g. /connect ollama)"),
-    ("reconnect", "<provider>", "New API key + connect"),
-    ("disconnect", "[name]", "Stop current AI or named provider/model"),
+    ("connect", "[model]", "Connect to Ollama (pick model if omitted)"),
+    ("reconnect", "[model]", "Reconnect to Ollama"),
+    ("disconnect", "", "Go offline"),
     ("models", "", "Refresh dashboard"),
     ("init", "", "Create AION.md in this folder"),
     ("idle", "[minutes|off]", "Auto-disconnect after idle (0 = never)"),
     ("help", "", "Show all commands"),
     ("usage", "", "Open usage dashboard in browser"),
+    ("db", "status|sync|memory", "Database status, sync usage/tracker, memory"),
     ("quit", "", "Exit agent"),
 ]
 
