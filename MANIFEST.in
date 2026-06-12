@@ -7,6 +7,8 @@ include docs/PROJECT_STRUCTURE.md
 include aion/cli_agent/README.md
 recursive-include aion/usage/static *
 recursive-include aion/usage/static/assets *
+recursive-include aion/cosmos/static *
+recursive-include aion/cosmos/static/assets *
 include aion/py.typed
 recursive-include aion *.py
 recursive-include aion/monitor/static *.html

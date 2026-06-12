@@ -17,6 +17,7 @@ SLASH_COMMANDS: List[Tuple[str, str, str]] = [
     ("help", "", "Show all commands"),
     ("usage", "", "Open usage dashboard in browser"),
     ("db", "status|sync|memory", "Database status, sync usage/tracker, memory"),
+    ("sky", "[tonight|moon|log|web]", "Moon phase, visible stars, or web dashboard"),
     ("quit", "", "Exit agent"),
 ]
 
