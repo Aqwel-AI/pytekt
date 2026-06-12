@@ -302,6 +302,42 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
     db_sync_tracker.add_argument("--table", default="experiments", help="Target table")
     db_sub.add_parser("demo", help="Quick in-memory SQLite demo")
 
+    # cosmos
+    cosmos_parser = subparsers.add_parser("cosmos", help="Astronomy: moon, sky, coordinates")
+    cosmos_sub = cosmos_parser.add_subparsers(dest="cosmos_action", help="Cosmos actions")
+    cosmos_sub.add_parser("moon", help="Current moon phase")
+    cosmos_sky = cosmos_sub.add_parser("sky", help="Bright stars above horizon")
+    cosmos_sky.add_argument("--lat", type=float, default=40.18, help="Observer latitude (deg)")
+    cosmos_sky.add_argument("--lon", type=float, default=44.51, help="Observer longitude (deg, east +)")
+    cosmos_sky.add_argument("--min-alt", type=float, default=10.0, help="Minimum altitude (deg)")
+    cosmos_sky.add_argument("--limit", type=int, default=20, help="Max objects to print")
+    cosmos_coords = cosmos_sub.add_parser("coords", help="RA/Dec to Alt/Az now")
+    cosmos_coords.add_argument("ra", help='RA e.g. "6h 45m 08s"')
+    cosmos_coords.add_argument("dec", help='Dec e.g. "-16d 42m 58s"')
+    cosmos_coords.add_argument("--lat", type=float, default=40.18)
+    cosmos_coords.add_argument("--lon", type=float, default=44.51)
+    cosmos_sep = cosmos_sub.add_parser("separation", help="Angular separation between two points")
+    cosmos_sep.add_argument("--ra1", required=True)
+    cosmos_sep.add_argument("--dec1", required=True)
+    cosmos_sep.add_argument("--ra2", required=True)
+    cosmos_sep.add_argument("--dec2", required=True)
+    cosmos_sub.add_parser("demo", help="Run coordinate transform demo")
+    cosmos_web = cosmos_sub.add_parser("web", help="Open Cosmos astronomy dashboard (browser)")
+    cosmos_web.add_argument("--host", default="127.0.0.1", help="Bind address")
+    cosmos_web.add_argument("--port", "-p", type=int, default=3857, help="Port (default 3857)")
+    cosmos_web.add_argument("--no-browser", action="store_true", help="Do not open browser")
+
+    def _add_cosmos_dashboard_args(p):
+        p.add_argument("--host", default="127.0.0.1", help="Bind address")
+        p.add_argument("--port", "-p", type=int, default=3857, help="Port (default 3857)")
+        p.add_argument("--no-browser", action="store_true", help="Do not open browser")
+
+    cosmos_dash_parser = subparsers.add_parser(
+        "cosmos-dashboard",
+        help="Open Cosmos astronomy dashboard (browser)",
+    )
+    _add_cosmos_dashboard_args(cosmos_dash_parser)
+
     return parser, git_parser
 
 
@@ -758,6 +794,22 @@ def main():
         from .db.cli import db_main
 
         db_main(args)
+        return
+
+    if args.command == "cosmos":
+        from .cosmos.cli import cosmos_main
+
+        cosmos_main(args)
+        return
+
+    if args.command == "cosmos-dashboard":
+        from .cosmos.launch import run_cosmos_dashboard
+
+        run_cosmos_dashboard(
+            host=args.host,
+            port=args.port,
+            open_browser=not args.no_browser,
+        )
         return
 
     if args.command == "git" and hasattr(args, "git_command"):
