@@ -101,7 +101,7 @@ INSTALL_SECTIONS: Sequence[Tuple[str, Sequence[Tuple[str, str]]]] = (
         ("HUB", "hub"),
     )),
     ("Science", (
-        ("COSMOS", "cosmos"),
+        ("UNIVERSE", "universe"),
     )),
     ("Former & more", (
         ("FORMER", "former"),

@@ -69,12 +69,12 @@ def list_ui_interfaces() -> List[Dict[str, Any]]:
             "description": "Live CPU, RAM, disk, GPU, and process metrics.",
         },
         {
-            "id": "cosmos",
-            "name": "Cosmos dashboard",
-            "command": "aion cosmos web",
-            "api": "ensure_cosmos_dashboard()",
+            "id": "universe",
+            "name": "Universe dashboard",
+            "command": "aion universe web",
+            "api": "ensure_universe_dashboard()",
             "url": "http://127.0.0.1:3857",
-            "deps": "stdlib; [viz] for matplotlib sky PNG export",
+            "deps": "stdlib; C++ optional; [viz] for matplotlib sky PNG",
             "description": "Sky map, moon, coordinates, cosmology, observation log.",
         },
         {

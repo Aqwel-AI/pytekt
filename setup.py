@@ -51,25 +51,37 @@ def read_requirements():
 
 
 def _get_extensions():
-    """Build C++ extension if pybind11 and source are available."""
+    """Build C++ extensions if pybind11 and sources are available."""
     try:
         import pybind11
         include = [pybind11.get_include()]
     except ImportError:
         return []
-    # Use path relative to setup.py directory (no absolute paths)
-    src = "src/aion_core.cpp"
-    if not os.path.isfile(src):
-        return []
-    return [
-        Extension(
-            "aion._aion_core",
-            sources=[src],
-            include_dirs=include,
-            extra_compile_args=["-O3", "-std=c++14"] if os.name != "nt" else ["/O2", "/std:c++14"],
-            language="c++",
+    cxx_args = ["-O3", "-std=c++14"] if os.name != "nt" else ["/O2", "/std:c++14"]
+    exts = []
+    core_src = "src/aion_core.cpp"
+    if os.path.isfile(core_src):
+        exts.append(
+            Extension(
+                "aion._aion_core",
+                sources=[core_src],
+                include_dirs=include,
+                extra_compile_args=cxx_args,
+                language="c++",
+            )
         )
-    ]
+    universe_src = "src/aion_universe.cpp"
+    if os.path.isfile(universe_src):
+        exts.append(
+            Extension(
+                "aion._aion_universe",
+                sources=[universe_src],
+                include_dirs=include,
+                extra_compile_args=cxx_args,
+                language="c++",
+            )
+        )
+    return exts
 
 
 setup(

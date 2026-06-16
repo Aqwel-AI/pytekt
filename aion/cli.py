@@ -302,41 +302,50 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
     db_sync_tracker.add_argument("--table", default="experiments", help="Target table")
     db_sub.add_parser("demo", help="Quick in-memory SQLite demo")
 
-    # cosmos
-    cosmos_parser = subparsers.add_parser("cosmos", help="Astronomy: moon, sky, coordinates")
-    cosmos_sub = cosmos_parser.add_subparsers(dest="cosmos_action", help="Cosmos actions")
-    cosmos_sub.add_parser("moon", help="Current moon phase")
-    cosmos_sky = cosmos_sub.add_parser("sky", help="Bright stars above horizon")
-    cosmos_sky.add_argument("--lat", type=float, default=40.18, help="Observer latitude (deg)")
-    cosmos_sky.add_argument("--lon", type=float, default=44.51, help="Observer longitude (deg, east +)")
-    cosmos_sky.add_argument("--min-alt", type=float, default=10.0, help="Minimum altitude (deg)")
-    cosmos_sky.add_argument("--limit", type=int, default=20, help="Max objects to print")
-    cosmos_coords = cosmos_sub.add_parser("coords", help="RA/Dec to Alt/Az now")
-    cosmos_coords.add_argument("ra", help='RA e.g. "6h 45m 08s"')
-    cosmos_coords.add_argument("dec", help='Dec e.g. "-16d 42m 58s"')
-    cosmos_coords.add_argument("--lat", type=float, default=40.18)
-    cosmos_coords.add_argument("--lon", type=float, default=44.51)
-    cosmos_sep = cosmos_sub.add_parser("separation", help="Angular separation between two points")
-    cosmos_sep.add_argument("--ra1", required=True)
-    cosmos_sep.add_argument("--dec1", required=True)
-    cosmos_sep.add_argument("--ra2", required=True)
-    cosmos_sep.add_argument("--dec2", required=True)
-    cosmos_sub.add_parser("demo", help="Run coordinate transform demo")
-    cosmos_web = cosmos_sub.add_parser("web", help="Open Cosmos astronomy dashboard (browser)")
-    cosmos_web.add_argument("--host", default="127.0.0.1", help="Bind address")
-    cosmos_web.add_argument("--port", "-p", type=int, default=3857, help="Port (default 3857)")
-    cosmos_web.add_argument("--no-browser", action="store_true", help="Do not open browser")
+    def _add_universe_subparsers(parent):
+        u_sub = parent.add_subparsers(dest="universe_action", help="Universe actions")
+        u_sub.add_parser("moon", help="Current moon phase")
+        u_sky = u_sub.add_parser("sky", help="Bright stars above horizon")
+        u_sky.add_argument("--lat", type=float, default=40.18, help="Observer latitude (deg)")
+        u_sky.add_argument("--lon", type=float, default=44.51, help="Observer longitude (deg, east +)")
+        u_sky.add_argument("--min-alt", type=float, default=10.0, help="Minimum altitude (deg)")
+        u_sky.add_argument("--limit", type=int, default=20, help="Max objects to print")
+        u_coords = u_sub.add_parser("coords", help="RA/Dec to Alt/Az now")
+        u_coords.add_argument("ra", help='RA e.g. "6h 45m 08s"')
+        u_coords.add_argument("dec", help='Dec e.g. "-16d 42m 58s"')
+        u_coords.add_argument("--lat", type=float, default=40.18)
+        u_coords.add_argument("--lon", type=float, default=44.51)
+        u_sep = u_sub.add_parser("separation", help="Angular separation between two points")
+        u_sep.add_argument("--ra1", required=True)
+        u_sep.add_argument("--dec1", required=True)
+        u_sep.add_argument("--ra2", required=True)
+        u_sep.add_argument("--dec2", required=True)
+        u_sub.add_parser("demo", help="Run coordinate transform demo")
+        u_web = u_sub.add_parser("web", help="Open Universe astronomy dashboard (browser)")
+        u_web.add_argument("--host", default="127.0.0.1", help="Bind address")
+        u_web.add_argument("--port", "-p", type=int, default=3857, help="Port (default 3857)")
+        u_web.add_argument("--no-browser", action="store_true", help="Do not open browser")
 
-    def _add_cosmos_dashboard_args(p):
+    universe_parser = subparsers.add_parser("universe", help="Astronomy: moon, sky, coordinates (C++ fast path)")
+    _add_universe_subparsers(universe_parser)
+    cosmos_parser = subparsers.add_parser("cosmos", help="[deprecated] use: aion universe")
+    _add_universe_subparsers(cosmos_parser)
+
+    def _add_universe_dashboard_args(p):
         p.add_argument("--host", default="127.0.0.1", help="Bind address")
         p.add_argument("--port", "-p", type=int, default=3857, help="Port (default 3857)")
         p.add_argument("--no-browser", action="store_true", help="Do not open browser")
 
+    universe_dash_parser = subparsers.add_parser(
+        "universe-dashboard",
+        help="Open Universe astronomy dashboard (browser)",
+    )
+    _add_universe_dashboard_args(universe_dash_parser)
     cosmos_dash_parser = subparsers.add_parser(
         "cosmos-dashboard",
-        help="Open Cosmos astronomy dashboard (browser)",
+        help="[deprecated] use: aion universe-dashboard",
     )
-    _add_cosmos_dashboard_args(cosmos_dash_parser)
+    _add_universe_dashboard_args(cosmos_dash_parser)
 
     return parser, git_parser
 
@@ -796,16 +805,24 @@ def main():
         db_main(args)
         return
 
-    if args.command == "cosmos":
-        from .cosmos.cli import cosmos_main
+    if args.command in ("universe", "cosmos"):
+        if args.command == "cosmos":
+            import warnings
 
-        cosmos_main(args)
+            warnings.warn("aion cosmos is deprecated; use aion universe", DeprecationWarning)
+        from .universe.cli import universe_main
+
+        universe_main(args)
         return
 
-    if args.command == "cosmos-dashboard":
-        from .cosmos.launch import run_cosmos_dashboard
+    if args.command in ("universe-dashboard", "cosmos-dashboard"):
+        if args.command == "cosmos-dashboard":
+            import warnings
 
-        run_cosmos_dashboard(
+            warnings.warn("aion cosmos-dashboard is deprecated; use aion universe-dashboard", DeprecationWarning)
+        from .universe.launch import run_universe_dashboard
+
+        run_universe_dashboard(
             host=args.host,
             port=args.port,
             open_browser=not args.no_browser,
