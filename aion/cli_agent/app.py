@@ -20,7 +20,7 @@ from .session_prefs import (
     saved_trust,
 )
 from .tools import build_tool_registry, tools_schema
-from .cosmos_cmds import handle_sky_command
+from .universe_cmds import handle_sky_command
 from .db_cmds import handle_db_command
 from .trust import ensure_trust_for_coding
 

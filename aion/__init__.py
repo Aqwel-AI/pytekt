@@ -128,8 +128,8 @@ from . import store
 # Unified database layer (SQLite, MySQL, PostgreSQL, MongoDB, Redis)
 from . import db
 
-# Lightweight astronomy toolkit (coordinates, observing, orbits, cosmology)
-from . import cosmos
+# Lightweight astronomy toolkit (coordinates, observing, orbits, cosmology; C++ fast path)
+from . import universe
 
 # Experiment tracking (runs, metrics, comparison)
 from . import tracker
@@ -226,7 +226,7 @@ __all__ = [
     "pipeline",         # Step-based data/ML pipelines
     "store",            # SQLite key-value, vector store, chat history
     "db",               # Unified DB: SQLite, MySQL, Postgres, Mongo, Redis
-    "cosmos",           # Astronomy: coordinates, observing, orbits, cosmology
+    "universe",         # Astronomy: coordinates, observing, orbits, cosmology (C++ optional)
     "tracker",          # Experiment tracking (runs, metrics, comparison)
     "llm_eval",         # LLM output evaluation and cost tracking
     "agents",           # ReAct, planning, multi-agent framework

@@ -27,7 +27,7 @@ jobs:
 
       - name: Run tests
         run: |
-          python -m pytest tests/test_db_sqlite.py tests/test_db_query.py tests/test_db_chat_bridge.py tests/test_install_splash.py tests/test_cosmos_units.py tests/test_cosmos_time.py tests/test_cosmos_coordinates.py tests/test_cosmos_observing.py tests/test_cosmos_cosmology.py tests/test_cosmos_web_api.py tests/test_cosmos_server.py -q
+          python -m pytest tests/test_db_sqlite.py tests/test_db_query.py tests/test_db_chat_bridge.py tests/test_install_splash.py tests/test_universe_units.py tests/test_universe_time.py tests/test_universe_coordinates.py tests/test_universe_observing.py tests/test_universe_cosmology.py tests/test_universe_web_api.py tests/test_universe_server.py tests/test_universe_native.py -q
 
       - name: DB demo smoke
         run: |

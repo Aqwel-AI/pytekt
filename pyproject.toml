@@ -62,6 +62,9 @@ db = [
     "pymongo>=4.6.0",
     "redis>=5.0.0",
 ]
+universe = [
+    "matplotlib>=3.5.0",
+]
 cosmos = [
     "matplotlib>=3.5.0",
 ]
@@ -141,7 +144,7 @@ develop = "aion._install_hooks.DevelopCommand"
 [tool.setuptools.package-data]
 "aion.monitor" = ["static/*.html", "*.md"]
 "aion.monitor.examples" = ["*.md"]
-"aion.cosmos" = ["data/*.json", "static/**/*"]
+"aion.universe" = ["data/*.json", "static/**/*"]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel", "pybind11>=2.10.0"]

@@ -277,14 +277,15 @@ Version 0.2.0 adds **15 new modules** spanning the full AI application lifecycle
 - **Aion-only** — `hybrid_search`, `agent_memory`, `bulk_upsert`, `sync_usage`, pipeline `DbReadStep` / `DbWriteStep`.
 - See [`aion/db/README.md`](aion/db/README.md).
 
-### Astronomy (`aion.cosmos`)
+### Astronomy (`aion.universe`)
 - **Coordinates** — RA/Dec ↔ Alt/Az, galactic transform, angular separation.
 - **Time** — Julian date, GMST/LST for observing.
 - **Observing** — Moon phase, air mass, `whats_up()` with builtin bright-star catalog.
 - **Orbits & cosmology** — Kepler elements, Hohmann transfer, flat ΛCDM distances.
-- **CLI & agent** — `aion cosmos moon|sky|coords|web`, agent `/sky` slash command.
-- **Web dashboard** — `aion cosmos web` (React sky map, moon, cosmology, observation log).
-- See [`aion/cosmos/README.md`](aion/cosmos/README.md).
+- **CLI & agent** — `aion universe moon|sky|coords|web`, agent `/sky` slash command (`aion cosmos` deprecated).
+- **Web dashboard** — `aion universe web` (React sky map, moon, cosmology, observation log).
+- **C++ fast path** — hot calculations in `aion._aion_universe` with Python fallbacks.
+- See [`aion/universe/README.md`](aion/universe/README.md).
 
 ### Experiment tracking (`aion.tracker`)
 - **`Tracker` / `Run`** — Log parameters, metrics (with step tracking), tags, and artifacts to a local directory.
@@ -2065,7 +2066,7 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.pipeline` | `Pipeline`, `Step`, `FunctionStep`, `MapStep`, `FilterStep`, `BatchStep` — retry, fallback, timing. |
 | `aion.store` | `KeyValueStore` (SQLite), `PersistentVectorStore`, `ChatHistoryStore` (threads + search). |
 | `aion.db` | Unified DB: SQLite, MySQL, Postgres, Mongo, Redis — dict API + query builder. [`aion/db/README.md`](aion/db/README.md). |
-| `aion.cosmos` | Astronomy: coordinates, observing, orbits, cosmology, catalogs. [`aion/cosmos/README.md`](aion/cosmos/README.md). |
+| `aion.universe` | Astronomy: coordinates, observing, orbits, cosmology, catalogs (C++ accelerated). [`aion/universe/README.md`](aion/universe/README.md). |
 | `aion.tracker` | `Tracker`, `Run` — log params, metrics, artifacts; `compare_runs`, `best_run`. |
 | `aion.llm_eval` | `semantic_similarity`, `faithfulness_score`, `check_groundedness`, `toxicity_check`, `contains_pii`, `estimate_cost`, `CostTracker`. |
 | `aion.agents` | `ReActAgent`, `PlanningAgent`, `MultiAgent`, `AgentRole`, `SlidingWindowMemory`, `SummaryMemory`, `TokenBudgetMemory`. |

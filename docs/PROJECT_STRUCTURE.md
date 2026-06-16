@@ -37,7 +37,7 @@ Shared: `aion.providers`, `aion.agents`, `aion.tools`.
 ```
 aion/cli_agent/
 ├── app.py              # Main loop, slash commands (/sky, /db, …)
-├── cosmos_cmds.py      # /sky moon and whats_up
+├── universe_cmds.py    # /sky moon and whats_up
 ├── connect.py          # OpenAI, Gemini, Ollama, DeepSeek, …
 ├── connect_args.py     # /connect, /disconnect, /reconnect parsing
 ├── session_prefs.py    # Saved provider, model, trust, idle
@@ -74,15 +74,15 @@ aion/
 ├── data/, datasets/
 ├── providers/, tools/, rag/, agents/
 ├── former/, visualization/, ui/, hub/
-├── tracker/, llm_eval/, db/, cosmos/, cache/, store/, pipeline/
+├── tracker/, llm_eval/, db/, universe/, cache/, store/, pipeline/
 ├── experiments/, bench/, benchmarks/
 ├── io/, config/, env/, serve/, monitor/, vision/
 └── cli.py
 ```
 
-Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[cosmos]`, `[full]`.
+Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[full]`.
 
-**`aion/cosmos/`** — coordinates, time, observing, orbits, cosmology, catalogs, optional viz, React web dashboard (`web/` → `static/`). See [`aion/cosmos/README.md`](../aion/cosmos/README.md).
+**`aion/universe/`** — coordinates, time, observing, orbits, cosmology, catalogs, C++ extension (`_aion_universe`), optional viz, React web dashboard (`web/` → `static/`). See [`aion/universe/README.md`](../aion/universe/README.md). `aion/cosmos` is a deprecated import shim.
 
 ---
 
@@ -94,7 +94,7 @@ Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[cosmos]`, `[full
 | `aion api` | `aion.cli_agent.api` |
 | `aion config` | `aion.cli_agent.config` |
 | `aion auth` | `aion.cli_agent.auth` |
-| `aion cosmos` / `aion cosmos-dashboard` | `aion.cosmos.cli` / `aion.cosmos.launch` |
+| `aion universe` / `aion universe-dashboard` (`cosmos` aliases deprecated) | `aion.universe.cli` / `aion.universe.launch` |
 | `aion db` | `aion.db.cli` |
 | `aion start` | `aion.hub` |
 | `python -m aion` | `aion.cli` |
