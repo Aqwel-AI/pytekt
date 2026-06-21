@@ -229,10 +229,22 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
     agent_parser.add_argument(
         "--provider",
         "-p",
-        help="Provider name (ollama available; others coming soon)",
+        help="Provider name (ollama, nvidia; others coming soon)",
     )
     agent_parser.add_argument("--model", "-m", help="Model name")
     agent_parser.add_argument("--system", "-s", help="System prompt")
+    agent_run = agent_parser.add_subparsers(dest="agent_action")
+    run_parser = agent_run.add_parser("run", help="Headless single-task agent (CI)")
+    run_parser.add_argument("--task", "-t", required=True, help="Task message")
+    run_parser.add_argument("--provider", "-p", help="Provider name")
+    run_parser.add_argument("--model", "-m", help="Model name")
+    run_parser.add_argument("--yes", "-y", action="store_true", help="Auto-approve edits")
+    run_parser.add_argument("--workspace", "-w", help="Workspace directory")
+    web_parser = agent_run.add_parser("web", help="Open agent in browser (Codex-style UI)")
+    web_parser.add_argument("--host", default="127.0.0.1", help="Bind host")
+    web_parser.add_argument("--port", type=int, default=3860, help="Port")
+    web_parser.add_argument("--workspace", "-w", help="Workspace directory")
+    web_parser.add_argument("--no-browser", action="store_true", help="Do not open browser")
 
     # api
     api_parser = subparsers.add_parser("api", help="Connect or disconnect company APIs")
@@ -784,6 +796,32 @@ def main():
         return
 
     if args.command == "agent":
+        if getattr(args, "agent_action", None) == "run":
+            from .cli_agent.headless import run_headless_agent
+
+            raise SystemExit(
+                run_headless_agent(
+                    task=args.task,
+                    provider=args.provider,
+                    model=args.model,
+                    yes=args.yes,
+                    workspace=args.workspace,
+                )
+            )
+        if getattr(args, "agent_action", None) == "web":
+            if args.workspace:
+                import os
+
+                os.chdir(args.workspace)
+            from .cli_agent.web.launch import run_agent_web
+
+            run_agent_web(
+                host=args.host,
+                port=args.port,
+                workspace_root=args.workspace,
+                open_browser=not args.no_browser,
+            )
+            return
         from .cli_agent import run_agent_command
 
         run_agent_command(

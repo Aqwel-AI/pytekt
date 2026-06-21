@@ -53,6 +53,12 @@ class UsageTrackingProvider:
         )
         return text
 
+    def complete_stream(self, messages: List[Any], **kwargs: Any):
+        inner = getattr(self._inner, "complete_stream", None)
+        if inner is None:
+            raise NotImplementedError("Streaming not supported")
+        yield from inner(messages, **kwargs)
+
     def complete_turn(
         self,
         messages: Sequence[Any],

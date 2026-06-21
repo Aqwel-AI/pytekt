@@ -54,6 +54,27 @@ def clear_connection(cfg: Dict[str, Any]) -> None:
     save_config(cfg)
 
 
+def saved_interaction_mode(cfg: Dict[str, Any]) -> str:
+    from .constants import DEFAULT_INTERACTION_MODE, normalize_interaction_mode
+
+    value = (cfg.get("agent") or {}).get("interaction_mode")
+    if value:
+        normalized = normalize_interaction_mode(str(value))
+        if normalized:
+            return normalized
+    return DEFAULT_INTERACTION_MODE
+
+
+def save_interaction_mode(cfg: Dict[str, Any], mode: str) -> None:
+    from .constants import normalize_interaction_mode
+
+    normalized = normalize_interaction_mode(mode)
+    if not normalized:
+        raise ValueError(f"Unknown interaction mode: {mode!r}")
+    cfg.setdefault("agent", {})["interaction_mode"] = normalized
+    save_config(cfg)
+
+
 def save_provider_key(cfg: Dict[str, Any], provider: str, api_key: str) -> None:
     """Persist an API key under all config aliases for this provider."""
     from ..providers.keys import config_key_names
@@ -62,6 +83,44 @@ def save_provider_key(cfg: Dict[str, Any], provider: str, api_key: str) -> None:
     for name in config_key_names(provider):
         keys[name] = api_key
     save_config(cfg)
+
+
+def saved_pinned_paths(cfg: Dict[str, Any]) -> list:
+    paths = (cfg.get("agent") or {}).get("pinned_paths") or []
+    return [str(p) for p in paths if p]
+
+
+def save_pinned_paths(cfg: Dict[str, Any], paths: list) -> None:
+    cfg.setdefault("agent", {})["pinned_paths"] = list(paths)
+    save_config(cfg)
+
+
+def saved_workspace_roots(cfg: Dict[str, Any]) -> list:
+    roots = (cfg.get("agent") or {}).get("workspace_roots") or []
+    return [str(r) for r in roots if r]
+
+
+def save_workspace_roots(cfg: Dict[str, Any], roots: list) -> None:
+    cfg.setdefault("agent", {})["workspace_roots"] = list(roots)
+    save_config(cfg)
+
+
+def approval_gate_enabled(cfg: Dict[str, Any]) -> bool:
+    return bool((cfg.get("agent") or {}).get("approval_gate"))
+
+
+def saved_allowed_commands(cfg: Dict[str, Any]) -> list:
+    cmds = (cfg.get("agent") or {}).get("allowed_commands") or []
+    return [str(c) for c in cmds if c]
+
+
+def force_tools_enabled(cfg: Dict[str, Any]) -> bool:
+    return bool((cfg.get("agent") or {}).get("force_tools"))
+
+
+def saved_mcp_servers(cfg: Dict[str, Any]) -> list:
+    servers = (cfg.get("agent") or {}).get("mcp_servers") or []
+    return list(servers) if isinstance(servers, list) else []
 
 
 def clear_provider_keys(cfg: Dict[str, Any], provider: str) -> None:

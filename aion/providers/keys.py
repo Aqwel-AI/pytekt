@@ -11,6 +11,8 @@ _CONFIG_KEY_ALIASES: Dict[str, List[str]] = {
     "google": ["google_api_key", "gemini_api_key"],
     "openai": ["openai_api_key"],
     "deepseek": ["deepseek_api_key"],
+    "nvidia": ["nvidia_api_key"],
+    "nim": ["nvidia_api_key"],
     "anthropic": ["anthropic_api_key"],
     "claude": ["anthropic_api_key", "claude_api_key"],
 }
@@ -21,6 +23,8 @@ _ENV_KEY_ALIASES: Dict[str, List[str]] = {
     "google": ["GOOGLE_API_KEY", "GEMINI_API_KEY"],
     "openai": ["OPENAI_API_KEY"],
     "deepseek": ["DEEPSEEK_API_KEY"],
+    "nvidia": ["NVIDIA_API_KEY"],
+    "nim": ["NVIDIA_API_KEY"],
     "anthropic": ["ANTHROPIC_API_KEY"],
     "claude": ["ANTHROPIC_API_KEY"],
 }

@@ -56,6 +56,7 @@ class ReActAgent:
         self.memory: Memory = memory or SlidingWindowMemory(system_prompt=system_prompt)
         self.max_steps = max_steps
         self.on_step = on_step
+        self.force_tools = False
         self.steps: List[Dict[str, Any]] = []
         self._tool_names = [
             t["function"]["name"]
@@ -74,7 +75,7 @@ class ReActAgent:
         if not self.tools:
             return self._chat_only(user_input)
 
-        if not needs_tool_action(user_input):
+        if not self.force_tools and not needs_tool_action(user_input):
             return self._chat_only(user_input)
 
         if self._use_native_tools:

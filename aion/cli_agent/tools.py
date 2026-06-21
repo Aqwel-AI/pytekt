@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from ..tools.code_agent import (
     edit_file,
@@ -16,32 +16,66 @@ from ..tools.code_agent import (
 from ..tools.registry import ToolRegistry
 from ..tools.schemas import function_tool
 from ..tools.workspace import Workspace
+from .physics_tools import physics_available, physics_tool_schemas, register_physics_tools
+from .tool_middleware import ToolMiddleware
 
 
-def build_tool_registry(*, workspace_root: str, is_trusted: bool) -> ToolRegistry:
+def build_tool_registry(
+    *,
+    workspace_root: str,
+    is_trusted: bool,
+    middleware: Optional[ToolMiddleware] = None,
+    read_only: bool = False,
+) -> ToolRegistry:
     ws = Workspace(workspace_root)
     registry = ToolRegistry()
 
-    registry.register("read_file", lambda path, offset=1, limit=500: read_file(ws, path, offset, limit))
-    registry.register("list_files", lambda path=".", recursive=False: list_files(ws, path, recursive=recursive))
-    registry.register("grep", lambda pattern, path=".", glob="*": grep_search(ws, pattern, path, glob))
-    registry.register("glob", lambda pattern: glob_search(ws, pattern))
+    def _wrap(name: str, fn: Callable[..., str]) -> Callable[..., str]:
+        if middleware is None:
+            return fn
+        return lambda **kwargs: middleware.execute(name, kwargs, fn)
 
-    if is_trusted:
-        registry.register("write_file", lambda path, content: write_file(ws, path, content))
+    registry.register(
+        "read_file",
+        _wrap("read_file", lambda path, offset=1, limit=500: read_file(ws, path, offset, limit)),
+    )
+    registry.register(
+        "list_files",
+        _wrap("list_files", lambda path=".", recursive=False: list_files(ws, path, recursive=recursive)),
+    )
+    registry.register(
+        "grep",
+        _wrap("grep", lambda pattern, path=".", glob="*": grep_search(ws, pattern, path, glob)),
+    )
+    registry.register(
+        "glob",
+        _wrap("glob", lambda pattern: glob_search(ws, pattern)),
+    )
+
+    if is_trusted and not read_only:
+        registry.register(
+            "write_file",
+            _wrap("write_file", lambda path, content: write_file(ws, path, content)),
+        )
         registry.register(
             "edit_file",
-            lambda path, old_string, new_string: edit_file(ws, path, old_string, new_string),
+            _wrap(
+                "edit_file",
+                lambda path, old_string, new_string: edit_file(ws, path, old_string, new_string),
+            ),
         )
         registry.register(
             "run_command",
-            lambda command, timeout=60: run_command(ws, command, timeout),
+            _wrap("run_command", lambda command, timeout=60: run_command(ws, command, timeout)),
         )
+
+    if physics_available(workspace_root):
+        register_physics_tools(registry)
 
     return registry
 
 
-def tools_schema(*, is_trusted: bool) -> List[Dict[str, Any]]:
+def tools_schema(*, is_trusted: bool, read_only: bool = False) -> List[Dict[str, Any]]:
     tools = [
         function_tool(
             "read_file",
@@ -92,7 +126,7 @@ def tools_schema(*, is_trusted: bool) -> List[Dict[str, Any]]:
             required=["pattern"],
         ),
     ]
-    if is_trusted:
+    if is_trusted and not read_only:
         tools.extend(
             [
                 function_tool(
@@ -134,4 +168,6 @@ def tools_schema(*, is_trusted: bool) -> List[Dict[str, Any]]:
                 ),
             ]
         )
+    if not read_only:
+        tools.extend(physics_tool_schemas())
     return tools

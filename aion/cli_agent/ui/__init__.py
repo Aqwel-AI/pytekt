@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from .glitch import AION_LOGO_LINES, show_aion_glitch_intro
 from .aion_shell import (
+    configure_input,
     aion_input_prompt,
     print_aion_dashboard,
     print_input_area,
@@ -44,6 +45,7 @@ from .messages import (
     info_print,
     success_print,
     tool_print,
+    debug_tool_print,
     user_input_prompt,
 )
 from .status import AgentSession, format_status_line, print_session_footer, print_status_bar, spinner_label
@@ -139,6 +141,8 @@ __all__ = [
     "spinner_label",
     "success_print",
     "tool_print",
+    "debug_tool_print",
+    "configure_input",
     "aion_input_prompt",
     "print_aion_dashboard",
     "print_input_area",

@@ -18,6 +18,7 @@ Environment variables
 - ``GEMINI_API_KEY`` or ``GOOGLE_API_KEY`` — Gemini
 - ``ANTHROPIC_API_KEY`` — Anthropic
 - ``DEEPSEEK_API_KEY`` — DeepSeek
+- ``NVIDIA_API_KEY`` — NVIDIA NIM
 """
 
 from .anthropic_provider import AnthropicProvider
@@ -27,6 +28,7 @@ from .errors import ProviderError
 from .factory import create_provider, supported_providers
 from .gemini_provider import GeminiProvider
 from .generic_openai import OpenAICompatibleProvider
+from .nvidia_provider import NvidiaProvider
 from .openai_provider import OpenAIProvider
 from .structured import AssistantTurn, NormalizedToolCall, parse_chat_completion_response
 
@@ -37,6 +39,7 @@ __all__ = [
     "ChatProvider",
     "DeepSeekProvider",
     "GeminiProvider",
+    "NvidiaProvider",
     "OpenAIProvider",
     "NormalizedToolCall",
     "OpenAICompatibleProvider",

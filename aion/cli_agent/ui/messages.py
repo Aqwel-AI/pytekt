@@ -31,6 +31,15 @@ def user_input_prompt() -> str:
     return input(f"\n{accent(bold('You'))} {dim('» ')}").strip()
 
 
+def debug_tool_print(step: int, tool_name: str, result: str) -> None:
+    print(
+        f"  {accent('»')} {italic(accent_muted('debug'))} "
+        f"step {step} · {accent(bold(tool_name))}"
+    )
+    for line in result.splitlines():
+        print(f"    {line}")
+
+
 def tool_print(tool_name: str, args: str) -> None:
     print(
         f"  {_aion_tag()} {italic(accent_muted('tool'))} "

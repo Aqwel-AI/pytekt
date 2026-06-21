@@ -27,6 +27,15 @@ _SKIP_DIRS = frozenset({
 })
 
 
+def _skip_dirs(workspace: Workspace) -> frozenset:
+    try:
+        from ..cli_agent.ignore import merged_skip_dirs
+
+        return frozenset(merged_skip_dirs(str(workspace.root)))
+    except Exception:
+        return _SKIP_DIRS
+
+
 def _fmt_lines(text: str, *, start_line: int = 1) -> str:
     lines = text.splitlines()
     width = len(str(start_line + len(lines) - 1)) if lines else 1
@@ -135,8 +144,9 @@ def list_files(
 
         entries: List[str] = []
         if recursive:
+            skip = _skip_dirs(workspace)
             for root, dirs, files in os.walk(base):
-                dirs[:] = [d for d in dirs if d not in _SKIP_DIRS and not d.startswith(".")]
+                dirs[:] = [d for d in dirs if d not in skip and not d.startswith(".")]
                 rel_root = Path(root).relative_to(workspace.root)
                 for name in sorted(files):
                     if name.startswith("."):
@@ -206,8 +216,9 @@ def grep_search(
     if base.is_file():
         scan_file(base)
     elif base.is_dir():
+        skip = _skip_dirs(workspace)
         for root, dirs, files in os.walk(base):
-            dirs[:] = [d for d in dirs if d not in _SKIP_DIRS]
+            dirs[:] = [d for d in dirs if d not in skip]
             for name in files:
                 scan_file(Path(root) / name)
                 if len(hits) >= max_hits:
@@ -222,10 +233,11 @@ def grep_search(
 def glob_search(workspace: Workspace, pattern: str) -> str:
     """Find files matching a glob (e.g. ``**/*.py``)."""
     try:
+        skip = _skip_dirs(workspace)
         matches = sorted(
             p.relative_to(workspace.root)
             for p in workspace.root.glob(pattern)
-            if p.is_file() and not any(part in _SKIP_DIRS for part in p.parts)
+            if p.is_file() and not any(part in skip for part in p.parts)
         )
         if not matches:
             return f"No files match {pattern!r}"

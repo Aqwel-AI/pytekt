@@ -9,6 +9,7 @@ from .base import ChatProvider
 from .deepseek_provider import DeepSeekProvider
 from .gemini_provider import GeminiProvider
 from .generic_openai import OpenAICompatibleProvider
+from .nvidia_provider import NvidiaProvider
 from .ollama import OllamaProvider
 from .openai_provider import OpenAIProvider
 
@@ -25,6 +26,8 @@ def supported_providers() -> List[str]:
         "compatible",
         "ollama",
         "deepseek",
+        "nvidia",
+        "nim",
     ]
 
 
@@ -35,8 +38,9 @@ def create_provider(name: str, **kwargs: Any) -> ChatProvider:
     Parameters
     ----------
     name : str
-        One of: ``openai``, ``deepseek``, ``gemini`` / ``google``, ``anthropic`` / ``claude``,
-        ``openai_compatible`` / ``compatible`` (requires ``base_url`` + ``model``).
+        One of: ``openai``, ``deepseek``, ``nvidia`` / ``nim``, ``gemini`` / ``google``,
+        ``anthropic`` / ``claude``, ``openai_compatible`` / ``compatible``
+        (requires ``base_url`` + ``model``).
     **kwargs
         Passed to the provider constructor (``api_key``, ``model``, ``base_url``, …).
 
@@ -49,6 +53,8 @@ def create_provider(name: str, **kwargs: Any) -> ChatProvider:
         return OpenAIProvider(**kwargs)
     if key == "deepseek":
         return DeepSeekProvider(**kwargs)
+    if key in ("nvidia", "nim"):
+        return NvidiaProvider(**kwargs)
     if key in ("gemini", "google"):
         return GeminiProvider(**kwargs)
     if key in ("anthropic", "claude"):
