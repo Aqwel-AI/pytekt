@@ -8,7 +8,10 @@ Interactive shell assistant: connect to **Ollama**, **OpenAI**, **Gemini**, **De
 
 ```bash
 aion agent
+aion agent web    # Codex-style browser UI
 ```
+
+Open the web UI: **http://127.0.0.1:3860/** — see [docs/AGENT_WEB.md](../../docs/AGENT_WEB.md).
 
 ## Commands (in the agent)
 

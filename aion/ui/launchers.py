@@ -87,6 +87,15 @@ def list_ui_interfaces() -> List[Dict[str, Any]]:
             "description": "LLM token usage, cost, and hardware charts.",
         },
         {
+            "id": "agent-web",
+            "name": "Agent web UI",
+            "command": "aion agent web",
+            "api": "run_agent_web()",
+            "url": "http://127.0.0.1:3860",
+            "deps": "stdlib; React build in aion/cli_agent/web/ui",
+            "description": "Codex-style browser chat with tools, @ mentions, and activity feed.",
+        },
+        {
             "id": "serve",
             "name": "API server",
             "command": "aion serve (via Python)",

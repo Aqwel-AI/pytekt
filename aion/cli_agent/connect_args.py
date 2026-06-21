@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
-_NEW_KEY_FLAGS = frozenset({"new", "--new-key", "fresh", "key"})
-_FORGET_FLAGS = frozenset({"forget", "--forget", "-f", "stay"})
+_NEW_KEY_FLAGS = frozenset({"new", "--new-key", "fresh"})
+_FORGET_FLAGS = frozenset({"forget", "--forget", "-f"})
+_KEYS_FLAGS = frozenset({"keys", "--keys", "key", "remove-keys", "clear-keys"})
 
 # User-facing names → internal provider id (extend as needed).
 _COMPANY_ALIASES: Dict[str, str] = {
@@ -21,6 +22,8 @@ _COMPANY_ALIASES: Dict[str, str] = {
     "gemini": "gemini",
     "google": "gemini",
     "deepseek": "deepseek",
+    "nvidia": "nvidia",
+    "nim": "nvidia",
     "anthropic": "anthropic",
     "claude": "anthropic",
     "groq": "groq",
@@ -37,6 +40,7 @@ class DisconnectRequest:
     forget_saved: bool = True
     clear_keys: bool = False
     keys_only: bool = False
+    disconnect_session: bool = True
 
 
 def parse_connect_args(args: str) -> Tuple[str, Optional[str], bool]:
@@ -91,6 +95,8 @@ def normalize_company(name: str) -> Optional[str]:
 
 def infer_provider_from_model(model: str) -> Optional[str]:
     m = model.lower().strip().removeprefix("models/")
+    if "/" in m and ":" not in m:
+        return "nvidia"
     if looks_like_model_name(m):
         return "ollama"
     return None
@@ -128,6 +134,15 @@ def _provider_from_free_text(text: str) -> Optional[str]:
     return infer_provider_from_model(raw)
 
 
+def _split_disconnect_tokens(raw: str) -> Tuple[List[str], bool, bool]:
+    """Return (content_tokens, wants_forget, wants_keys)."""
+    tokens = raw.split()
+    wants_forget = any(t.lower() in _FORGET_FLAGS for t in tokens)
+    wants_keys = any(t.lower() in _KEYS_FLAGS for t in tokens)
+    content = [t for t in tokens if t.lower() not in _FORGET_FLAGS | _KEYS_FLAGS]
+    return content, wants_forget, wants_keys
+
+
 def parse_disconnect_args(
     args: str,
     *,
@@ -138,8 +153,9 @@ def parse_disconnect_args(
     """
     Parse ``/disconnect`` or ``/disconnect <anything>``.
 
-    The argument is free text: company name, model id, or words that match
-    the current session. Empty means disconnect whatever is active now.
+    Default ``/disconnect``: end session and forget saved connection; keep API keys.
+    ``/disconnect nvidia keys``: remove saved API key only (stay connected if other).
+    ``/disconnect forget``: same as empty disconnect.
     """
     raw = args.strip()
     label = raw or (active_provider or "session")
@@ -150,64 +166,133 @@ def parse_disconnect_args(
             provider=active_provider,
             model=active_model,
             forget_saved=True,
-            clear_keys=bool(active_provider),
+            clear_keys=False,
+            disconnect_session=True,
         )
 
-    if any(t.lower() in _FORGET_FLAGS for t in raw.split()):
-        pass  # still resolve target below; forget is default
+    content_tokens, wants_forget, wants_keys = _split_disconnect_tokens(raw)
+    content = " ".join(content_tokens).strip()
+    label = content or raw
 
-    # 1) Matches what you are using right now → leave that session
-    if connected and _text_matches_active(raw, active_provider, active_model):
+    # keys-only: /disconnect keys nvidia  or  /disconnect nvidia keys
+    if wants_keys and not content:
+        if connected and active_provider:
+            return DisconnectRequest(
+                label=active_provider,
+                provider=active_provider,
+                model=active_model,
+                forget_saved=False,
+                clear_keys=True,
+                keys_only=True,
+                disconnect_session=False,
+            )
         return DisconnectRequest(
             label=raw,
+            forget_saved=False,
+            clear_keys=False,
+            keys_only=False,
+            disconnect_session=False,
+        )
+
+    if wants_keys and content:
+        prov = _provider_from_free_text(content)
+        if not prov and content_tokens:
+            prov = _provider_from_free_text(content_tokens[0])
+        if prov:
+            keys_only = bool(
+                connected
+                and active_provider
+                and active_provider != prov
+            )
+            return DisconnectRequest(
+                label=content,
+                provider=prov,
+                forget_saved=wants_forget,
+                clear_keys=True,
+                keys_only=keys_only,
+                disconnect_session=not keys_only,
+            )
+
+    if wants_forget and not content:
+        return DisconnectRequest(
+            label=label,
             provider=active_provider,
             model=active_model,
             forget_saved=True,
-            clear_keys=True,
+            clear_keys=False,
+            disconnect_session=True,
         )
 
-    # 2) Whole line is a model id
-    if looks_like_model_name(raw) or ("-" in raw and any(c.isdigit() for c in raw)):
-        prov = _provider_from_free_text(raw) or infer_provider_from_model(raw)
-        req = DisconnectRequest(
-            label=raw,
-            model=raw,
+    if not content:
+        return DisconnectRequest(
+            label=label,
+            provider=active_provider,
+            model=active_model,
+            forget_saved=True,
+            clear_keys=False,
+            disconnect_session=True,
+        )
+
+    # Match active session by name
+    if connected and _text_matches_active(content, active_provider, active_model):
+        return DisconnectRequest(
+            label=content,
+            provider=active_provider,
+            model=active_model,
+            forget_saved=True,
+            clear_keys=False,
+            disconnect_session=True,
+        )
+
+    # Model id
+    if looks_like_model_name(content) or ("-" in content and any(c.isdigit() for c in content)):
+        prov = _provider_from_free_text(content) or infer_provider_from_model(content)
+        keys_only = bool(
+            connected
+            and active_model
+            and not _text_matches_active(content, None, active_model)
+        )
+        return DisconnectRequest(
+            label=content,
+            model=content,
             provider=prov,
             forget_saved=True,
-            clear_keys=bool(prov),
+            clear_keys=False,
+            keys_only=keys_only,
+            disconnect_session=not keys_only,
         )
-        if connected and active_model and not _text_matches_active(raw, None, active_model):
-            req.keys_only = bool(prov)
-        return req
 
-    # 3) Resolved provider from free text
-    prov = _provider_from_free_text(raw)
+    # Provider name
+    prov = _provider_from_free_text(content)
     if prov:
-        req = DisconnectRequest(
-            label=raw,
+        keys_only = bool(connected and active_provider and active_provider != prov)
+        return DisconnectRequest(
+            label=content,
             provider=prov,
             forget_saved=True,
-            clear_keys=True,
+            clear_keys=False,
+            keys_only=keys_only,
+            disconnect_session=not keys_only,
         )
-        if connected and active_provider and active_provider != prov:
-            req.keys_only = True
-        return req
 
-    # 4) Connected but name did not match — still disconnect current session
+    # Unknown name while connected — disconnect current session
     if connected:
         return DisconnectRequest(
-            label=raw,
+            label=content,
             provider=active_provider,
             model=active_model,
             forget_saved=True,
-            clear_keys=bool(active_provider),
+            clear_keys=False,
+            disconnect_session=True,
         )
 
-    # 5) Offline and unknown name — best effort clear keys if we guessed a provider
-    prov = _provider_from_free_text(raw.split()[0]) if raw.split() else None
+    # Offline — best effort key clear if we guessed a provider
+    prov = _provider_from_free_text(content_tokens[0]) if content_tokens else None
     return DisconnectRequest(
-        label=raw,
+        label=content,
         provider=prov,
-        forget_saved=True,
+        forget_saved=False,
         clear_keys=bool(prov),
+        keys_only=bool(prov),
+        disconnect_session=False,
     )

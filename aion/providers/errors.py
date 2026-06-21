@@ -26,6 +26,21 @@ class ProviderError(Exception):
 
     def friendly_message(self) -> str:
         """Plain-language explanation for CLI users (no raw HTTP dumps)."""
+        raw = str(self.args[0]) if self.args else ""
+        lower = raw.lower()
+        if "certificate verify failed" in lower or "ssl: certificate" in lower:
+            return (
+                "Could not verify the provider's HTTPS certificate.\n\n"
+                "On macOS this usually means Python is missing CA certificates.\n"
+                "Fix: pip install certifi\n"
+                "Then restart the agent and try /connect nvidia again."
+            )
+        if "timed out" in lower:
+            return (
+                "The model took too long to respond.\n\n"
+                "Try a faster model: /connect nvidia and pick one from the top "
+                "(e.g. meta/llama-3.1-8b-instruct or nvidia/nemotron-mini-4b-instruct)."
+            )
         detail = self._api_detail_message()
         if self.status == 429:
             return self._friendly_rate_limit(detail)

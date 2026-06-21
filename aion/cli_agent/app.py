@@ -12,12 +12,18 @@ from . import ui
 from .config import get_config
 from .connect import AgentConnector
 from .connect_args import parse_connect_args, parse_disconnect_args
+from .constants import INTERACTION_MODE_LABELS, INTERACTION_MODES, normalize_interaction_mode
+from .mentions import expand_mentions
 from .session_prefs import (
     idle_disconnect_minutes,
     save_idle_disconnect_minutes,
+    save_pinned_paths,
+    save_workspace_roots,
+    saved_interaction_mode,
     saved_model,
     saved_provider,
     saved_trust,
+    saved_workspace_roots,
 )
 from .tools import build_tool_registry, tools_schema
 from .universe_cmds import handle_sky_command
@@ -80,8 +86,6 @@ def _handle_command(
         return None
 
     if cmd in ("connect", "reconnect"):
-        if not ensure_trust_for_coding(connector):
-            return None
         if args:
             prov, mod, new_key = parse_connect_args(args)
         else:
@@ -99,6 +103,63 @@ def _handle_command(
                 workspace=workspace,
             )
             ui.print_input_area(connected=True)
+        return None
+
+    if cmd == "mode":
+        if not args:
+            ui.print_menu(
+                [INTERACTION_MODE_LABELS[m] for m in INTERACTION_MODES],
+                "Select interaction mode",
+            )
+            choice = ui.get_menu_choice([INTERACTION_MODE_LABELS[m] for m in INTERACTION_MODES])
+            mode = INTERACTION_MODES[choice - 1]
+        else:
+            mode = normalize_interaction_mode(args.split()[0])
+            if not mode:
+                ui.error_print(
+                    f"Unknown mode. Use: {ui.cyan('/mode plain|agent|debug')}"
+                )
+                return None
+        try:
+            connector.set_interaction_mode(mode)
+        except ValueError as e:
+            ui.error_print(str(e))
+            return None
+        ui.success_print(f"Interaction mode: {ui.bold(mode)}")
+        ui.print_aion_dashboard(
+            cfg=connector.cfg,
+            session=connector.session,
+            version=_version(),
+            workspace=workspace,
+        )
+        ui.print_input_area(connected=connector.session.connected)
+        return None
+
+    if cmd == "status":
+        ui.print_status_bar(connector.session)
+        ui.info_print(f"Working directory: {ui.cyan(workspace)}")
+        if connector.session.project_info:
+            ui.info_print(ui.dim(connector.session.project_info.summary()))
+        if connector.session.pinned_paths:
+            ui.info_print(f"Pinned: {ui.accent_muted(', '.join(connector.session.pinned_paths))}")
+        ui.info_print(ui.dim(connector.session.activity.format_dashboard(5)))
+        if connector.session.connected:
+            ui.info_print(
+                f"Provider: {ui.bold(connector.session.provider or '')}"
+                + (
+                    f" · {ui.accent_muted(connector.session.model)}"
+                    if connector.session.model
+                    else ""
+                )
+            )
+        return None
+
+    if cmd == "reset":
+        if connector.agent:
+            connector.agent.reset()
+            ui.success_print("Conversation memory cleared.")
+        else:
+            ui.info_print("Not connected — nothing to reset.")
         return None
 
     if cmd == "models":
@@ -121,41 +182,49 @@ def _handle_command(
         was_model = connector.session.model
 
         if req.keys_only and req.provider:
-            connector.disconnect(
+            keys_cleared = connector.disconnect(
                 forget_saved=False,
                 clear_keys_for=req.provider,
+                disconnect_session=False,
             )
-            ui.success_print(
-                f"Removed saved key for {ui.bold(req.label)}. "
-                f"Still using {ui.bold(was_prov or '')}"
-                + (f" · {ui.accent_muted(was_model)}" if was_model else "")
-                + "."
-            )
+            if keys_cleared:
+                ui.success_print(
+                    f"Removed saved key for {ui.bold(req.label)}. "
+                    f"Still using {ui.bold(was_prov or '')}"
+                    + (f" · {ui.accent_muted(was_model)}" if was_model else "")
+                    + "."
+                )
+            else:
+                ui.info_print(f"No saved API key found for {ui.bold(req.label)}.")
             ui.print_aion_dashboard(
                 cfg=connector.cfg,
                 session=connector.session,
                 version=_version(),
                 workspace=workspace,
             )
-            ui.print_input_area(connected=True)
+            ui.print_input_area(connected=connector.session.connected)
             return None
 
-        clear_keys = req.clear_keys and bool(req.provider)
-        connector.disconnect(
+        keys_cleared = connector.disconnect(
             forget_saved=req.forget_saved,
-            clear_keys_for=req.provider if clear_keys else None,
+            clear_keys_for=req.provider if req.clear_keys else None,
+            disconnect_session=req.disconnect_session,
         )
 
         target = req.label or was_prov or "session"
-        if was_prov or req.provider:
+        if req.disconnect_session and (was_prov or req.provider):
             ui.success_print(
                 f"Disconnected {ui.bold(target)}."
                 + (
                     f" {ui.dim('Saved API key removed.')}"
-                    if clear_keys
+                    if keys_cleared
                     else f" {ui.dim('Use /connect to link again.')}"
                 )
             )
+        elif keys_cleared:
+            ui.success_print(f"Removed saved key for {ui.bold(target)}.")
+        elif not req.disconnect_session:
+            ui.info_print(f"No changes for {ui.bold(target)}.")
         else:
             ui.success_print("Offline.")
         ui.print_aion_dashboard(
@@ -164,7 +233,7 @@ def _handle_command(
             version=_version(),
             workspace=workspace,
         )
-        ui.print_input_area(connected=False)
+        ui.print_input_area(connected=connector.session.connected)
         return None
 
     if cmd == "init":
@@ -181,12 +250,132 @@ def _handle_command(
             ui.info_print(f"Opened {ui.cyan(url)} (already running)")
         return None
 
+    if cmd == "web":
+        from .web.launch import ensure_agent_web
+
+        url, started = ensure_agent_web(open_browser=True)
+        if started:
+            ui.success_print(f"Agent web UI started at {ui.cyan(url)}")
+        else:
+            ui.info_print(f"Opened {ui.cyan(url)} (already running)")
+        return None
+
     if cmd == "db":
         handle_db_command(args, cfg=connector.cfg, memory=db_memory)
         return None
 
     if cmd == "sky":
         handle_sky_command(args, cfg=connector.cfg)
+        return None
+
+    if cmd == "pin":
+        path = args.strip()
+        if not path:
+            ui.error_print("Usage: /pin <path>")
+            return None
+        if path not in connector.session.pinned_paths:
+            connector.session.pinned_paths.append(path)
+            save_pinned_paths(connector.cfg, connector.session.pinned_paths)
+            connector.session.activity.log("pin", path)
+        ui.success_print(f"Pinned {ui.bold(path)}")
+        return None
+
+    if cmd == "unpin":
+        path = args.strip()
+        if path and path in connector.session.pinned_paths:
+            connector.session.pinned_paths.remove(path)
+            save_pinned_paths(connector.cfg, connector.session.pinned_paths)
+        elif not path:
+            connector.session.pinned_paths.clear()
+            save_pinned_paths(connector.cfg, [])
+        ui.success_print("Unpinned.")
+        return None
+
+    if cmd == "pins":
+        if connector.session.pinned_paths:
+            ui.info_print("Pinned paths: " + ", ".join(connector.session.pinned_paths))
+        else:
+            ui.info_print("No pinned paths.")
+        return None
+
+    if cmd == "undo":
+        msg = connector.edit_history.undo_last(workspace)
+        connector.session.activity.log("undo", msg)
+        ui.success_print(msg)
+        return None
+
+    if cmd == "audit":
+        from .audit import format_recent
+
+        ui.info_print(format_recent(20))
+        return None
+
+    if cmd == "tools":
+        if args.lower() in ("on", "1", "true"):
+            connector.set_force_tools(True)
+            ui.success_print("Force tools ON")
+        elif args.lower() in ("off", "0", "false"):
+            connector.set_force_tools(False)
+            ui.success_print("Force tools OFF")
+        else:
+            ui.info_print(f"Force tools: {connector.session.force_tools}")
+        return None
+
+    if cmd == "root":
+        from .multi_workspace import MultiWorkspace
+
+        sub = args.split()
+        if sub and sub[0].lower() == "add" and len(sub) > 1:
+            mw = MultiWorkspace(workspace, extra_roots=saved_workspace_roots(connector.cfg))
+            added = mw.add_root(sub[1])
+            save_workspace_roots(connector.cfg, mw.list_roots()[1:])
+            ui.success_print(f"Added workspace root: {ui.bold(added)}")
+        else:
+            roots = [workspace] + saved_workspace_roots(connector.cfg)
+            ui.info_print("Workspace roots:\n" + "\n".join(f"  • {r}" for r in roots))
+        return None
+
+    if cmd == "approve":
+        if connector.session.interaction_mode == "plan":
+            response = connector.execute_plan()
+            ui.agent_print(response, name="Aion")
+            print()
+        else:
+            ui.info_print("No pending plan.")
+        return None
+
+    if cmd == "research":
+        if not connector.agent or not connector._raw_provider:
+            ui.error_print("Connect first.")
+            return None
+        from .subagent import run_research_subagent
+
+        query = args.strip() or "Explore the codebase"
+        summary = run_research_subagent(
+            connector._raw_provider,
+            query,
+            workspace_root=workspace,
+        )
+        ui.agent_print(summary, name="Research")
+        print()
+        return None
+
+    if cmd == "commit":
+        from .git_cmds import handle_commit
+
+        handle_commit(args, workspace=workspace, pinned_files=connector.session.pinned_paths or None)
+        return None
+
+    if cmd == "branch":
+        from .git_cmds import handle_branch
+
+        handle_branch(args, workspace=workspace)
+        return None
+
+    if cmd == "pr-summary":
+        from .git_cmds import handle_pr_summary
+
+        handle_pr_summary(args, workspace=workspace, connector=connector)
         return None
 
     ui.print_slash_help(cmd)
@@ -200,6 +389,31 @@ def _version() -> str:
         return __version__
     except Exception:
         return "0.2.0"
+
+
+def _chat_response(connector: AgentConnector, enriched: str, raw_input: str) -> str:
+    """Chat with optional streaming for plain mode."""
+    if connector.session.interaction_mode == "plain" and connector._raw_provider:
+        inner = getattr(connector._raw_provider, "_inner", connector._raw_provider)
+        if hasattr(inner, "complete_stream"):
+            from ..providers.base import ChatMessage
+
+            messages = [ChatMessage(role="user", content=enriched)]
+            print()
+            parts: list[str] = []
+            try:
+                for token in inner.complete_stream(messages, max_tokens=4096):
+                    print(token, end="", flush=True)
+                    parts.append(token)
+                print()
+                text = "".join(parts)
+                if connector.agent:
+                    connector.agent.memory.add({"role": "user", "content": enriched})
+                    connector.agent.memory.add({"role": "assistant", "content": text})
+                return text
+            except Exception:
+                pass
+    return connector.chat(enriched)
 
 
 def run_agent_command(
@@ -221,23 +435,28 @@ def run_agent_command(
 
     workspace_root = os.getcwd()
     cfg = get_config()
-    session = ui.AgentSession(mode="offline", is_trusted=False)
+    session = ui.AgentSession(
+        mode="offline",
+        is_trusted=False,
+        interaction_mode=saved_interaction_mode(cfg),
+    )
+    ui.configure_input(workspace_root)
 
-    from .constants import AGENT_PROVIDER, COMING_SOON_PROVIDERS, provider_display_name
+    from .constants import CONNECTABLE_PROVIDERS, COMING_SOON_PROVIDERS, provider_display_name
 
     if provider_name:
         if provider_name in COMING_SOON_PROVIDERS:
             ui.info_print(
                 f"{provider_display_name(provider_name)} is coming soon — not available yet. "
-                f"Use {ui.cyan('/connect ollama')} for now."
+                f"Use {ui.cyan('/connect ollama')} or {ui.cyan('/connect nvidia')}."
             )
-        elif provider_name != AGENT_PROVIDER:
+        elif provider_name not in CONNECTABLE_PROVIDERS:
             ui.info_print(
-                f"Only Ollama is available now. Use {ui.cyan('/connect ollama')}."
+                f"Use {ui.cyan('/connect ollama')} or {ui.cyan('/connect nvidia')}."
             )
         else:
-            session.provider = AGENT_PROVIDER
-            session.mode = "ollama"
+            session.provider = provider_name
+            session.mode = provider_name
 
     connector = AgentConnector(
         cfg=cfg,
@@ -254,8 +473,10 @@ def run_agent_command(
         connector.trust_confirmed = True
 
     saved = saved_provider(cfg)
-    if provider_name == AGENT_PROVIDER or (provider_name is None and saved == AGENT_PROVIDER):
-        auto_provider = AGENT_PROVIDER
+    if provider_name in CONNECTABLE_PROVIDERS:
+        auto_provider = provider_name
+    elif provider_name is None and saved in CONNECTABLE_PROVIDERS:
+        auto_provider = saved
     else:
         auto_provider = None
     auto_model = model or saved_model(cfg)
@@ -278,8 +499,8 @@ def run_agent_command(
                 f"Could not restore {ui.bold(auto_provider)}. "
                 f"Use {ui.cyan('/connect ' + auto_provider)} when ready."
             )
-    elif provider_name == AGENT_PROVIDER and ensure_trust_for_coding(connector):
-        connector.connect(prov=AGENT_PROVIDER, mod=model)
+    elif provider_name in CONNECTABLE_PROVIDERS and ensure_trust_for_coding(connector):
+        connector.connect(prov=provider_name, mod=model)
 
     ui.print_aion_dashboard(
         cfg=cfg,
@@ -366,15 +587,29 @@ def run_agent_command(
             last_activity = time.time()
             continue
 
-        if not ensure_trust_for_coding(connector):
-            continue
+        if connector.session.interaction_mode != "plain":
+            if not ensure_trust_for_coding(connector):
+                continue
 
         if not connector.agent:
-            ui.error_print(f"Connect first: {ui.cyan('/connect')} or {ui.cyan('/connect ollama')}")
+            ui.error_print(
+                f"Connect first: {ui.cyan('/connect')} · "
+                f"{ui.cyan('/connect ollama')} · {ui.cyan('/connect nvidia')}"
+            )
             continue
 
         try:
-            response = connector.agent.chat(user_input)
+            enriched, attachments = expand_mentions(
+                user_input,
+                workspace_root,
+                pinned_paths=connector.session.pinned_paths,
+                extra_roots=saved_workspace_roots(connector.cfg),
+            )
+            if attachments:
+                ui.info_print(f"Attached: {ui.accent_muted(', '.join(attachments))}")
+            print(f"  {ui.dim(ui.spinner_label(session))}", flush=True)
+            response = _chat_response(connector, enriched, user_input)
+            connector.print_edit_batch_summary()
             last_activity = time.time()
             if db_memory is not None:
                 try:

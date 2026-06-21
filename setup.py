@@ -141,6 +141,7 @@ setup(
         "numpy>=1.21.0",
         "watchdog>=2.1.0",
         "gitpython>=3.1.0",
+        "certifi>=2023.0.0",
     ],
 
     # Optional feature dependencies

@@ -19,6 +19,7 @@ def api_add(name: str, token: str) -> None:
 def api_connect_menu() -> None:
     companies = [
         "OpenAI",
+        "Nvidia",
         "DeepSeek",
         "Gemini",
         "Anthropic",

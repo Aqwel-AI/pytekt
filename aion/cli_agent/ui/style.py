@@ -145,6 +145,7 @@ PROVIDER_ICONS = {
     "anthropic": "🟠",
     "claude": "🟠",
     "ollama": ICON_OLLAMA,
+    "nvidia": "🟢",
     "openai_compatible": "🔌",
     "compatible": "🔌",
 }

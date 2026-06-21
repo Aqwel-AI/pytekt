@@ -5,7 +5,14 @@ from __future__ import annotations
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
-from ..constants import AGENT_PROVIDER, DISPLAY_PROVIDERS
+from ..constants import (
+    COMING_SOON_PROVIDERS,
+    CONNECTABLE_PROVIDERS,
+    DISPLAY_PROVIDERS,
+    PROVIDER_ENV_VARS,
+)
+from .input import aion_input_prompt, configure_input
+from .status import format_session_summary
 from .style import (
     accent,
     accent_bright,
@@ -17,7 +24,7 @@ from .style import (
 )
 
 API_PROVIDERS: List[Tuple[str, str, Optional[str]]] = [
-    (pid, label, None) for pid, label in DISPLAY_PROVIDERS
+    (pid, label, PROVIDER_ENV_VARS.get(pid)) for pid, label in DISPLAY_PROVIDERS
 ]
 
 BOX_WIDTH = 74
@@ -46,15 +53,30 @@ def _ollama_available() -> bool:
         return False
 
 
+def _provider_has_credentials(provider_id: str, cfg: Dict[str, Any], env_var: Optional[str]) -> bool:
+    if provider_id == "ollama":
+        return _ollama_available()
+    if env_var and os.environ.get(env_var):
+        return True
+    if provider_id in CONNECTABLE_PROVIDERS:
+        from ...providers.keys import resolve_api_key
+
+        return bool(resolve_api_key(provider_id, cfg))
+    return False
+
+
 def _provider_status(cfg: Dict[str, Any], session: Any, provider_id: str, env_var: Optional[str]) -> str:
-    del cfg, env_var
-    if provider_id != AGENT_PROVIDER:
+    if provider_id in COMING_SOON_PROVIDERS:
         return accent_muted("◎ coming soon")
     if session.connected and session.provider == provider_id:
         return accent_bright("● active")
-    if _ollama_available():
-        return accent("● local")
-    return dim("○ offline")
+    if provider_id == "ollama":
+        if _ollama_available():
+            return accent("● local")
+        return dim("○ offline")
+    if _provider_has_credentials(provider_id, cfg, env_var):
+        return accent("● ready")
+    return dim("○ no key")
 
 
 def _provider_row(label: str, status: str) -> str:
@@ -80,12 +102,10 @@ def print_aion_dashboard(
     if len(cwd) > INNER - 6:
         cwd = "…" + cwd[-(INNER - 7) :]
 
-    if session.connected and session.provider:
-        prov = session.provider.replace("_", " ").title()
-        model = session.model or ""
-        session_txt = accent_bright(f"● {prov}") + (accent_muted(f" · {model}") if model else "")
-    else:
-        session_txt = accent_muted("○ Not connected")
+    summary = format_session_summary(session)
+    summary_lines = summary.split("\n")
+    session_line = summary_lines[0] if summary_lines else accent_muted("○ Not connected")
+    mode_line = summary_lines[1] if len(summary_lines) > 1 else ""
 
     title = primary(bold("AION")) + dim(" · ") + accent_muted("Coding Agent")
 
@@ -103,9 +123,11 @@ def print_aion_dashboard(
         pass
     print(_line(""))
     print(_split(accent_muted("SESSION"), accent_muted("QUICK START")))
-    print(_split(f"  {session_txt}", dim("  /connect ollama")))
-    print(_split(dim(f"  {cwd}"), dim("  /init → AION.md")))
-    print(_split("", dim("  Ask in plain language")))
+    print(_split(f"  {session_line}", dim("  /connect ollama")))
+    if mode_line:
+        print(_split(f"  {mode_line.strip()}", dim("  /mode agent|plain|debug")))
+    print(_split(dim(f"  {cwd}"), dim("  @file @folder @git")))
+    print(_split("", dim("  /init → AION.md")))
     print(_rule())
     print(_line(accent_muted("  PROVIDERS")))
     for _pid, label, env_var in API_PROVIDERS:
@@ -113,22 +135,20 @@ def print_aion_dashboard(
         print(_line(_provider_row(label, st)))
     print(_rule())
     print(_line(accent_muted("  ACTIVITY")))
-    print(_line(dim("  No recent activity")))
+    activity_text = session.activity.format_dashboard(5) if hasattr(session, "activity") else "No recent activity"
+    for act_line in activity_text.split("\n"):
+        print(_line(dim(act_line) if act_line.startswith("  ") else dim(f"  {act_line}")))
     print(accent("└" + "─" * INNER + "┘"))
     print()
 
 
 def print_input_area(*, connected: bool) -> None:
-    hint = "Describe a task or edit" if connected else "/connect ollama"
-    print(f"{accent(bold('You'))} {dim('»')} {accent_muted(hint)}")
+    hint = "Describe a task or edit · use @path" if connected else "/connect ollama or nvidia"
+    print(dim(f"  {hint}"))
     if connected:
-        print(dim("  / for commands  ·  /disconnect to go offline"))
+        print(dim("  /mode · / for commands  ·  /disconnect to go offline"))
     else:
-        print(dim("  /connect ollama  ·  type / for command help"))
-
-
-def aion_input_prompt() -> str:
-    return input(f"{accent(bold('You'))} {dim('» ')}").strip()
+        print(dim("  /connect ollama  ·  /connect nvidia  ·  type / for command help"))
 
 
 def print_shortcuts() -> None:
@@ -137,9 +157,14 @@ def print_shortcuts() -> None:
     print(dim("  ─────────────────────────────────────"))
     for cmd, desc in (
         ("/", "List slash commands (or /partial to filter)"),
+        ("/mode", "plain | agent | debug"),
         ("/connect", "Pick from installed Ollama models"),
-        ("/connect <model>", "Connect to a specific Ollama model"),
-        ("/disconnect [name]", "Go offline"),
+        ("/connect ollama", "Connect to Ollama"),
+        ("/connect nvidia", "Connect to NVIDIA NIM (API key required)"),
+        ("/connect <model>", "Connect to a specific model"),
+        ("/disconnect [name]", "Go offline (add 'keys' to remove API key)"),
+        ("/status", "Show session status"),
+        ("/reset", "Clear conversation memory"),
         ("/idle off", "Keep connection after restart (default)"),
         ("/idle 30", "Auto-disconnect after 30 min idle"),
         ("quit", "Exit agent"),
@@ -166,3 +191,13 @@ Describe your stack and conventions.
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
     return f"Created {path}"
+
+
+__all__ = [
+    "aion_input_prompt",
+    "configure_input",
+    "print_aion_dashboard",
+    "print_input_area",
+    "print_shortcuts",
+    "write_aion_md",
+]

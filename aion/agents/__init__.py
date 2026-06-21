@@ -8,7 +8,7 @@ strategies (sliding window, summary, token-budget).
 Examples
 --------
 >>> from aion.agents import ReActAgent
->>> from aion.providers import OpenAIProvider
+>>> from aion.providers import OpenAIProvider, NvidiaProvider
 >>> from aion.tools import ToolRegistry, function_tool
 >>> agent = ReActAgent(provider=OpenAIProvider(), registry=registry, tools=tools)
 >>> result = agent.run("What is 2 + 2?")
