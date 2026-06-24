@@ -26,7 +26,9 @@ def test_parse_connect_model_only():
 def test_normalize_company_names():
     assert normalize_company("Ollama") == "ollama"
     assert normalize_company("local") == "ollama"
-    assert normalize_company("openai") == "openai"
+    assert normalize_company("nvidia") == "nvidia"
+    assert normalize_company("nim") == "nvidia"
+    assert normalize_company("openai") is None
 
 
 def test_disconnect_empty_active_session():
@@ -40,6 +42,18 @@ def test_disconnect_empty_active_session():
     assert req.clear_keys is False
     assert req.keys_only is False
     assert req.disconnect_session is True
+    assert req.forget_saved is False
+
+
+def test_disconnect_forget_clears_saved():
+    req = parse_disconnect_args(
+        "forget",
+        connected=True,
+        active_provider="nvidia",
+        active_model="meta/llama-3.1-8b-instruct",
+    )
+    assert req.forget_saved is True
+    assert req.disconnect_session is True
 
 
 def test_disconnect_model_name():
@@ -52,19 +66,6 @@ def test_disconnect_model_name():
     assert req.model == "llama3"
     assert req.keys_only is False
     assert req.clear_keys is False
-
-
-def test_disconnect_other_provider_keys_only():
-    req = parse_disconnect_args(
-        "openai keys",
-        connected=True,
-        active_provider="ollama",
-        active_model="llama3",
-    )
-    assert req.provider == "openai"
-    assert req.keys_only is True
-    assert req.clear_keys is True
-    assert req.disconnect_session is False
 
 
 def test_disconnect_nvidia_keys_while_active():

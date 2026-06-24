@@ -30,3 +30,56 @@ def test_list_files(tmp_path):
 
 def test_is_agent_web_server_free():
     assert not is_agent_web_server("127.0.0.1", 3869)
+
+
+def test_chat_stream_emits_start_before_done():
+    svc = WebAgentService(".")
+    svc.connector.agent = object()
+    svc.connector.session.interaction_mode = "agent"
+    svc.connector.chat = lambda _msg: "Hello from agent"
+
+    types: list[str] = []
+    for line in svc.chat_stream("hi"):
+        if line.startswith("data: "):
+            payload = json.loads(line[6:].strip())
+            types.append(payload["type"])
+
+    assert types[0] == "chat_start"
+    assert "chat_done" in types
+    assert types.index("chat_start") < types.index("chat_done")
+
+
+def test_threading_server_serves_api_while_sse_open(tmp_path):
+    import socket
+    import time
+
+    from aion.cli_agent.web.server import AgentWebHandler, _ThreadingHTTPServer
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(("127.0.0.1", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+
+    svc = WebAgentService(str(tmp_path))
+    AgentWebHandler.service = svc
+    server = _ThreadingHTTPServer(("127.0.0.1", port), AgentWebHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    time.sleep(0.2)
+
+    sse_holder: list[object] = []
+
+    def hold_sse() -> None:
+        sse_holder.append(
+            urllib.request.urlopen(f"http://127.0.0.1:{port}/api/events/stream", timeout=5)
+        )
+
+    sse_thread = threading.Thread(target=hold_sse, daemon=True)
+    sse_thread.start()
+    time.sleep(0.3)
+
+    with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/session", timeout=2) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    assert "connected" in data
+
+    server.shutdown()

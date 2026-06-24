@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityEvent,
   PendingApproval,
@@ -14,6 +14,7 @@ import { FileTree } from "./components/FileTree";
 import { InputBar } from "./components/InputBar";
 import { PlanBanner, approvePlan } from "./components/PlanBanner";
 import { SessionBar } from "./components/SessionBar";
+import { ThinkingBar } from "./components/ThinkingBar";
 import "./index.css";
 
 export default function App() {
@@ -23,24 +24,42 @@ export default function App() {
   const [files, setFiles] = useState<string[]>([]);
   const [pending, setPending] = useState<PendingApproval | null>(null);
   const [busy, setBusy] = useState(false);
+  const [thinkingStatus, setThinkingStatus] = useState("");
   const [draft, setDraft] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const fileCache = useRef<string[]>([]);
+  const tokenBuffer = useRef("");
+  const rafId = useRef<number | null>(null);
 
-  const refresh = useCallback(async () => {
-    const [s, a, f] = await Promise.all([
-      api.session(),
-      api.activity(30),
-      api.files("."),
-    ]);
-    setSession(s);
-    setActivity(a.events);
-    setFiles(f.entries);
-    const p = await api.pending();
-    if (p.pending.length > 0) setPending(p.pending[0]);
+  const clearChat = useCallback(() => setMessages([]), []);
+
+  const refreshSession = useCallback(async () => {
+    try {
+      const [s, a] = await Promise.all([api.session(), api.activity(30)]);
+      setSession(s);
+      setActivity(a.events);
+      const p = await api.pending();
+      if (p.pending.length > 0) setPending(p.pending[0]);
+    } catch {
+      /* server may be starting or temporarily unreachable */
+    }
   }, []);
 
+  const refreshFiles = useCallback(async () => {
+    const f = await api.files(".");
+    fileCache.current = f.entries;
+    setFiles(f.entries);
+  }, []);
+
+  const openDrawer = useCallback(() => {
+    setDrawerOpen(true);
+    refreshFiles();
+  }, [refreshFiles]);
+
   useEffect(() => {
-    refresh();
+    refreshSession();
     const stop = streamEvents((ev) => {
+      if (ev.type === "memory_cleared") clearChat();
       if (ev.type === "approval_required") {
         setPending({
           id: String(ev.id),
@@ -49,47 +68,77 @@ export default function App() {
           diff: String(ev.diff),
         });
       }
-      if (ev.type === "session_updated") refresh();
+      if (ev.type === "session_updated") refreshSession();
+      if (ev.type === "chat_status" && busy) {
+        setThinkingStatus(String(ev.text || "Thinking…"));
+      }
       if (ev.type === "tool_step") {
+        const label = `${ev.action}: ${ev.preview}`;
+        setThinkingStatus(String(label));
         setActivity((prev) => [
           ...prev,
           {
             kind: "tool",
-            detail: `${ev.action}: ${ev.preview}`,
+            detail: label,
             ts: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           },
         ]);
       }
     });
-    const id = setInterval(refresh, 8000);
-    return () => {
-      stop();
-      clearInterval(id);
-    };
-  }, [refresh]);
+    return stop;
+  }, [refreshSession, clearChat, busy]);
+
+  const flushTokens = useCallback(() => {
+    const chunk = tokenBuffer.current;
+    if (!chunk) return;
+    tokenBuffer.current = "";
+    setMessages((msgs) => {
+      const copy = [...msgs];
+      const last = copy[copy.length - 1];
+      if (last?.role === "assistant") {
+        copy[copy.length - 1] = {
+          ...last,
+          content: last.content + chunk,
+          streaming: true,
+        };
+      }
+      return copy;
+    });
+  }, []);
+
+  const scheduleTokenFlush = useCallback(() => {
+    if (rafId.current != null) return;
+    rafId.current = requestAnimationFrame(() => {
+      rafId.current = null;
+      flushTokens();
+    });
+  }, [flushTokens]);
+
+  const handleNewChat = () => {
+    api.reset();
+    clearChat();
+  };
 
   const handleSend = (text: string) => {
     if (!session?.connected) return;
     setBusy(true);
-    setMessages((m) => [...m, { role: "user", content: text }]);
-    setMessages((m) => [...m, { role: "assistant", content: "", streaming: true }]);
+    setThinkingStatus("Thinking…");
+    setMessages((m) => [
+      ...m,
+      { role: "user", content: text },
+      { role: "assistant", content: "", streaming: true },
+    ]);
 
     const stop = streamChat(text, (ev) => {
+      if (ev.type === "chat_status") {
+        setThinkingStatus(String(ev.text || "Thinking…"));
+      }
       if (ev.type === "chat_token") {
-        setMessages((msgs) => {
-          const copy = [...msgs];
-          const last = copy[copy.length - 1];
-          if (last?.role === "assistant") {
-            copy[copy.length - 1] = {
-              ...last,
-              content: last.content + String(ev.text),
-              streaming: true,
-            };
-          }
-          return copy;
-        });
+        tokenBuffer.current += String(ev.text);
+        scheduleTokenFlush();
       }
       if (ev.type === "chat_done") {
+        flushTokens();
         setMessages((msgs) => {
           const copy = [...msgs];
           const last = copy[copy.length - 1];
@@ -103,15 +152,18 @@ export default function App() {
           return copy;
         });
         setBusy(false);
-        refresh();
+        setThinkingStatus("");
+        refreshSession();
         stop();
       }
       if (ev.type === "error") {
+        flushTokens();
         setMessages((msgs) => [
           ...msgs.slice(0, -1),
-          { role: "assistant", content: `Error: ${ev.message}` },
+          { role: "assistant", content: `Something went wrong: ${ev.message}` },
         ]);
         setBusy(false);
+        setThinkingStatus("");
         stop();
       }
     });
@@ -119,36 +171,62 @@ export default function App() {
 
   return (
     <div className="app">
-      <SessionBar session={session} onRefresh={refresh} />
-      {session && (
+      <SessionBar
+        session={session}
+        onRefresh={refreshSession}
+        onNewChat={handleNewChat}
+        drawerOpen={drawerOpen}
+        onToggleDrawer={() => (drawerOpen ? setDrawerOpen(false) : openDrawer())}
+      />
+      {session?.pending_plan && (
         <PlanBanner
           session={session}
-          onApprove={() => approvePlan((r) => setMessages((m) => [...m, { role: "assistant", content: r }]))}
+          onApprove={() =>
+            approvePlan((r) => setMessages((m) => [...m, { role: "assistant", content: r }]))
+          }
         />
       )}
-      <div className="main">
-        <div className="panel">
-          <FileTree
-            paths={files}
-            pinned={session?.pinned_paths || []}
-            onInsert={(p) => setDraft((d) => (d ? d + " @" + p : "@" + p))}
-            onRefresh={refresh}
+      <div className="chat-shell">
+        <div className="messages-scroll">
+          <ChatPanel
+            messages={messages}
+            connected={!!session?.connected}
+            onSuggestion={handleSend}
           />
+          {busy && <ThinkingBar status={thinkingStatus} />}
         </div>
-        <div className="chat-area">
-          <ChatPanel messages={messages} />
-          <InputBar
-            disabled={busy || !session?.connected}
-            onSend={handleSend}
-            draft={draft}
-            onDraftChange={setDraft}
-          />
-        </div>
-        <div className="panel">
-          <ActivityPanel events={activity} />
-        </div>
+        <InputBar
+          disabled={busy || !session?.connected}
+          onSend={handleSend}
+          draft={draft}
+          onDraftChange={setDraft}
+          fileEntries={fileCache.current.length ? fileCache.current : files}
+          onRequestFiles={refreshFiles}
+        />
       </div>
-      <DiffApprovalModal pending={pending} onClose={() => { setPending(null); refresh(); }} />
+
+      {drawerOpen && (
+        <>
+          <div className="drawer-backdrop" onClick={() => setDrawerOpen(false)} />
+          <aside className="drawer open">
+            <div className="drawer-title">Workspace</div>
+            <div className="drawer-body">
+              <FileTree
+                paths={files}
+                pinned={session?.pinned_paths || []}
+                onInsert={(p) => setDraft(p)}
+                onRefresh={refreshFiles}
+              />
+              <div className="drawer-title" style={{ marginTop: 8 }}>
+                Activity
+              </div>
+              <ActivityPanel events={activity} />
+            </div>
+          </aside>
+        </>
+      )}
+
+      <DiffApprovalModal pending={pending} onClose={() => { setPending(null); refreshSession(); }} />
     </div>
   );
 }

@@ -10,10 +10,14 @@ from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
 
 from ..config import get_config
+from ..constants import CONNECTABLE_PROVIDERS
 from ..mentions import expand_mentions
 from ..session_prefs import (
     save_pinned_paths,
     save_trust,
+    saved_model,
+    saved_provider,
+    saved_trust,
     saved_workspace_roots,
 )
 from ..tools import build_tool_registry, tools_schema
@@ -48,6 +52,19 @@ class WebAgentService:
         )
         self.connector.set_event_callback(self._on_connector_event)
         self._wire_approval_handler()
+        self._auto_restore_session()
+
+    def _auto_restore_session(self) -> None:
+        """Restore last saved provider/model on web startup (mirrors CLI)."""
+        if saved_trust(self.cfg):
+            self.connector.apply_trust(True)
+            self.connector.trust_confirmed = True
+        saved = saved_provider(self.cfg)
+        if saved not in CONNECTABLE_PROVIDERS:
+            return
+        mod = saved_model(self.cfg)
+        if self.connector.connect(prov=saved, mod=mod, quiet=True):
+            self._publish_session()
 
     def _on_connector_event(self, event_type: str, data: Dict[str, Any]) -> None:
         self.events.publish(event_type, **data)
@@ -109,6 +126,7 @@ class WebAgentService:
     def disconnect(self) -> Dict[str, Any]:
         with self._lock:
             self.connector.disconnect(forget_saved=False)
+            self.clear_memory()
             self._publish_session()
             return {"ok": True}
 
@@ -156,9 +174,15 @@ class WebAgentService:
 
     def reset(self) -> Dict[str, Any]:
         with self._lock:
+            self.clear_memory()
+            return {"ok": True}
+
+    def clear_memory(self) -> None:
+        """Clear agent conversation memory and notify web clients."""
+        with self._lock:
             if self.connector.agent:
                 self.connector.agent.reset()
-            return {"ok": True}
+            self.events.publish("memory_cleared")
 
     def approve_diff(self, approval_id: str, action: str) -> Dict[str, Any]:
         with self._lock:
@@ -232,53 +256,82 @@ class WebAgentService:
                 return {"ok": False, "error": str(e)}
 
     def chat_stream(self, message: str) -> Iterator[str]:
-        """Yield SSE lines for a chat turn."""
+        """Yield SSE lines for a chat turn (progress + tokens when possible)."""
+        import queue
+
         from .events import AgentEvent
 
-        with self._chat_lock:
-            if not self.connector.agent:
-                yield AgentEvent(type="error", data={"message": "Not connected"}).to_sse()
-                return
+        if not self.connector.agent:
+            yield AgentEvent(type="error", data={"message": "Not connected"}).to_sse()
+            return
 
-            enriched = self._enrich(message)
-            self.events.publish("chat_start", message=message)
+        enriched = self._enrich(message)
+        yield AgentEvent(type="chat_start", data={"message": message}).to_sse()
+        yield AgentEvent(type="chat_status", data={"text": "Thinking…"}).to_sse()
+        self.events.publish("chat_start", message=message)
 
-            if self.connector.session.interaction_mode != "plain":
+        mode = self.connector.session.interaction_mode
+
+        if mode != "plain":
+            result_q: queue.Queue = queue.Queue()
+
+            def _run_agent() -> None:
                 try:
-                    response = self.connector.chat(enriched)
-                    yield AgentEvent(type="chat_done", data={"response": response}).to_sse()
-                    self._publish_session()
-                except Exception as e:
-                    yield AgentEvent(type="error", data={"message": str(e)}).to_sse()
+                    with self._chat_lock:
+                        response = self.connector.chat(enriched)
+                    result_q.put(("ok", response))
+                except Exception as exc:
+                    result_q.put(("err", str(exc)))
+
+            worker = threading.Thread(target=_run_agent, daemon=True, name="aion-web-chat")
+            worker.start()
+            while worker.is_alive():
+                worker.join(timeout=0.2)
+            kind, payload = result_q.get()
+            if kind == "err":
+                yield AgentEvent(type="error", data={"message": payload}).to_sse()
                 return
+            response = str(payload)
+            step = max(12, len(response) // 80)
+            for i in range(0, len(response), step):
+                yield AgentEvent(
+                    type="chat_token", data={"text": response[i : i + step]}
+                ).to_sse()
+            yield AgentEvent(type="chat_done", data={"response": response}).to_sse()
+            self._publish_session()
+            return
 
-            inner = getattr(self.connector._raw_provider, "_inner", self.connector._raw_provider)
-            if hasattr(inner, "complete_stream"):
-                from ...providers.base import ChatMessage
+        inner = getattr(self.connector._raw_provider, "_inner", self.connector._raw_provider)
+        if hasattr(inner, "complete_stream"):
+            from ...providers.base import ChatMessage
 
-                parts: List[str] = []
-                try:
-                    for token in inner.complete_stream(
+            parts: List[str] = []
+            try:
+                with self._chat_lock:
+                    stream = inner.complete_stream(
                         [ChatMessage(role="user", content=enriched)],
                         max_tokens=4096,
-                    ):
+                    )
+                    for token in stream:
                         parts.append(token)
                         yield AgentEvent(type="chat_token", data={"text": token}).to_sse()
-                    text = "".join(parts)
-                    if self.connector.agent:
-                        self.connector.agent.memory.add({"role": "user", "content": enriched})
-                        self.connector.agent.memory.add({"role": "assistant", "content": text})
-                    yield AgentEvent(type="chat_done", data={"response": text}).to_sse()
-                except Exception:
+                text = "".join(parts)
+                if self.connector.agent:
+                    self.connector.agent.memory.add({"role": "user", "content": enriched})
+                    self.connector.agent.memory.add({"role": "assistant", "content": text})
+                yield AgentEvent(type="chat_done", data={"response": text}).to_sse()
+            except Exception:
+                with self._chat_lock:
                     response = self.connector.chat(enriched)
-                    yield AgentEvent(type="chat_done", data={"response": response}).to_sse()
-            else:
-                try:
+                yield AgentEvent(type="chat_done", data={"response": response}).to_sse()
+        else:
+            try:
+                with self._chat_lock:
                     response = self.connector.chat(enriched)
-                    yield AgentEvent(type="chat_done", data={"response": response}).to_sse()
-                except Exception as e:
-                    yield AgentEvent(type="error", data={"message": str(e)}).to_sse()
-            self._publish_session()
+                yield AgentEvent(type="chat_done", data={"response": response}).to_sse()
+            except Exception as e:
+                yield AgentEvent(type="error", data={"message": str(e)}).to_sse()
+        self._publish_session()
 
     def run_command(self, cmd: str, args: str = "") -> Dict[str, Any]:
         with self._lock:
@@ -321,3 +374,16 @@ def get_service(workspace_root: Optional[str] = None) -> WebAgentService:
             root = workspace_root or os.getcwd()
             _SERVICE = WebAgentService(root)
         return _SERVICE
+
+
+def get_service_optional() -> Optional[WebAgentService]:
+    """Return the live web service, or None if the server was never started."""
+    with _SERVICE_LOCK:
+        return _SERVICE
+
+
+def clear_web_memory() -> None:
+    """Clear web chat memory (e.g. when the terminal agent exits)."""
+    svc = get_service_optional()
+    if svc is not None:
+        svc.clear_memory()

@@ -11,6 +11,7 @@ import webbrowser
 from typing import Optional, Tuple
 
 from .server import DEFAULT_PORT, is_agent_web_server, run_server
+from .service import clear_web_memory
 
 _DEFAULT_HOST = "127.0.0.1"
 _SERVER_THREAD: Optional[threading.Thread] = None

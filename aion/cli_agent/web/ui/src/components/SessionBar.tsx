@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { api, ProviderInfo, SessionInfo } from "../api";
 
-const MODES = ["plain", "agent", "debug", "plan", "review", "test"];
-
 interface Props {
   session: SessionInfo | null;
   onRefresh: () => void;
+  onNewChat: () => void;
+  drawerOpen: boolean;
+  onToggleDrawer: () => void;
 }
 
-export function SessionBar({ session, onRefresh }: Props) {
+export function SessionBar({
+  session,
+  onRefresh,
+  onNewChat,
+  drawerOpen,
+  onToggleDrawer,
+}: Props) {
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [showConnect, setShowConnect] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState("ollama");
@@ -42,84 +49,56 @@ export function SessionBar({ session, onRefresh }: Props) {
 
   const handleDisconnect = async () => {
     await api.disconnect();
+    onNewChat();
     onRefresh();
   };
 
-  const handleMode = async (mode: string) => {
-    await api.setMode(mode);
-    onRefresh();
-  };
-
-  const handleTrust = async () => {
-    await api.setTrust(!session?.trust);
-    onRefresh();
-  };
+  const modelLabel = session?.connected
+    ? session.model?.split("/").pop() || session.model || session.provider
+    : "Offline";
 
   return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        padding: "10px 16px",
-        background: "var(--bg-panel)",
-        borderBottom: "1px solid var(--border)",
-        flexWrap: "wrap",
-      }}
-    >
-      <strong style={{ color: "var(--accent)" }}>Aion Agent</strong>
-      <span style={{ color: "var(--text-muted)", fontSize: 13 }}>
-        {session?.connected
-          ? `${session.provider} · ${session.model}`
-          : "Not connected"}
-      </span>
-      <select
-        value={session?.mode || "agent"}
-        onChange={(e) => handleMode(e.target.value)}
-        style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)", borderRadius: 6, padding: "4px 8px" }}
-      >
-        {MODES.map((m) => (
-          <option key={m} value={m}>
-            {m}
-          </option>
-        ))}
-      </select>
-      <button className="btn btn-sm btn-ghost" onClick={handleTrust}>
-        Trust: {session?.trust ? "ON" : "OFF"}
-      </button>
-      {session?.connected ? (
-        <button className="btn btn-sm btn-ghost" onClick={handleDisconnect}>
-          Disconnect
-        </button>
-      ) : (
-        <button className="btn btn-sm" onClick={() => setShowConnect(true)}>
-          Connect
-        </button>
-      )}
-      <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--text-muted)" }}>
-        {session?.workspace?.replace(/^.*\//, ".../")}
-      </span>
+    <>
+      <header className="gemini-header">
+        <span className="gemini-logo">Aion</span>
+        <span className={`gemini-badge ${session?.connected ? "connected" : ""}`}>
+          {session?.connected && <span className="status-dot" />}
+          {modelLabel}
+        </span>
+        <div className="gemini-header-actions">
+          <button type="button" className="btn btn-sm btn-ghost" onClick={onNewChat}>
+            New chat
+          </button>
+          <button type="button" className="drawer-toggle" onClick={onToggleDrawer}>
+            {drawerOpen ? "Close" : "Files"}
+          </button>
+          {session?.connected ? (
+            <button type="button" className="btn btn-sm btn-ghost" onClick={handleDisconnect}>
+              Disconnect
+            </button>
+          ) : (
+            <button type="button" className="btn btn-sm" onClick={() => setShowConnect(true)}>
+              Connect
+            </button>
+          )}
+        </div>
+      </header>
 
       {showConnect && (
         <div className="modal-overlay" onClick={() => setShowConnect(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ padding: 16 }}>
-            <h3 style={{ margin: "0 0 12px" }}>Connect provider</h3>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Connect</h3>
             <select
               value={selectedProvider}
               onChange={(e) => setSelectedProvider(e.target.value)}
-              style={{ width: "100%", marginBottom: 8, padding: 8 }}
             >
               {providers.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.label} {p.ready ? "" : "(needs key)"}
+                  {p.label} {p.ready ? "" : "(needs API key)"}
                 </option>
               ))}
             </select>
-            <select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              style={{ width: "100%", marginBottom: 8, padding: 8 }}
-            >
+            <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
               {models.map((m) => (
                 <option key={m} value={m}>
                   {m}
@@ -128,17 +107,16 @@ export function SessionBar({ session, onRefresh }: Props) {
             </select>
             <input
               type="password"
-              placeholder="API key (optional if saved)"
+              placeholder="NVIDIA API key (if not saved)"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              style={{ width: "100%", marginBottom: 12, padding: 8 }}
             />
-            <button className="btn" onClick={handleConnect} disabled={connecting}>
+            <button type="button" className="btn" onClick={handleConnect} disabled={connecting}>
               {connecting ? "Connecting…" : "Connect"}
             </button>
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }

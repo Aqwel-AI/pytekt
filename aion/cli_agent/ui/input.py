@@ -8,6 +8,8 @@ import readline
 from pathlib import Path
 from typing import List, Optional, Set
 
+from ..command_vocab import complete_slash_line
+
 _COMPLETER_ROOT: Optional[str] = None
 _COMPLETER_PREFIX: str = ""
 
@@ -120,6 +122,25 @@ def _at_path_completer(text: str, state: int) -> Optional[str]:
     return None
 
 
+def _unified_completer(text: str, state: int) -> Optional[str]:
+    line = readline.get_line_buffer()
+    if line.startswith("/"):
+        if state == 0:
+            candidates = complete_slash_line(line)
+            _unified_completer.matches = candidates  # type: ignore[attr-defined]
+        matches = getattr(_unified_completer, "matches", [])
+        if state < len(matches):
+            candidate = matches[state]
+            # Return suffix to append from current cursor word
+            idx = readline.get_endidx()
+            prefix = line[:idx]
+            if candidate.startswith(prefix):
+                return candidate[len(prefix) :]
+            return candidate
+        return None
+    return _at_path_completer(text, state)
+
+
 def pick_fuzzy_path(workspace_root: str, partial: str) -> Optional[str]:
     """Interactive numbered pick when multiple fuzzy @ matches exist."""
     from .style import accent, dim
@@ -144,7 +165,7 @@ def configure_input(workspace_root: str) -> None:
     try:
         readline.set_completer_delims(" \t\n;")
         readline.parse_and_bind("tab: complete")
-        readline.set_completer(_at_path_completer)
+        readline.set_completer(_unified_completer)
     except Exception:
         pass
 
