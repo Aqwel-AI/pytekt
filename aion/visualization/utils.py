@@ -91,3 +91,35 @@ def close_figure(fig):
         The figure to close.
     """
     plt.close(fig)
+
+
+def require_seaborn():
+    """Import seaborn or raise with install hint."""
+    try:
+        import seaborn as sns  # type: ignore[import-untyped]
+
+        return sns
+    except ImportError as e:
+        raise ImportError(
+            "seaborn is required. Install with: pip install aqwel-aion[viz]"
+        ) from e
+
+
+def require_plotly():
+    """Import plotly or raise with install hint."""
+    try:
+        import plotly.graph_objects as go  # type: ignore[import-untyped]
+
+        return go
+    except ImportError as e:
+        raise ImportError(
+            "plotly is required. Install with: pip install aqwel-aion[viz3d]"
+        ) from e
+
+
+def safe_show(show: bool) -> None:
+    if show:
+        try:
+            plt.show()
+        except Exception:
+            pass
