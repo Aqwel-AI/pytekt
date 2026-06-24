@@ -14,13 +14,18 @@ The **aion.algorithms** package is a professional-grade suite of algorithmic pri
 
 ## 2. Architecture
 
-The package is organized into three specialized modules, each following strict PEP8 and Ruff standards.
+The package is organized into specialized modules with a searchable **catalog** (`catalog.py`).
 
 | Module   | Domain                                      | Implementation Level |
 |----------|---------------------------------------------|----------------------|
 | `search` | Sequence search, optimization, string matching | Professional         |
 | `arrays` | Vector/Matrix ops, stats, sequence utils    | Professional         |
 | `graphs` | Connectivity, flow, pathfinding, centrality | Professional         |
+| `sorting` … `queues_stacks` | 18 category modules (see CATALOG.md) | Professional |
+
+**Discovery API:** `count_algorithms()`, `list_algorithms(category)`, `get_algorithm(name)`.
+
+See [CATALOG.md](CATALOG.md) for the full category table (~570+ functions).
 
 ```mermaid
 graph TD

@@ -151,6 +151,13 @@ setup(
         "viz": [
             "matplotlib>=3.5.0",
             "seaborn>=0.11.0",
+            "numpy>=1.20.0",
+        ],
+        "viz3d": [
+            "plotly>=5.18.0",
+            "matplotlib>=3.5.0",
+            "seaborn>=0.11.0",
+            "numpy>=1.20.0",
         ],
 
         # Transformer training (Aion Former: decoder-only, NumPy autograd)
