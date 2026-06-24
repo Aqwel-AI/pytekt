@@ -1,30 +1,51 @@
 import { useEffect, useRef, useState } from "react";
-import { api } from "../api";
 
-const SLASH_COMMANDS = [
-  { cmd: "/reset", desc: "Clear memory" },
-  { cmd: "/undo", desc: "Undo last edit" },
-  { cmd: "/approve", desc: "Execute plan" },
-  { cmd: "/research", desc: "Research subagent" },
-  { cmd: "/commit", desc: "Git commit" },
-];
+const SLASH_COMMANDS = ["/connect", "/reconnect", "/reset", "/help"];
+const CONNECT_PROVIDERS = ["ollama", "nvidia", "nim"];
+
+function filterSlashCommands(text: string): string[] {
+  if (!text.startsWith("/")) return [];
+  const body = text.slice(1);
+  if (!body.includes(" ")) {
+    const partial = body.toLowerCase();
+    return SLASH_COMMANDS.filter((cmd) => !partial || cmd.slice(1).startsWith(partial));
+  }
+  const [cmd, ...rest] = body.split(" ");
+  if (cmd.toLowerCase() === "connect") {
+    const partial = (rest.join(" ") || "").toLowerCase();
+    return CONNECT_PROVIDERS.filter((p) => !partial || p.startsWith(partial)).map(
+      (p) => `/connect ${p}`
+    );
+  }
+  return [];
+}
 
 interface Props {
   disabled: boolean;
   onSend: (text: string) => void;
   draft?: string;
   onDraftChange?: (v: string) => void;
+  fileEntries?: string[];
+  onRequestFiles?: () => void;
 }
 
-export function InputBar({ disabled, onSend, draft = "", onDraftChange }: Props) {
+export function InputBar({
+  disabled,
+  onSend,
+  draft = "",
+  onDraftChange,
+  fileEntries = [],
+  onRequestFiles,
+}: Props) {
   const [text, setText] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [showSlash, setShowSlash] = useState(false);
+  const [pathSuggestions, setPathSuggestions] = useState<string[]>([]);
+  const [slashSuggestions, setSlashSuggestions] = useState<string[]>([]);
   const ref = useRef<HTMLTextAreaElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (draft && onDraftChange) {
-      setText((t) => (t ? t + " " + draft : draft));
+      setText((t) => (t ? t + " @" + draft : "@" + draft));
       onDraftChange("");
     }
   }, [draft, onDraftChange]);
@@ -32,96 +53,110 @@ export function InputBar({ disabled, onSend, draft = "", onDraftChange }: Props)
   useEffect(() => {
     const at = text.lastIndexOf("@");
     if (at >= 0 && !text.slice(at).includes(" ")) {
-      const partial = text.slice(at + 1);
-      api.files(".").then((r) => {
-        const matches = r.entries
-          .filter((e) => e.toLowerCase().includes(partial.toLowerCase()))
-          .slice(0, 8);
-        setSuggestions(matches);
-      });
+      const partial = text.slice(at + 1).toLowerCase();
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        if (fileEntries.length === 0 && onRequestFiles) onRequestFiles();
+        const matches = fileEntries
+          .filter((e) => e.toLowerCase().includes(partial))
+          .slice(0, 6);
+        setPathSuggestions(matches);
+      }, 300);
     } else {
-      setSuggestions([]);
+      setPathSuggestions([]);
     }
-    setShowSlash(text.startsWith("/"));
-  }, [text]);
+    setSlashSuggestions(filterSlashCommands(text));
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [text, fileEntries, onRequestFiles]);
 
-  const insertSuggestion = (path: string) => {
+  const insertPath = (path: string) => {
     const at = text.lastIndexOf("@");
     setText(text.slice(0, at) + "@" + path + " ");
-    setSuggestions([]);
+    setPathSuggestions([]);
+    ref.current?.focus();
+  };
+
+  const insertSlash = (cmd: string) => {
+    setText(cmd + (cmd.endsWith(" ") ? "" : " "));
+    setSlashSuggestions([]);
     ref.current?.focus();
   };
 
   const handleSend = () => {
     const trimmed = text.trim();
     if (!trimmed || disabled) return;
-    if (trimmed === "/undo") {
-      api.undo();
-      setText("");
-      return;
-    }
-    if (trimmed === "/reset") {
-      api.reset();
-      setText("");
-      return;
-    }
-    if (trimmed.startsWith("/")) {
-      const parts = trimmed.slice(1).split(/\s+/);
-      const cmd = parts[0];
-      const args = parts.slice(1).join(" ");
-      api.command(cmd, args).then((r) => {
-        if (r.response) onSend(`[/${cmd}] ${r.response}`);
-      });
-      setText("");
-      return;
-    }
     onSend(trimmed);
     setText("");
+    if (ref.current) ref.current.style.height = "auto";
+  };
+
+  const activeSuggestions = slashSuggestions.length > 0 ? slashSuggestions : [];
+
+  const onInput = (value: string) => {
+    setText(value);
+    const el = ref.current;
+    if (el) {
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 160) + "px";
+    }
   };
 
   return (
-    <div className="input-area" style={{ position: "relative" }}>
-      {suggestions.length > 0 && (
+    <div className="composer-wrap">
+      {activeSuggestions.length > 0 && (
         <div className="autocomplete">
-          {suggestions.map((s) => (
-            <div key={s} onClick={() => insertSuggestion(s)}>
+          {activeSuggestions.map((s) => (
+            <div key={s} onClick={() => insertSlash(s)}>
+              {s}
+            </div>
+          ))}
+        </div>
+      )}
+      {pathSuggestions.length > 0 && slashSuggestions.length === 0 && (
+        <div className="autocomplete">
+          {pathSuggestions.map((s) => (
+            <div key={s} onClick={() => insertPath(s)}>
               @{s}
             </div>
           ))}
         </div>
       )}
-      {showSlash && (
-        <div className="suggestions">
-          {SLASH_COMMANDS.map((s) => (
-            <span
-              key={s.cmd}
-              className="suggestion"
-              onClick={() => setText(s.cmd + " ")}
-              title={s.desc}
-            >
-              {s.cmd}
-            </span>
-          ))}
-        </div>
-      )}
-      <textarea
-        ref={ref}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-          }
-        }}
-        placeholder="Message… @file for context · / for commands"
-        disabled={disabled}
-      />
-      <div className="input-actions">
-        <button className="btn" onClick={handleSend} disabled={disabled || !text.trim()}>
-          Send
+      <div className="composer">
+        <textarea
+          ref={ref}
+          rows={1}
+          value={text}
+          onChange={(e) => onInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Tab" && slashSuggestions.length > 0) {
+              e.preventDefault();
+              insertSlash(slashSuggestions[0]);
+              return;
+            }
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
+          placeholder="Message Aion…"
+          disabled={disabled}
+        />
+        <button
+          type="button"
+          className="composer-send"
+          onClick={handleSend}
+          disabled={disabled || !text.trim()}
+          aria-label="Send"
+        >
+          ↑
         </button>
       </div>
+      <p className="disclaimer">
+        Aion can make mistakes — verify important information. Chat clears when you exit the
+        terminal session.
+      </p>
     </div>
   );
 }

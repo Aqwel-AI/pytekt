@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import errno
 import json
 import os
 import sys
 import threading
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from socketserver import ThreadingMixIn
 from typing import Any, Dict, Optional
 from urllib.parse import parse_qs, urlparse
 
@@ -14,6 +16,12 @@ from .service import WebAgentService, get_service
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 DEFAULT_PORT = 3860
+
+
+class _ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle SSE and API requests concurrently (SSE would block a single-threaded server)."""
+
+    daemon_threads = True
 
 
 def _library_info(workspace: str) -> Dict[str, Any]:
@@ -162,6 +170,19 @@ class AgentWebHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Cache-Control", "no-store")
 
+    def _sse_write(self, chunk: str) -> bool:
+        """Write one SSE chunk. Returns False if the client disconnected."""
+        try:
+            self.wfile.write(chunk.encode("utf-8"))
+            self.wfile.flush()
+            return True
+        except (BrokenPipeError, ConnectionResetError):
+            return False
+        except OSError as exc:
+            if exc.errno in (errno.EPIPE, errno.ECONNRESET):
+                return False
+            raise
+
     def _sse_chat(self, svc: WebAgentService, message: str) -> None:
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream")
@@ -169,8 +190,8 @@ class AgentWebHandler(SimpleHTTPRequestHandler):
         self._cors_headers()
         self.end_headers()
         for chunk in svc.chat_stream(message):
-            self.wfile.write(chunk.encode("utf-8"))
-            self.wfile.flush()
+            if not self._sse_write(chunk):
+                return
 
     def _sse_events(self, svc: WebAgentService) -> None:
         self.send_response(200)
@@ -182,10 +203,11 @@ class AgentWebHandler(SimpleHTTPRequestHandler):
         try:
             for recent in svc.events.recent(10):
                 line = f"data: {json.dumps({'type': 'replay', **recent}, default=str)}\n\n"
-                self.wfile.write(line.encode("utf-8"))
+                if not self._sse_write(line):
+                    return
             for chunk in svc.events.iter_sse(q, timeout=25.0):
-                self.wfile.write(chunk.encode("utf-8"))
-                self.wfile.flush()
+                if not self._sse_write(chunk):
+                    return
         finally:
             svc.events.unsubscribe(q)
 
@@ -198,8 +220,6 @@ def run_server(
     port: int = DEFAULT_PORT,
     workspace_root: Optional[str] = None,
 ) -> None:
-    import errno
-
     svc = get_service(workspace_root)
     AgentWebHandler.service = svc
 
@@ -207,7 +227,7 @@ def run_server(
         AgentWebHandler(*args, **kwargs)
 
     try:
-        server = HTTPServer((host, port), handler)
+        server = _ThreadingHTTPServer((host, port), handler)
     except OSError as e:
         if e.errno == errno.EADDRINUSE:
             print(f"Port {port} in use — agent web UI may already be running: http://{host}:{port}/")

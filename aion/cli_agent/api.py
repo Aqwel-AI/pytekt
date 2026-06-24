@@ -17,29 +17,15 @@ def api_add(name: str, token: str) -> None:
 
 
 def api_connect_menu() -> None:
-    companies = [
-        "OpenAI",
-        "Nvidia",
-        "DeepSeek",
-        "Gemini",
-        "Anthropic",
-        "Groq",
-        "Mistral",
-        "Custom...",
-    ]
-    ui.print_menu(companies, "Connect to a Company API")
+    companies = ["Nvidia"]
+    ui.print_menu(companies, "Add API key (Ollama is local — no key needed)")
     choice = ui.get_menu_choice(companies)
     company = companies[choice - 1]
-    if company == "Custom...":
-        company = input(f"  {ui.ICON_CONFIG} Enter Company Name: ").strip()
-    if not company:
-        ui.error_print("Operation cancelled.")
-        return
     token = input(f"  {ui.ICON_AUTH} Enter API Token for {ui.bold(company)}: ").strip()
     if not token:
         ui.error_print("Token is required.")
         return
-    api_add(company, token)
+    api_add(company.lower(), token)
 
 
 def api_list() -> None:

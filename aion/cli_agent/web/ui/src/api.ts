@@ -124,17 +124,33 @@ export function streamChat(
 }
 
 export function streamEvents(onEvent: (data: Record<string, unknown>) => void): () => void {
-  const es = new EventSource("/api/events/stream");
-  es.onmessage = (ev) => {
-    try {
-      onEvent(JSON.parse(ev.data));
-    } catch {
-      /* ignore */
-    }
+  let es: EventSource | null = null;
+  let closed = false;
+  let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const connect = () => {
+    if (closed) return;
+    es = new EventSource("/api/events/stream");
+    es.onmessage = (ev) => {
+      try {
+        onEvent(JSON.parse(ev.data));
+      } catch {
+        /* ignore */
+      }
+    };
+    es.onerror = () => {
+      es?.close();
+      es = null;
+      if (!closed) {
+        reconnectTimer = setTimeout(connect, 2000);
+      }
+    };
   };
-  es.onerror = () => {
-    es.close();
-    setTimeout(() => streamEvents(onEvent), 2000);
+
+  connect();
+  return () => {
+    closed = true;
+    if (reconnectTimer) clearTimeout(reconnectTimer);
+    es?.close();
   };
-  return () => es.close();
 }

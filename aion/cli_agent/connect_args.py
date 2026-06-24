@@ -13,20 +13,8 @@ _KEYS_FLAGS = frozenset({"keys", "--keys", "key", "remove-keys", "clear-keys"})
 _COMPANY_ALIASES: Dict[str, str] = {
     "ollama": "ollama",
     "local": "ollama",
-    "aqwel": "aqwel",
-    "aqwelai": "aqwel",
-    "aqwel_ai": "aqwel",
-    "openai": "openai",
-    "chatgpt": "openai",
-    "gpt": "openai",
-    "gemini": "gemini",
-    "google": "gemini",
-    "deepseek": "deepseek",
     "nvidia": "nvidia",
     "nim": "nvidia",
-    "anthropic": "anthropic",
-    "claude": "anthropic",
-    "groq": "groq",
 }
 
 
@@ -37,7 +25,7 @@ class DisconnectRequest:
     label: str = ""  # what the user typed (for messages)
     provider: Optional[str] = None
     model: Optional[str] = None
-    forget_saved: bool = True
+    forget_saved: bool = False
     clear_keys: bool = False
     keys_only: bool = False
     disconnect_session: bool = True
@@ -153,9 +141,9 @@ def parse_disconnect_args(
     """
     Parse ``/disconnect`` or ``/disconnect <anything>``.
 
-    Default ``/disconnect``: end session and forget saved connection; keep API keys.
-    ``/disconnect nvidia keys``: remove saved API key only (stay connected if other).
-    ``/disconnect forget``: same as empty disconnect.
+    Default ``/disconnect``: go offline but keep saved provider/model for next startup.
+    ``/disconnect forget``: clear saved connection (API keys kept unless ``keys``).
+    ``/disconnect nvidia keys``: remove saved API key only.
     """
     raw = args.strip()
     label = raw or (active_provider or "session")
@@ -165,7 +153,7 @@ def parse_disconnect_args(
             label=label,
             provider=active_provider,
             model=active_model,
-            forget_saved=True,
+            forget_saved=False,
             clear_keys=False,
             disconnect_session=True,
         )
@@ -228,7 +216,7 @@ def parse_disconnect_args(
             label=label,
             provider=active_provider,
             model=active_model,
-            forget_saved=True,
+            forget_saved=wants_forget,
             clear_keys=False,
             disconnect_session=True,
         )
@@ -239,7 +227,7 @@ def parse_disconnect_args(
             label=content,
             provider=active_provider,
             model=active_model,
-            forget_saved=True,
+            forget_saved=wants_forget,
             clear_keys=False,
             disconnect_session=True,
         )
@@ -256,7 +244,7 @@ def parse_disconnect_args(
             label=content,
             model=content,
             provider=prov,
-            forget_saved=True,
+            forget_saved=wants_forget,
             clear_keys=False,
             keys_only=keys_only,
             disconnect_session=not keys_only,
@@ -269,7 +257,7 @@ def parse_disconnect_args(
         return DisconnectRequest(
             label=content,
             provider=prov,
-            forget_saved=True,
+            forget_saved=wants_forget,
             clear_keys=False,
             keys_only=keys_only,
             disconnect_session=not keys_only,
@@ -281,7 +269,7 @@ def parse_disconnect_args(
             label=content,
             provider=active_provider,
             model=active_model,
-            forget_saved=True,
+            forget_saved=wants_forget,
             clear_keys=False,
             disconnect_session=True,
         )

@@ -16,31 +16,16 @@ AGENT_PROVIDER = "ollama"
 DISPLAY_PROVIDERS = [
     ("ollama", "Ollama"),
     ("nvidia", "Nvidia"),
-    ("aqwel", "Aqwel AI"),
-    ("openai", "OpenAI"),
-    ("deepseek", "DeepSeek"),
-    ("gemini", "Gemini"),
-    ("anthropic", "Anthropic"),
-    ("groq", "Groq"),
 ]
 
 # Providers available via /connect (API key or local).
 CONNECTABLE_PROVIDERS = frozenset({
     "ollama",
     "nvidia",
-    "openai",
-    "deepseek",
-    "gemini",
-    "anthropic",
 })
 
 PROVIDER_ENV_VARS = {
     "nvidia": "NVIDIA_API_KEY",
-    "openai": "OPENAI_API_KEY",
-    "deepseek": "DEEPSEEK_API_KEY",
-    "gemini": "GEMINI_API_KEY",
-    "anthropic": "ANTHROPIC_API_KEY",
-    "groq": "GROQ_API_KEY",
 }
 
 COMING_SOON_PROVIDERS = frozenset(

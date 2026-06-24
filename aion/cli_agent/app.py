@@ -12,7 +12,13 @@ from . import ui
 from .config import get_config
 from .connect import AgentConnector
 from .connect_args import parse_connect_args, parse_disconnect_args
-from .constants import INTERACTION_MODE_LABELS, INTERACTION_MODES, normalize_interaction_mode
+from .constants import (
+    CONNECTABLE_PROVIDERS,
+    INTERACTION_MODE_LABELS,
+    INTERACTION_MODES,
+    normalize_interaction_mode,
+    provider_display_name,
+)
 from .mentions import expand_mentions
 from .session_prefs import (
     idle_disconnect_minutes,
@@ -29,6 +35,16 @@ from .tools import build_tool_registry, tools_schema
 from .universe_cmds import handle_sky_command
 from .db_cmds import handle_db_command
 from .trust import ensure_trust_for_coding
+
+
+def _clear_web_chat_memory() -> None:
+    """Clear browser chat when the terminal session ends or disconnects."""
+    try:
+        from .web.service import clear_web_memory
+
+        clear_web_memory()
+    except Exception:
+        pass
 
 
 def _handle_command(
@@ -86,14 +102,40 @@ def _handle_command(
         return None
 
     if cmd in ("connect", "reconnect"):
-        if args:
+        from ..providers.keys import resolve_api_key
+
+        quiet = False
+        new_key = False
+        if cmd == "reconnect":
+            prov = saved_provider(connector.cfg)
+            mod = saved_model(connector.cfg)
+            if prov in CONNECTABLE_PROVIDERS and mod:
+                key_ok = prov == "ollama" or bool(resolve_api_key(prov, connector.cfg))
+                quiet = key_ok
+            else:
+                prov, mod = None, None
+        elif args:
             prov, mod, new_key = parse_connect_args(args)
         else:
-            prov, mod, new_key = None, None, False
+            saved = saved_provider(connector.cfg)
+            if saved in CONNECTABLE_PROVIDERS:
+                prov = saved
+                mod = saved_model(connector.cfg)
+                key_ok = saved == "ollama" or bool(resolve_api_key(saved, connector.cfg))
+                quiet = bool(mod and key_ok)
+            else:
+                providers = ["ollama", "nvidia"]
+                ui.print_menu(
+                    [provider_display_name(p) for p in providers],
+                    "Select provider",
+                )
+                choice = ui.get_menu_choice([provider_display_name(p) for p in providers])
+                prov = providers[choice - 1]
+                mod = None
         if connector.connect(
             prov=prov,
             mod=mod,
-            quiet=False,
+            quiet=quiet,
             new_key=new_key,
         ):
             ui.print_aion_dashboard(
@@ -210,17 +252,21 @@ def _handle_command(
             clear_keys_for=req.provider if req.clear_keys else None,
             disconnect_session=req.disconnect_session,
         )
+        if req.disconnect_session:
+            _clear_web_chat_memory()
 
         target = req.label or was_prov or "session"
         if req.disconnect_session and (was_prov or req.provider):
-            ui.success_print(
-                f"Disconnected {ui.bold(target)}."
-                + (
-                    f" {ui.dim('Saved API key removed.')}"
-                    if keys_cleared
-                    else f" {ui.dim('Use /connect to link again.')}"
+            if keys_cleared:
+                extra = ui.dim("Saved API key removed.")
+            elif req.forget_saved:
+                extra = ui.dim("Saved connection cleared.")
+            else:
+                extra = ui.dim(
+                    "Settings kept — /reconnect or restart restores the session. "
+                    "/disconnect forget to clear."
                 )
-            )
+            ui.success_print(f"Disconnected {ui.bold(target)}. {extra}")
         elif keys_cleared:
             ui.success_print(f"Removed saved key for {ui.bold(target)}.")
         elif not req.disconnect_session:
@@ -495,10 +541,19 @@ def run_agent_command(
                 + f". {ui.dim('Still connected from last time.')}"
             )
         elif not provider_name:
-            ui.info_print(
-                f"Could not restore {ui.bold(auto_provider)}. "
-                f"Use {ui.cyan('/connect ' + auto_provider)} when ready."
-            )
+            from ..providers.keys import resolve_api_key
+
+            if auto_provider == "nvidia" and not resolve_api_key("nvidia", cfg):
+                ui.info_print(
+                    f"Could not restore {ui.bold('nvidia')}. "
+                    f"Run {ui.cyan('aion api add nvidia YOUR_KEY')} then restart or "
+                    f"{ui.cyan('/connect nvidia')}."
+                )
+            else:
+                ui.info_print(
+                    f"Could not restore {ui.bold(auto_provider)}. "
+                    f"Use {ui.cyan('/connect ' + auto_provider)} when ready."
+                )
     elif provider_name in CONNECTABLE_PROVIDERS and ensure_trust_for_coding(connector):
         connector.connect(prov=provider_name, mod=model)
 
@@ -532,99 +587,103 @@ def run_agent_command(
     except Exception:
         pass
 
-    while True:
-        idle_mins = idle_disconnect_minutes(cfg)
-        if (
-            idle_mins > 0
-            and connector.session.connected
-            and time.time() - last_activity >= idle_mins * 60
-        ):
-            connector.disconnect(forget_saved=False)
-            ui.info_print(
-                f"Disconnected after {ui.bold(str(idle_mins))} min idle. "
-                f"{ui.dim('/connect to continue (settings are still saved).')}"
-            )
-            ui.print_aion_dashboard(
-                cfg=cfg,
-                session=session,
-                version=version,
-                workspace=workspace_root,
-            )
-            ui.print_input_area(connected=False)
+    try:
+        while True:
+            idle_mins = idle_disconnect_minutes(cfg)
+            if (
+                idle_mins > 0
+                and connector.session.connected
+                and time.time() - last_activity >= idle_mins * 60
+            ):
+                connector.disconnect(forget_saved=False)
+                _clear_web_chat_memory()
+                ui.info_print(
+                    f"Disconnected after {ui.bold(str(idle_mins))} min idle. "
+                    f"{ui.dim('/connect to continue (settings are still saved).')}"
+                )
+                ui.print_aion_dashboard(
+                    cfg=cfg,
+                    session=session,
+                    version=version,
+                    workspace=workspace_root,
+                )
+                ui.print_input_area(connected=False)
 
-        try:
-            user_input = ui.aion_input_prompt()
-        except (EOFError, KeyboardInterrupt):
-            print(f"\n  {ui.dim('Goodbye!')}\n")
-            break
+            try:
+                user_input = ui.aion_input_prompt()
+            except (EOFError, KeyboardInterrupt):
+                print(f"\n  {ui.dim('Goodbye!')}\n")
+                break
 
-        if not user_input:
-            continue
-
-        if user_input.lower() in ("quit", "exit", "q"):
-            break
-
-        if user_input.startswith("/"):
-            rest = user_input[1:]
-            if not rest or " " not in rest:
-                ui.print_slash_help(rest.lower())
-                if not rest:
-                    continue
-
-        try:
-            action = _handle_command(
-                user_input,
-                connector=connector,
-                workspace=workspace_root,
-                db_memory=db_memory,
-            )
-        except KeyboardInterrupt:
-            print(f"\n  {ui.dim('Cancelled.')}\n")
-            continue
-        if action == "quit":
-            break
-        if action != "chat":
-            last_activity = time.time()
-            continue
-
-        if connector.session.interaction_mode != "plain":
-            if not ensure_trust_for_coding(connector):
+            if not user_input:
                 continue
 
-        if not connector.agent:
-            ui.error_print(
-                f"Connect first: {ui.cyan('/connect')} · "
-                f"{ui.cyan('/connect ollama')} · {ui.cyan('/connect nvidia')}"
-            )
-            continue
+            if user_input.lower() in ("quit", "exit", "q"):
+                break
 
-        try:
-            enriched, attachments = expand_mentions(
-                user_input,
-                workspace_root,
-                pinned_paths=connector.session.pinned_paths,
-                extra_roots=saved_workspace_roots(connector.cfg),
-            )
-            if attachments:
-                ui.info_print(f"Attached: {ui.accent_muted(', '.join(attachments))}")
-            print(f"  {ui.dim(ui.spinner_label(session))}", flush=True)
-            response = _chat_response(connector, enriched, user_input)
-            connector.print_edit_batch_summary()
-            last_activity = time.time()
-            if db_memory is not None:
-                try:
-                    db_memory.append("user", user_input)
-                    db_memory.append("assistant", response)
-                except Exception:
-                    pass
-            print()
-            ui.agent_print(response, name="Aion")
-            print()
-            ui.print_input_area(connected=session.connected)
-        except KeyboardInterrupt:
-            print(f"\n  {ui.dim('Cancelled.')}\n")
-            ui.print_input_area(connected=session.connected)
-        except ProviderError as e:
-            ui.provider_error_print(e)
-        except Exception as e:
-            ui.error_print(str(e))
+            if user_input.startswith("/"):
+                rest = user_input[1:]
+                if not rest or " " not in rest:
+                    ui.print_slash_help(rest.lower())
+                    if not rest:
+                        continue
+
+            try:
+                action = _handle_command(
+                    user_input,
+                    connector=connector,
+                    workspace=workspace_root,
+                    db_memory=db_memory,
+                )
+            except KeyboardInterrupt:
+                print(f"\n  {ui.dim('Cancelled.')}\n")
+                continue
+            if action == "quit":
+                break
+            if action != "chat":
+                last_activity = time.time()
+                continue
+
+            if connector.session.interaction_mode != "plain":
+                if not ensure_trust_for_coding(connector):
+                    continue
+
+            if not connector.agent:
+                ui.error_print(
+                    f"Connect first: {ui.cyan('/connect')} · "
+                    f"{ui.cyan('/connect ollama')} · {ui.cyan('/connect nvidia')}"
+                )
+                continue
+
+            try:
+                enriched, attachments = expand_mentions(
+                    user_input,
+                    workspace_root,
+                    pinned_paths=connector.session.pinned_paths,
+                    extra_roots=saved_workspace_roots(connector.cfg),
+                )
+                if attachments:
+                    ui.info_print(f"Attached: {ui.accent_muted(', '.join(attachments))}")
+                print(f"  {ui.dim(ui.spinner_label(session))}", flush=True)
+                response = _chat_response(connector, enriched, user_input)
+                connector.print_edit_batch_summary()
+                last_activity = time.time()
+                if db_memory is not None:
+                    try:
+                        db_memory.append("user", user_input)
+                        db_memory.append("assistant", response)
+                    except Exception:
+                        pass
+                print()
+                ui.agent_print(response, name="Aion")
+                print()
+                ui.print_input_area(connected=session.connected)
+            except KeyboardInterrupt:
+                print(f"\n  {ui.dim('Cancelled.')}\n")
+                ui.print_input_area(connected=session.connected)
+            except ProviderError as e:
+                ui.provider_error_print(e)
+            except Exception as e:
+                ui.error_print(str(e))
+    finally:
+        _clear_web_chat_memory()

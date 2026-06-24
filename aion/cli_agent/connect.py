@@ -236,7 +236,7 @@ class AgentConnector:
             return self._connect_ollama(m_name, quiet=quiet, prov=prov, mod=mod)
         if p_name == "nvidia":
             return self._connect_nvidia(m_name, quiet=quiet, new_key=new_key)
-        return self._connect_cloud(p_name, m_name, quiet=quiet, new_key=new_key)
+        return False
 
     def set_event_callback(
         self, callback: Optional[Callable[[str, Dict[str, Any]], None]]
@@ -263,21 +263,6 @@ class AgentConnector:
                 if not key:
                     return {"ok": False, "error": "No API key for nvidia"}
                 models = NvidiaProvider.list_models(api_key=key)
-            elif provider_id == "openai":
-                if not resolve_api_key("openai", self.cfg):
-                    return {"ok": False, "error": "No API key for openai"}
-                models = ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"]
-            elif provider_id == "deepseek":
-                models = ["deepseek-chat", "deepseek-reasoner"]
-            elif provider_id == "gemini":
-                from ..providers.gemini_provider import GeminiProvider
-
-                key = resolve_api_key("gemini", self.cfg)
-                if not key:
-                    return {"ok": False, "error": "No API key for gemini"}
-                models = GeminiProvider.list_models(api_key=key)
-            elif provider_id == "anthropic":
-                models = ["claude-3-5-sonnet-latest", "claude-3-5-haiku-latest"]
             else:
                 models = []
             return {"ok": True, "models": models}
@@ -700,6 +685,7 @@ class AgentConnector:
             preview = preview[:117] + "…"
         self.session.activity.log_tool(action, preview)
         self._emit("tool_step", step=step, action=action, preview=preview, result=result[:500])
+        self._emit("chat_status", text=f"{action}: {preview}")
         if self.session.interaction_mode == "debug":
             ui.debug_tool_print(step, action, result)
             return

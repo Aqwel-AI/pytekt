@@ -30,3 +30,8 @@ def test_resolve_connect_openai_rejected():
     provider, model, rejected = _resolve_connect_target("openai", None)
     assert provider == "openai"
     assert rejected is True
+
+
+def test_resolve_connect_gemini_rejected():
+    provider, model, rejected = _resolve_connect_target("gemini", None)
+    assert rejected is True
