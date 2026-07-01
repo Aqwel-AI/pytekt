@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="aion-logo.png" alt="AION emblem — Aqwel AI brand mark" width="320"/>
+  <img
+    src="aion-logo.png"
+    alt="AION emblem — Aqwel AI transparent brand mark"
+    width="320"
+  />
 </p>
 
 # Aion
