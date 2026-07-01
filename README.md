@@ -1,6 +1,6 @@
 <p align="center">
   <img
-    src="logo-black.png"
+    src="logo.png"
     alt="AION emblem — Aqwel AI transparent brand mark"
     width="250"
   />
