@@ -2,7 +2,7 @@
   <img src="aion-logo.png" alt="AION emblem — Aqwel AI brand mark" width="320"/>
 </p>
 
-# Aqwel-Aion
+# Aion
 
 **Official open-source product from [Aqwel AI](https://aqwelai.xyz/) · v0.2.0**
 
