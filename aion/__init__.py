@@ -158,6 +158,8 @@ from . import hyperopt
 # Research experiments: reproducibility, benchmarks, paper exports
 from . import experiments
 from . import physics
+from . import native
+from . import bigdata
 
 # Optional C++ extension (fast numerical ops; fallback to NumPy if not built)
 from ._core import (
@@ -181,6 +183,13 @@ from ._core import (
     fast_lower_bound,
     fast_upper_bound,
     using_native_extension,
+)
+from .native import (
+    native_backends,
+    native_status,
+    native_build_info,
+    native_status_report,
+    using_any_native_extension,
 )
 
 
@@ -240,6 +249,8 @@ __all__ = [
     "hyperopt",         # Grid/random/Bayesian search with CV and tracker integration
     "experiments",      # Experiment context, benchmark suite, LaTeX/CSV export
     "physics",          # Physics MVP: mechanics, thermo, units, integrators, query pipeline
+    "bigdata",          # Native big-data kernels and fallbacks
+    "native",           # Library-wide optional C++ backend inspection
     "fast_sum",         # Fast 1D sum (C++ when built)
     "fast_dot",         # Fast dot product (C++ when built)
     "fast_norm2",       # Fast L2 norm (C++ when built)
@@ -260,4 +271,9 @@ __all__ = [
     "fast_lower_bound",  # Fast lower_bound on sorted array (C++ when built)
     "fast_upper_bound",  # Fast upper_bound on sorted array (C++ when built)
     "using_native_extension",
+    "native_backends",
+    "native_status",
+    "native_build_info",
+    "native_status_report",
+    "using_any_native_extension",
 ]

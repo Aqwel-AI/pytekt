@@ -15,7 +15,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Aqwel AI](https://img.shields.io/badge/Product-Aqwel%20AI-0066cc)](https://aqwelai.xyz/)
 
-**Aion** is the flagship Python platform from **Aqwel AI**: one install for **research-grade ML** in notebooks and a **terminal coding agent** for day-to-day development. Apache-2.0, published on [PyPI](https://pypi.org/project/aqwel-aion/) as `aqwel-aion`.
+**Aion** is the flagship Python platform from **Aqwel AI**: one install for **research-grade ML** in notebooks, optional **C++ acceleration** for hot paths, and a **terminal coding agent** for day-to-day development in both Python and C++ workspaces. Apache-2.0, published on [PyPI](https://pypi.org/project/aqwel-aion/) as `aqwel-aion`.
 
 | Pillar | Audience | Entry point |
 |--------|----------|-------------|
@@ -629,8 +629,13 @@ Layout below matches the repository as shipped (file names only; omit your local
 ├── example.py                 # Runnable demo (algorithms / visualization)
 ├── main.py                    # CLI entry script
 ├── src/
-│   └── aion_core.cpp          # C++ sources for optional aion._aion_core (pybind11)
-├── tests/                     # Pytest suite (64 tests: Core ML, algorithms, io, …)
+│   ├── aion_core.cpp          # C++ sources for optional aion._aion_core (pybind11)
+│   ├── aion_bigdata.cpp       # Native big-data kernels for large-array workloads
+│   ├── aion_universe.cpp      # C++ fast path for aion._aion_universe
+│   └── native/
+│       ├── array_utils.hpp    # Shared helpers for native extensions
+│       └── bigdata_kernels.hpp # Prefix/rolling/histogram kernels
+├── tests/                     # Pytest suite (Core ML, algorithms, io, maths, text, snippets, pdf, …)
 │   ├── test_preprocessing.py
 │   ├── test_models.py
 │   ├── test_metrics.py
@@ -994,7 +999,7 @@ aion/
 └── watcher.py
 ```
 
-After a local build, you may also see **`aion/_aion_core*.so`** (macOS/Linux) or **`aion/_aion_core*.pyd`** (Windows) next to these sources; those binaries are compiled outputs, not part of the documented source tree. **`__pycache__/`** is created at import time.
+After a local build, you may also see **`aion/_aion_core*.so`**, **`aion/_aion_bigdata*.so`** (macOS/Linux) or their Windows **`.pyd`** equivalents next to these sources; those binaries are compiled outputs, not part of the documented source tree. **`__pycache__/`** is created at import time.
 
 **Current `aion` surface (trimmed layout):** Subpackages include **`agents`**, **`algorithms`**, **`bench`**, **`benchmarks`**, **`cache`**, **`cli_agent`**, **`config`**, **`data`**, **`datasets`**, **`env`**, **`experiments`**, **`former`**, **`hub`**, **`hyperopt`**, **`io`**, **`llm_eval`**, **`metrics`**, **`models`**, **`monitor`**, **`pipeline`**, **`preprocessing`**, **`providers`**, **`rag`**, **`serve`**, **`store`**, **`structures`**, **`tokenizer`**, **`tools`**, **`tracker`**, **`ui`**, **`vision`**, and **`visualization`**, plus top-level modules (`cli.py`, `code.py`, `agent_cli.py`, …) and shims **`agent_ui/`**. **`aion.cli_agent`** powers **`aion agent`**; **`aion.data`** / **`aion.datasets`** / Core ML / **`aion.former`** / **`aion start`** (Hub) as above.
 
@@ -1039,6 +1044,7 @@ Combine extras as needed, e.g. `pip install "aqwel-aion[viz,tools,serve]"` or ed
 - **Core runtime:** `numpy>=1.21.0`, `watchdog>=2.1.0`, `gitpython>=3.1.0` (optional for Git features).
 - **Optional:** SciPy, scikit-learn, pandas, matplotlib, ReportLab, sentence-transformers, PyTorch, vendor LLM credentials for `aion.providers`, etc. See [Installation](#installation) for extras.
 - **Native extension (optional):** C++14 compiler and `pybind11` to build `aion._aion_core` from `src/aion_core.cpp`; otherwise fast helpers in `aion` use NumPy.
+- **C++ agent workflows (optional):** Install a local toolchain such as `cmake` + `clang++`/`g++` if you want `aion agent` to auto-detect and work with C++ repos using build/test/lint commands.
 
 A virtual environment (e.g. `venv` or `conda`) is recommended to isolate dependencies.
 
@@ -1371,6 +1377,11 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 - **Web dashboard:** `aion universe web` (React sky map, observation log).
 - **C++ fast path** in `aion._aion_universe` with Python fallbacks. See [`aion/universe/README.md`](aion/universe/README.md).
 
+### Big data kernels
+
+- **`aion.bigdata`:** Prefix sums, rolling windows, rolling means, histograms, and chunk statistics for large numeric arrays.
+- **Integration:** `aion.algorithms.arrays` now routes `rolling_sum` and `compute_prefix_sums` through the native backend when it is available.
+
 ### Research experiments (new in 0.2.0)
 
 - **`aion.experiments`:** `Experiment` context manager (fixed seed, tracker logging, `manifest.json`).
@@ -1487,16 +1498,22 @@ print(reply)
 
 ### Fast numerics (NumPy fallback or native extension)
 
+`aion agent` also detects C++ workspaces (`CMakeLists.txt`, `meson.build`, `compile_commands.json`, `.clang-tidy`, and common `*.cpp` / `*.hpp` layouts) so it can propose and run native build, test, and lint loops instead of assuming a Python-only repo.
+
 ```python
 import aion
 
 print("Native extension active:", aion.using_native_extension())
+print("Any native backend active:", aion.using_any_native_extension())
+print("Native backends:", aion.native_status())
 x = [1.0, 2.0, 3.0]
 print(aion.fast_sum(x), aion.fast_mean(x), aion.fast_softmax(x))
 print(aion.fast_norm1([-1.0, 2.0]), aion.fast_clip(x, 0.0, 2.5))
 sorted_keys = [0.0, 0.5, 1.0, 1.5]
 print(aion.fast_lower_bound(sorted_keys, 1.0), aion.fast_upper_bound(sorted_keys, 1.0))
 ```
+
+Library-wide C++ coverage is exposed through `aion.native_status()`, `aion.native_backends()`, and `aion.native_build_info()`. That covers both the core numerics backend and the astronomy backend, not just the terminal agent.
 
 ### Visualization (requires matplotlib)
 
@@ -2146,6 +2163,7 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.io` | Streaming reads, atomic writes, SHA-256 checksum helpers. [`aion/io/README.md`](aion/io/README.md), [`aion/io/examples/`](aion/io/examples/). |
 | `aion.providers` | Chat clients + `create_provider`; `complete` / **`complete_turn`**. [`aion/providers/README.md`](aion/providers/README.md), [`aion/providers/examples/`](aion/providers/examples/). |
 | `aion` (`fast_*`, `using_native_extension`) | 1D/2D numerics: sums, dot/norms, mean/variance, argmin/max, min/max, ReLU/softmax/sigmoid/tanh/clip, cumsum, matvec, sorted `lower_bound` / `upper_bound`; C++ when `_aion_core` is built else NumPy. |
+| `aion.bigdata` | Native big-data kernels: prefix sums, rolling windows, rolling means, histograms, and chunk statistics with Python fallbacks. |
 | `aion.algorithms` | **572+** functions across 21 categories; catalog API; search, arrays, graphs, sorting, DP, trees, strings, … [`CATALOG.md`](aion/algorithms/CATALOG.md). |
 | `aion.visualization` | 1D/2D/training plots; heatmaps, confusion matrices, attention maps; **3D** plots; seaborn (`[viz]`); Plotly 3D (`[viz3d]`); multi-page **PDF** / HTML figure reports. |
 | `aion.former` | Transformer training: Transformer, Trainer, TextDataset, tokenizer, attention/training/weight-spectrum plots. Install with `[former]`. See [`aion/former/README.md`](aion/former/README.md) and per-subpackage `examples/` (e.g. `aion/former/core/examples/`). |
@@ -2285,15 +2303,15 @@ This repository is open source. The following **should show** (and are committed
 |----------|------------|
 | **Docs** | `README.md`, `docs/PROJECT_STRUCTURE.md`, `SECURITY.md`, `.env.example`, `aion/cli_agent/README.md`, `aion-logo.png`, `LICENSE`, `CHANGELOG.md`, `CONTRIBUTING.md` |
 | **Config** | `pyproject.toml`, `setup.py`, `MANIFEST.in`, `requirements.txt` |
-| **Source** | `aion/**/*.py`, `src/aion_core.cpp` |
-| **Tests** | `tests/` — 64 pytest cases (algorithms, io, maths, text, snippets, pdf, Core ML stack); `pip install -e ".[dev]"` then `pytest tests/` |
+| **Source** | `aion/**/*.py`, `src/aion_core.cpp`, `src/aion_bigdata.cpp`, `src/aion_universe.cpp`, `src/native/**/*.hpp` |
+| **Tests** | `tests/` — pytest suite (algorithms, io, maths, text, snippets, pdf, Core ML stack); `pip install -e ".[dev]"` then `pytest tests/` |
 | **Examples** | `example.py`, `main.py`; notebooks in `aion/algorithms/examples/`, `aion/visualization/examples/`, `aion/config/examples/`; `python -m` demos under `aion/io/examples/`, `aion/providers/examples/`, `aion/rag/examples/`, `aion/tools/examples/`, `aion/former/*/examples/` |
 | **Example assets** | `aion/visualization/examples_visualization/*.png` (plot previews); `aion/former/examples/*.png` (attention demos); `aion/former/examples_results/*.png` when committed (see folder README) |
 | **Repo meta** | `.gitignore` |
 
 The following **do not show** (ignored via `.gitignore`):
 
-- Build artifacts: `build/`, `dist/`, `*.egg`, `*.egg-info/`, compiled extension modules under `aion/_aion_core*.so` / `aion/_aion_core*.pyd`
+- Build artifacts: `build/`, `dist/`, `*.egg`, `*.egg-info/`, compiled extension modules under `aion/_aion_core*.so` / `aion/_aion_core*.pyd` / `aion/_aion_bigdata*.so` / `aion/_aion_bigdata*.pyd`
 - Python cache: `__pycache__/`, `*.pyc`, `*.pyo`
 - Virtual environments: `.venv/`, `venv/`, `env/`
 - Secrets: `.env`, `.env.*` (never commit; copy from [`.env.example`](.env.example))
@@ -2304,7 +2322,7 @@ The following **do not show** (ignored via `.gitignore`):
 - OS files: `.DS_Store`
 - Test/coverage: `.coverage`, `htmlcov/`, `.pytest_cache/`, `.mypy_cache/`, `.ipynb_checkpoints/`
 - Generated output: `example_output/`, optional `aion/former/examples_results/*.png`
-- Native builds: `aion/_aion_core*.so`, `aion/_aion_core*.pyd`
+- Native builds: `aion/_aion_core*.so`, `aion/_aion_core*.pyd`, `aion/_aion_bigdata*.so`, `aion/_aion_bigdata*.pyd`
 
 Full list: [`.gitignore`](.gitignore). Security notes: [`SECURITY.md`](SECURITY.md).
 

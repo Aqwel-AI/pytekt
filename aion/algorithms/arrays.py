@@ -8,6 +8,17 @@ aion/algorithms/README.md
 from typing import Any, Union, Iterator, List, Optional, Tuple, Dict
 import random
 
+
+def _native_bigdata():
+    try:
+        from aion import bigdata as native_bigdata
+
+        if native_bigdata.using_native_extension():
+            return native_bigdata
+    except Exception:
+        pass
+    return None
+
 def flatten_array(arr: List[List[Any]]) -> List[Any]:
     """Flatten a list of lists into a single list."""
     if not arr:
@@ -283,6 +294,10 @@ def rolling_sum(arr: list[int], size: int) -> list[int]:
     # Validate window size: must be greater than zero
     if size <= 0:
         raise ValueError("Size must be greater than 0")
+
+    native_bigdata = _native_bigdata()
+    if native_bigdata is not None:
+        return native_bigdata.rolling_sum(arr, size).tolist()
 
     # List that will store all rolling sums
     roll_sum = list()
@@ -696,6 +711,9 @@ def find_equilibrium_index(arr: List[int]) -> int:
 
 def compute_prefix_sums(arr: List[Union[int, float]]) -> List[Union[int, float]]:
     """Compute the prefix sums of an array."""
+    native_bigdata = _native_bigdata()
+    if native_bigdata is not None:
+        return native_bigdata.prefix_sum(arr).tolist()
     res = [0] * len(arr)
     cur = 0
     for i, x in enumerate(arr):

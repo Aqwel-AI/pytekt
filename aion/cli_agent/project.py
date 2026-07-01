@@ -9,6 +9,11 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 
+CPP_SOURCE_SUFFIXES = {".c", ".cc", ".cpp", ".cxx", ".c++"}
+CPP_HEADER_SUFFIXES = {".h", ".hh", ".hpp", ".hxx"}
+CPP_SUFFIXES = CPP_SOURCE_SUFFIXES | CPP_HEADER_SUFFIXES
+
+
 @dataclass
 class ProjectInfo:
     """Detected project metadata for prompts, validation, and commands."""
@@ -52,6 +57,18 @@ def _safe_read(path: Path) -> str:
         return ""
 
 
+def _has_cpp_sources(root: Path) -> bool:
+    for pattern in ("*.c", "*.cc", "*.cpp", "*.cxx", "*.c++", "*.h", "*.hh", "*.hpp", "*.hxx"):
+        if any(root.rglob(pattern)):
+            return True
+    return False
+
+
+def _append_kind(kinds: List[str], kind: str) -> None:
+    if kind not in kinds:
+        kinds.append(kind)
+
+
 def discover_project(workspace_root: Optional[str] = None) -> ProjectInfo:
     root = Path(workspace_root or os.getcwd()).resolve()
     kinds: List[str] = []
@@ -68,6 +85,14 @@ def discover_project(workspace_root: Optional[str] = None) -> ProjectInfo:
     package_json = root / "package.json"
     cargo_toml = root / "Cargo.toml"
     makefile = root / "Makefile"
+    cmake_lists = root / "CMakeLists.txt"
+    meson_build = root / "meson.build"
+    compile_commands = root / "compile_commands.json"
+    clang_tidy = root / ".clang-tidy"
+    clang_format = root / ".clang-format"
+    conanfile = root / "conanfile.txt"
+    conanfile_py = root / "conanfile.py"
+    vcpkg_json = root / "vcpkg.json"
     readme = root / "README.md"
     aion_md = root / "AION.md"
     requirements = root / "requirements.txt"
@@ -77,7 +102,7 @@ def discover_project(workspace_root: Optional[str] = None) -> ProjectInfo:
     uv_lock = root / "uv.lock"
 
     if pyproject.is_file():
-        kinds.append("python")
+        _append_kind(kinds, "python")
         test_cmd = test_cmd or "pytest"
         lint_cmd = lint_cmd or "ruff check ."
         dependency_manager = dependency_manager or "pyproject"
@@ -86,6 +111,8 @@ def discover_project(workspace_root: Optional[str] = None) -> ProjectInfo:
             signals["pytest"] = "configured"
         if "[tool.ruff" in text:
             signals["ruff"] = "configured"
+        if "pybind11" in text.casefold():
+            signals["pybind11"] = "configured"
         if "django" in text.casefold():
             framework = framework or "django"
         if "fastapi" in text.casefold():
@@ -98,7 +125,7 @@ def discover_project(workspace_root: Optional[str] = None) -> ProjectInfo:
                     package_name = line.split("=", 1)[1].strip().strip('"').strip("'")
                     break
     elif (root / "setup.py").is_file():
-        kinds.append("python")
+        _append_kind(kinds, "python")
         test_cmd = test_cmd or "pytest"
         dependency_manager = dependency_manager or "setuptools"
 
@@ -110,7 +137,7 @@ def discover_project(workspace_root: Optional[str] = None) -> ProjectInfo:
         dependency_manager = "uv"
 
     if package_json.is_file():
-        kinds.append("node")
+        _append_kind(kinds, "node")
         dependency_manager = dependency_manager or "npm"
         try:
             data = json.loads(package_json.read_text(encoding="utf-8"))
@@ -132,7 +159,7 @@ def discover_project(workspace_root: Optional[str] = None) -> ProjectInfo:
             if "svelte" in deps:
                 framework = framework or "svelte"
             if "typescript" in deps:
-                kinds.append("typescript")
+                _append_kind(kinds, "typescript")
         except (OSError, json.JSONDecodeError):
             pass
     if pnpm_lock.is_file():
@@ -141,7 +168,7 @@ def discover_project(workspace_root: Optional[str] = None) -> ProjectInfo:
         dependency_manager = "yarn"
 
     if makefile.is_file():
-        kinds.append("make")
+        _append_kind(kinds, "make")
         if not test_cmd:
             test_cmd = "make test"
         if not lint_cmd:
@@ -150,21 +177,61 @@ def discover_project(workspace_root: Optional[str] = None) -> ProjectInfo:
             build_cmd = "make build"
 
     if (root / "tox.ini").is_file():
-        kinds.append("tox")
+        _append_kind(kinds, "tox")
         test_cmd = test_cmd or "tox"
 
     if cargo_toml.is_file():
-        kinds.append("rust")
+        _append_kind(kinds, "rust")
         dependency_manager = dependency_manager or "cargo"
         test_cmd = test_cmd or "cargo test"
         lint_cmd = lint_cmd or "cargo clippy --all-targets --all-features"
         build_cmd = build_cmd or "cargo build"
 
     if (root / "go.mod").is_file():
-        kinds.append("go")
+        _append_kind(kinds, "go")
         dependency_manager = dependency_manager or "go modules"
         test_cmd = test_cmd or "go test ./..."
         build_cmd = build_cmd or "go build ./..."
+
+    cpp_detected = (
+        cmake_lists.is_file()
+        or meson_build.is_file()
+        or compile_commands.is_file()
+        or clang_tidy.is_file()
+        or clang_format.is_file()
+        or conanfile.is_file()
+        or conanfile_py.is_file()
+        or vcpkg_json.is_file()
+        or _has_cpp_sources(root)
+    )
+    if cpp_detected:
+        _append_kind(kinds, "cpp")
+        if cmake_lists.is_file():
+            framework = framework or "cmake"
+            build_cmd = build_cmd or "cmake --build build"
+            test_cmd = test_cmd or "ctest --test-dir build --output-on-failure"
+        elif meson_build.is_file():
+            framework = framework or "meson"
+            build_cmd = build_cmd or "meson compile -C build"
+            test_cmd = test_cmd or "meson test -C build --print-errorlogs"
+        if clang_tidy.is_file() or compile_commands.is_file():
+            lint_cmd = lint_cmd or "clang-tidy"
+        elif clang_format.is_file():
+            lint_cmd = lint_cmd or "clang-format --dry-run --Werror"
+        if vcpkg_json.is_file():
+            dependency_manager = dependency_manager or "vcpkg"
+        elif conanfile.is_file() or conanfile_py.is_file():
+            dependency_manager = dependency_manager or "conan"
+        elif cmake_lists.is_file():
+            dependency_manager = dependency_manager or "cmake"
+        elif meson_build.is_file():
+            dependency_manager = dependency_manager or "meson"
+        if compile_commands.is_file():
+            signals["compile_commands"] = "present"
+        if clang_tidy.is_file():
+            signals["clang_tidy"] = "configured"
+        if clang_format.is_file():
+            signals["clang_format"] = "configured"
 
     if (root / ".pre-commit-config.yaml").is_file():
         conventions.append("pre-commit")
