@@ -45,6 +45,11 @@ class AgentSession:
     force_tools: bool = False
     session_id: str = "default"
     pending_plan: bool = False
+    current_status: str = "idle"
+    current_task: str = ""
+    token_usage: int = 0
+    safety_mode: str = "workspace-write"
+    specialist_mode: str = "general"
 
     @property
     def connection_label(self) -> str:

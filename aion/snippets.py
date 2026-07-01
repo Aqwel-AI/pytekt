@@ -38,7 +38,7 @@ def _normalize_code(code: str) -> str:
     return textwrap.dedent(code).strip("\n")
 
 
-def _parse_python(code: str) -> Optional[ast.AST]:
+def _parse_python(code: str) -> Optional[ast.Module]:
     """
     Parse Python code into an AST and return ``None`` on syntax errors.
 
@@ -69,7 +69,7 @@ def _node_to_source(code: str, node: ast.AST) -> str:
     return ast.unparse(node).strip()
 
 
-def _iter_function_nodes(tree: ast.AST) -> List[ast.FunctionDef | ast.AsyncFunctionDef]:
+def _iter_function_nodes(tree: ast.Module) -> List[ast.FunctionDef | ast.AsyncFunctionDef]:
     """Return every function-like node, including methods and nested functions."""
     return [
         node

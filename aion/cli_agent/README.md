@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../../aion-logo.png" alt="AION emblem — Aqwel AI brand mark" width="220"/>
+</p>
+
 # `aion.cli_agent` — terminal coding agent
 
 Part of **Aqwel-Aion**, the open-source **Aqwel AI** product. Full documentation: [README — Terminal agent](../../README.md#pillar-2--terminal-coding-agent-aion-agent).

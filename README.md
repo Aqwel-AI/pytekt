@@ -1,4 +1,6 @@
-![AION — Aqwel AI product for research, data science, and terminal coding](aion-logo.png)
+<p align="center">
+  <img src="aion-logo.png" alt="AION emblem — Aqwel AI brand mark" width="320"/>
+</p>
 
 # Aqwel-Aion
 
@@ -1120,7 +1122,7 @@ pip install -e .[dev,full]
 ## Aion install animation
 
 <p align="center">
-  <img src="aion-logo.png" alt="AION logo — Aqwel AI data science and ML research library" width="480"/>
+  <img src="aion-logo.png" alt="AION emblem — Aqwel AI brand mark" width="320"/>
 </p>
 
 <p align="center">

@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from ..agents.memory import SlidingWindowMemory
 from ..agents.react import ReActAgent
+from ..providers.adapter import ProviderAdapter, cached_model_metadata
 from ..providers.errors import ProviderError
 from ..providers.factory import create_provider
 from ..providers.keys import resolve_api_key
@@ -32,6 +33,8 @@ from .session_prefs import (
     approval_gate_enabled,
     clear_connection,
     clear_provider_keys,
+    saved_safety_mode,
+    saved_specialist_mode,
     force_tools_enabled,
     save_connection,
     save_interaction_mode,
@@ -112,6 +115,7 @@ class AgentConnector:
         self.agent: Optional[ReActAgent] = None
         self.trust_confirmed = False
         self._raw_provider: Any = None
+        self._provider_adapter: Optional[ProviderAdapter] = None
         self._planning_agent: Any = None
         self._pending_task: Optional[str] = None
         self._pending_plan_steps: Any = None
@@ -120,6 +124,8 @@ class AgentConnector:
         self.session.pinned_paths = saved_pinned_paths(cfg)
         self.session.project_info = discover_project(self.workspace_root)
         self.session.force_tools = force_tools_enabled(cfg)
+        self.session.safety_mode = saved_safety_mode(cfg)
+        self.session.specialist_mode = saved_specialist_mode(cfg)
         self.edit_history = EditHistory(self.session.session_id)
         self.tool_middleware = ToolMiddleware(
             workspace_root=self.workspace_root,
@@ -127,6 +133,8 @@ class AgentConnector:
             approval_gate=approval_gate_enabled(cfg),
             allowed_commands=self._effective_allowed_commands(),
             edit_history=self.edit_history,
+            project_info=self.session.project_info,
+            safety_mode=saved_safety_mode(cfg),
         )
         self._rebuild_registry()
 
@@ -384,8 +392,16 @@ class AgentConnector:
             source="agent",
         )
         self._raw_provider = provider
+        self._provider_adapter = ProviderAdapter(provider, provider_name=provider_id, model=model)
 
         base_prompt = self.cfg.get("agent", {}).get("system_prompt") or CODING_AGENT_PROMPT
+        specialist = self.session.specialist_mode
+        if specialist and specialist != "general":
+            from ..agents.skills import SKILL_PROMPTS
+
+            specialist_prompt = SKILL_PROMPTS.get(specialist)
+            if specialist_prompt:
+                base_prompt = specialist_prompt + "\n\n" + base_prompt
         aion_md = self._load_aion_md()
         if aion_md:
             base_prompt += f"\n\n# Project instructions (AION.md)\n{aion_md}"
@@ -427,6 +443,7 @@ class AgentConnector:
             or self.session.interaction_mode in ("debug", "plan")
         )
         self.tool_middleware.provider = provider_id
+        self._emit("provider_capabilities", **self._provider_adapter.metadata(), **cached_model_metadata(provider_id, model))
         return agent
 
     def _connect_api_provider(
@@ -695,6 +712,7 @@ class AgentConnector:
         """Run chat with plan mode support."""
         if not self.agent:
             raise RuntimeError("Not connected")
+        self.tool_middleware.start_task(user_input)
         if self.session.interaction_mode == "plan" and not self.session.pending_plan:
             from ..agents.planner import PlanningAgent
 
@@ -711,6 +729,7 @@ class AgentConnector:
             self._pending_task = user_input
             self._pending_plan_steps = plan
             self._emit("plan_ready", steps=lines)
+            self.tool_middleware.finalize_task(rollback_on_failure=False)
             return "Plan ready. Type /approve to execute."
 
         response = self.agent.chat(user_input)
@@ -736,7 +755,9 @@ class AgentConnector:
                     "Summarize pass/fail for the user."
                 )
                 response = self.agent.chat(follow)
-
+        intent = self.tool_middleware.finalize_task(rollback_on_failure=True)
+        if intent is not None:
+            self._emit("edit_intent", intent=intent.to_dict())
         return response
 
     def execute_plan(self) -> str:
@@ -767,3 +788,4 @@ class AgentConnector:
         self.session.mode = provider_id
         tools = self._tools_for_session()
         self.session.tools_enabled = bool(tools)
+        self.session.current_status = "connected"

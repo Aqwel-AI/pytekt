@@ -15,6 +15,7 @@ from .aion_shell import (
     print_shortcuts,
     write_aion_md,
 )
+from .panels import render_list_panel, render_runtime_dashboard
 from .console import (
     AION_LOGO,
     clear_screen,
@@ -29,6 +30,8 @@ from .console import (
     show_spinner,
     type_text,
 )
+from .theme import section_title, status_chip
+from .tui import ModernTerminalUI
 from .help import (
     print_agent_commands,
     print_help_catalog,
@@ -144,12 +147,17 @@ __all__ = [
     "debug_tool_print",
     "configure_input",
     "aion_input_prompt",
+    "ModernTerminalUI",
     "print_aion_dashboard",
     "print_input_area",
     "print_shortcuts",
     "print_slash_help",
     "write_aion_md",
     "show_aion_loading",
+    "status_chip",
+    "section_title",
+    "render_list_panel",
+    "render_runtime_dashboard",
     "type_text",
     "user_input_prompt",
     "yellow",

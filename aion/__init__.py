@@ -157,6 +157,7 @@ from . import hyperopt
 
 # Research experiments: reproducibility, benchmarks, paper exports
 from . import experiments
+from . import physics
 
 # Optional C++ extension (fast numerical ops; fallback to NumPy if not built)
 from ._core import (
@@ -238,6 +239,7 @@ __all__ = [
     "metrics",          # Classification, regression, clustering, NLP, ranking metrics
     "hyperopt",         # Grid/random/Bayesian search with CV and tracker integration
     "experiments",      # Experiment context, benchmark suite, LaTeX/CSV export
+    "physics",          # Physics MVP: mechanics, thermo, units, integrators, query pipeline
     "fast_sum",         # Fast 1D sum (C++ when built)
     "fast_dot",         # Fast dot product (C++ when built)
     "fast_norm2",       # Fast L2 norm (C++ when built)
