@@ -7,8 +7,11 @@ Run via CLI: ``python -m aion doctor`` or ``aion doctor`` (after install).
 from __future__ import annotations
 
 import os
+import shutil
 import sys
 from typing import List, Tuple
+
+from .native import native_backends
 
 
 def _check(name: str, ok: bool, detail: str = "") -> Tuple[str, bool, str]:
@@ -67,13 +70,21 @@ def run_doctor(*, verbose: bool = True) -> bool:
     else:
         lines.append(_check("tracker directory writable", True, tracker_dir))
 
-    try:
-        from aion._core import using_native_extension
+    for status in native_backends().values():
+        detail = "native" if status.available else f"{status.fallback.lower()} fallback"
+        lines.append(_check(f"{status.name} (C++)", status.available, detail))
 
-        native = using_native_extension()
-        lines.append(_check("aion C++ extension", native, "native" if native else "numpy fallback"))
-    except Exception:
-        lines.append(_check("aion C++ extension", False, "not built"))
+    compiler = shutil.which("c++") or shutil.which("clang++") or shutil.which("g++")
+    if compiler:
+        lines.append(_check("C++ compiler", True, compiler))
+    else:
+        lines.append(_check("C++ compiler", False, "optional: install clang++ or g++ for native builds"))
+
+    cmake = shutil.which("cmake")
+    if cmake:
+        lines.append(_check("cmake", True, cmake))
+    else:
+        lines.append(_check("cmake", False, "optional: install cmake for C++ workspaces"))
 
     all_required_ok = all(ok for name, ok, _ in lines if "optional" not in _.lower() and name in (
         "Python >= 3.8", "numpy", "aion", "tracker directory writable"

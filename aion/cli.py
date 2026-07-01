@@ -411,10 +411,13 @@ def info_command():
     for name, available in optional:
         print(f"  {name}: {'available' if available else 'not installed'}")
     try:
-        from ._core import using_native_extension
-        print(f"  aion_core (C++): {'available' if using_native_extension() else 'not built'}")
+        from .native import native_backends
+
+        for status in native_backends().values():
+            state = "available" if status.available else f"fallback ({status.fallback})"
+            print(f"  {status.name} (C++): {state}")
     except Exception:
-        print("  aion_core (C++): not built")
+        print("  native C++ backends: unavailable")
     print()
     print("Git integration:", "available" if GIT_AVAILABLE else "not installed (pip install gitpython)")
     print()

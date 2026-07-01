@@ -8,7 +8,9 @@ import uuid
 from typing import Any, Optional
 
 from ..providers.errors import ProviderError
+from ..agents.runtime import AgentRuntime
 from . import ui
+from .commands_runtime import handle_runtime_command
 from .config import get_config
 from .connect import AgentConnector
 from .connect_args import parse_connect_args, parse_disconnect_args
@@ -24,7 +26,11 @@ from .session_prefs import (
     idle_disconnect_minutes,
     save_idle_disconnect_minutes,
     save_pinned_paths,
+    save_safety_mode,
+    save_specialist_mode,
     save_workspace_roots,
+    saved_safety_mode,
+    saved_specialist_mode,
     saved_interaction_mode,
     saved_model,
     saved_provider,
@@ -53,6 +59,8 @@ def _handle_command(
     connector: AgentConnector,
     workspace: str,
     db_memory: Optional[Any] = None,
+    runtime: Optional[AgentRuntime] = None,
+    tui: Optional[Any] = None,
 ) -> Optional[str]:
     """Returns 'quit' to exit loop, None to continue."""
     if text == "?":
@@ -61,6 +69,11 @@ def _handle_command(
 
     if not text.startswith("/"):
         return "chat"
+
+    if runtime is not None and tui is not None:
+        runtime_result = handle_runtime_command(text, runtime=runtime, tui=tui)
+        if runtime_result is None:
+            return None
 
     parts = text[1:].split(maxsplit=1)
     cmd = parts[0].lower()
@@ -138,12 +151,17 @@ def _handle_command(
             quiet=quiet,
             new_key=new_key,
         ):
-            ui.print_aion_dashboard(
-                cfg=connector.cfg,
-                session=connector.session,
-                version=_version(),
-                workspace=workspace,
-            )
+            if runtime is not None:
+                runtime.connect_state()
+            if runtime is not None and tui is not None:
+                tui.draw_dashboard(session=connector.session, runtime=runtime)
+            else:
+                ui.print_aion_dashboard(
+                    cfg=connector.cfg,
+                    session=connector.session,
+                    version=_version(),
+                    workspace=workspace,
+                )
             ui.print_input_area(connected=True)
         return None
 
@@ -168,13 +186,52 @@ def _handle_command(
             ui.error_print(str(e))
             return None
         ui.success_print(f"Interaction mode: {ui.bold(mode)}")
-        ui.print_aion_dashboard(
-            cfg=connector.cfg,
-            session=connector.session,
-            version=_version(),
-            workspace=workspace,
-        )
+        if runtime is not None:
+            runtime.connect_state()
+        if runtime is not None and tui is not None:
+            tui.draw_dashboard(session=connector.session, runtime=runtime)
+        else:
+            ui.print_aion_dashboard(
+                cfg=connector.cfg,
+                session=connector.session,
+                version=_version(),
+                workspace=workspace,
+            )
         ui.print_input_area(connected=connector.session.connected)
+        return None
+
+    if cmd == "safety":
+        from .constants import SAFETY_MODES, normalize_safety_mode
+
+        if not args:
+            ui.info_print(f"Safety mode: {ui.bold(connector.session.safety_mode)}")
+            return None
+        mode = normalize_safety_mode(args.split()[0])
+        if not mode:
+            ui.error_print("Unknown safety mode. Use: " + ", ".join(SAFETY_MODES))
+            return None
+        connector.session.safety_mode = mode
+        connector.tool_middleware.safety_mode = mode
+        save_safety_mode(connector.cfg, mode)
+        ui.success_print(f"Safety mode: {ui.bold(mode)}")
+        return None
+
+    if cmd == "role":
+        from .constants import SPECIALIST_MODES, normalize_specialist_mode
+
+        if not args:
+            ui.info_print(f"Specialist mode: {ui.bold(connector.session.specialist_mode)}")
+            return None
+        mode = normalize_specialist_mode(args.split()[0])
+        if not mode:
+            ui.error_print("Unknown specialist mode. Use: " + ", ".join(SPECIALIST_MODES))
+            return None
+        connector.session.specialist_mode = mode
+        save_specialist_mode(connector.cfg, mode)
+        if connector.session.connected and connector.session.provider and connector.session.model and connector._raw_provider is not None:
+            connector.agent = connector._build_agent(connector._raw_provider, connector.session.provider, connector.session.model)
+            connector._apply_session(connector.session.provider, connector.session.model)
+        ui.success_print(f"Specialist mode: {ui.bold(mode)}")
         return None
 
     if cmd == "status":
@@ -205,12 +262,16 @@ def _handle_command(
         return None
 
     if cmd == "models":
-        ui.print_aion_dashboard(
-            cfg=connector.cfg,
-            session=connector.session,
-            version=_version(),
-            workspace=workspace,
-        )
+        if runtime is not None and tui is not None:
+            runtime.connect_state()
+            tui.draw_dashboard(session=connector.session, runtime=runtime)
+        else:
+            ui.print_aion_dashboard(
+                cfg=connector.cfg,
+                session=connector.session,
+                version=_version(),
+                workspace=workspace,
+            )
         return None
 
     if cmd in ("disconnect", "offline", "logout"):
@@ -238,12 +299,17 @@ def _handle_command(
                 )
             else:
                 ui.info_print(f"No saved API key found for {ui.bold(req.label)}.")
-            ui.print_aion_dashboard(
-                cfg=connector.cfg,
-                session=connector.session,
-                version=_version(),
-                workspace=workspace,
-            )
+            if runtime is not None:
+                runtime.connect_state()
+            if runtime is not None and tui is not None:
+                tui.draw_dashboard(session=connector.session, runtime=runtime)
+            else:
+                ui.print_aion_dashboard(
+                    cfg=connector.cfg,
+                    session=connector.session,
+                    version=_version(),
+                    workspace=workspace,
+                )
             ui.print_input_area(connected=connector.session.connected)
             return None
 
@@ -273,12 +339,17 @@ def _handle_command(
             ui.info_print(f"No changes for {ui.bold(target)}.")
         else:
             ui.success_print("Offline.")
-        ui.print_aion_dashboard(
-            cfg=connector.cfg,
-            session=connector.session,
-            version=_version(),
-            workspace=workspace,
-        )
+        if runtime is not None:
+            runtime.connect_state()
+        if runtime is not None and tui is not None:
+            tui.draw_dashboard(session=connector.session, runtime=runtime)
+        else:
+            ui.print_aion_dashboard(
+                cfg=connector.cfg,
+                session=connector.session,
+                version=_version(),
+                workspace=workspace,
+            )
         ui.print_input_area(connected=connector.session.connected)
         return None
 
@@ -348,6 +419,25 @@ def _handle_command(
         msg = connector.edit_history.undo_last(workspace)
         connector.session.activity.log("undo", msg)
         ui.success_print(msg)
+        return None
+
+    if cmd == "revert":
+        actions = connector.tool_middleware.rollback_current_batch()
+        ui.info_print("\n".join(actions))
+        return None
+
+    if cmd == "diff":
+        print()
+        ui.info_print(connector.tool_middleware.latest_diff_preview())
+        print()
+        return None
+
+    if cmd == "validate":
+        result = connector.tool_middleware.validate_current_batch()
+        if result.ok:
+            ui.success_print(result.summary)
+        else:
+            ui.error_print(result.summary + "\n" + "\n".join(result.errors[:10]))
         return None
 
     if cmd == "audit":
@@ -437,28 +527,27 @@ def _version() -> str:
         return "0.2.0"
 
 
-def _chat_response(connector: AgentConnector, enriched: str, raw_input: str) -> str:
+def _chat_response(
+    connector: AgentConnector,
+    enriched: str,
+    raw_input: str,
+    *,
+    runtime: Optional[AgentRuntime] = None,
+) -> str:
     """Chat with optional streaming for plain mode."""
-    if connector.session.interaction_mode == "plain" and connector._raw_provider:
-        inner = getattr(connector._raw_provider, "_inner", connector._raw_provider)
-        if hasattr(inner, "complete_stream"):
-            from ..providers.base import ChatMessage
-
-            messages = [ChatMessage(role="user", content=enriched)]
+    if runtime is not None and connector.session.interaction_mode == "plain" and connector._raw_provider:
+        print()
+        parts: list[str] = []
+        try:
+            for token in runtime.run_plain_stream(enriched):
+                print(token, end="", flush=True)
+                parts.append(token)
             print()
-            parts: list[str] = []
-            try:
-                for token in inner.complete_stream(messages, max_tokens=4096):
-                    print(token, end="", flush=True)
-                    parts.append(token)
-                print()
-                text = "".join(parts)
-                if connector.agent:
-                    connector.agent.memory.add({"role": "user", "content": enriched})
-                    connector.agent.memory.add({"role": "assistant", "content": text})
-                return text
-            except Exception:
-                pass
+            return "".join(parts)
+        except Exception:
+            pass
+    if runtime is not None:
+        return runtime.run_prompt(enriched)
     return connector.chat(enriched)
 
 
@@ -485,6 +574,8 @@ def run_agent_command(
         mode="offline",
         is_trusted=False,
         interaction_mode=saved_interaction_mode(cfg),
+        safety_mode=saved_safety_mode(cfg),
+        specialist_mode=saved_specialist_mode(cfg),
     )
     ui.configure_input(workspace_root)
 
@@ -513,6 +604,8 @@ def run_agent_command(
         system_prompt=system_prompt,
         workspace_root=workspace_root,
     )
+    runtime = AgentRuntime(workspace_root=workspace_root, connector=connector)
+    tui = ui.ModernTerminalUI(version=version, workspace=workspace_root)
 
     if saved_trust(cfg):
         connector.apply_trust(True)
@@ -557,12 +650,8 @@ def run_agent_command(
     elif provider_name in CONNECTABLE_PROVIDERS and ensure_trust_for_coding(connector):
         connector.connect(prov=provider_name, mod=model)
 
-    ui.print_aion_dashboard(
-        cfg=cfg,
-        session=session,
-        version=version,
-        workspace=workspace_root,
-    )
+    runtime.connect_state()
+    tui.draw_dashboard(session=session, runtime=runtime)
     ui.print_input_area(connected=session.connected)
     last_activity = time.time()
 
@@ -601,12 +690,8 @@ def run_agent_command(
                     f"Disconnected after {ui.bold(str(idle_mins))} min idle. "
                     f"{ui.dim('/connect to continue (settings are still saved).')}"
                 )
-                ui.print_aion_dashboard(
-                    cfg=cfg,
-                    session=session,
-                    version=version,
-                    workspace=workspace_root,
-                )
+                runtime.connect_state()
+                tui.draw_dashboard(session=session, runtime=runtime)
                 ui.print_input_area(connected=False)
 
             try:
@@ -634,6 +719,8 @@ def run_agent_command(
                     connector=connector,
                     workspace=workspace_root,
                     db_memory=db_memory,
+                    runtime=runtime,
+                    tui=tui,
                 )
             except KeyboardInterrupt:
                 print(f"\n  {ui.dim('Cancelled.')}\n")
@@ -665,15 +752,17 @@ def run_agent_command(
                 if attachments:
                     ui.info_print(f"Attached: {ui.accent_muted(', '.join(attachments))}")
                 print(f"  {ui.dim(ui.spinner_label(session))}", flush=True)
-                response = _chat_response(connector, enriched, user_input)
+                response = _chat_response(connector, enriched, user_input, runtime=runtime)
                 connector.print_edit_batch_summary()
                 last_activity = time.time()
+                runtime.connect_state()
                 if db_memory is not None:
                     try:
                         db_memory.append("user", user_input)
                         db_memory.append("assistant", response)
                     except Exception:
                         pass
+                tui.draw_dashboard(session=session, runtime=runtime)
                 print()
                 ui.agent_print(response, name="Aion")
                 print()

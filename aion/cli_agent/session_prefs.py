@@ -118,6 +118,42 @@ def force_tools_enabled(cfg: Dict[str, Any]) -> bool:
     return bool((cfg.get("agent") or {}).get("force_tools"))
 
 
+def saved_safety_mode(cfg: Dict[str, Any]) -> str:
+    from .constants import normalize_safety_mode
+
+    value = (cfg.get("agent") or {}).get("safety_mode", "workspace-write")
+    normalized = normalize_safety_mode(str(value))
+    return normalized or "workspace-write"
+
+
+def save_safety_mode(cfg: Dict[str, Any], mode: str) -> None:
+    from .constants import normalize_safety_mode
+
+    normalized = normalize_safety_mode(mode)
+    if not normalized:
+        raise ValueError(f"Unknown safety mode: {mode!r}")
+    cfg.setdefault("agent", {})["safety_mode"] = normalized
+    save_config(cfg)
+
+
+def saved_specialist_mode(cfg: Dict[str, Any]) -> str:
+    from .constants import normalize_specialist_mode
+
+    value = (cfg.get("agent") or {}).get("specialist_mode", "general")
+    normalized = normalize_specialist_mode(str(value))
+    return normalized or "general"
+
+
+def save_specialist_mode(cfg: Dict[str, Any], mode: str) -> None:
+    from .constants import normalize_specialist_mode
+
+    normalized = normalize_specialist_mode(mode)
+    if not normalized:
+        raise ValueError(f"Unknown specialist mode: {mode!r}")
+    cfg.setdefault("agent", {})["specialist_mode"] = normalized
+    save_config(cfg)
+
+
 def saved_mcp_servers(cfg: Dict[str, Any]) -> list:
     servers = (cfg.get("agent") or {}).get("mcp_servers") or []
     return list(servers) if isinstance(servers, list) else []

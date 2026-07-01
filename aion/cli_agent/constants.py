@@ -34,6 +34,8 @@ COMING_SOON_PROVIDERS = frozenset(
 
 INTERACTION_MODES = ("plain", "agent", "debug", "plan", "review", "test")
 DEFAULT_INTERACTION_MODE = "agent"
+SAFETY_MODES = ("read-only", "workspace-write", "full-trusted", "shell-disabled", "network-disabled")
+SPECIALIST_MODES = ("general", "code", "debug", "review", "research", "docs", "physics", "data")
 
 INTERACTION_MODE_LABELS = {
     "plain": "Plain (chat only)",
@@ -52,6 +54,20 @@ def normalize_interaction_mode(name: str) -> Optional[str]:
     for mode in INTERACTION_MODES:
         if key.startswith(mode):
             return mode
+    return None
+
+
+def normalize_safety_mode(name: str) -> Optional[str]:
+    key = name.lower().strip()
+    if key in SAFETY_MODES:
+        return key
+    return None
+
+
+def normalize_specialist_mode(name: str) -> Optional[str]:
+    key = name.lower().strip()
+    if key in SPECIALIST_MODES:
+        return key
     return None
 
 

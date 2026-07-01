@@ -102,10 +102,18 @@ def _get_deps_status() -> List[Dict[str, Any]]:
         except Exception:
             deps.append({"name": display_name, "installed": False, "version": ""})
     try:
-        from .._core import using_native_extension
-        deps.append({"name": "aion_core (C++)", "installed": using_native_extension(), "version": "native" if using_native_extension() else "numpy fallback"})
+        from ..native import native_backends
+
+        for status in native_backends().values():
+            deps.append(
+                {
+                    "name": f"{status.module_name} (C++)",
+                    "installed": status.available,
+                    "version": "native" if status.available else f"{status.fallback.lower()} fallback",
+                }
+            )
     except Exception:
-        deps.append({"name": "aion_core (C++)", "installed": False, "version": "not built"})
+        deps.append({"name": "native C++ backends", "installed": False, "version": "unavailable"})
     return deps
 
 

@@ -70,6 +70,17 @@ def _get_extensions():
                 language="c++",
             )
         )
+    bigdata_src = "src/aion_bigdata.cpp"
+    if os.path.isfile(bigdata_src):
+        exts.append(
+            Extension(
+                "aion._aion_bigdata",
+                sources=[bigdata_src],
+                include_dirs=include,
+                extra_compile_args=cxx_args,
+                language="c++",
+            )
+        )
     universe_src = "src/aion_universe.cpp"
     if os.path.isfile(universe_src):
         exts.append(

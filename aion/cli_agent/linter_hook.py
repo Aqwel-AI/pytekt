@@ -16,6 +16,10 @@ def run_lint_on_file(project: ProjectInfo, file_path: str) -> Optional[str]:
         full = f"ruff check {file_path}"
     elif "eslint" in cmd and file_path.endswith((".js", ".ts", ".tsx", ".jsx")):
         full = f"npm run lint -- {file_path}"
+    elif "clang-tidy" in cmd and file_path.endswith((".c", ".cc", ".cpp", ".cxx", ".h", ".hh", ".hpp", ".hxx")):
+        full = f"clang-tidy {file_path} -- -std=c++14"
+    elif "clang-format" in cmd and file_path.endswith((".c", ".cc", ".cpp", ".cxx", ".h", ".hh", ".hpp", ".hxx")):
+        full = f"clang-format --dry-run --Werror {file_path}"
     else:
         return None
     try:

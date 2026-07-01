@@ -1,38 +1,26 @@
-"""Planning agent: decompose a task into sub-steps, then execute each."""
+"""Planning agent: decompose a task into resumable sub-steps, then execute each."""
 
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
-
-from .memory import SlidingWindowMemory
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
 class PlanStep:
     description: str
-    status: str = "pending"  # pending | running | done | failed
+    status: str = "pending"  # pending | running | done | failed | blocked
     result: str = ""
+    depends_on: List[int] = field(default_factory=list)
+    retries: int = 0
+    max_retries: int = 1
 
 
 class PlanningAgent:
     """
-    Agent that first generates a plan (list of steps), then executes each
-    step using tool calls.
-
-    Parameters
-    ----------
-    provider
-        LLM provider with ``complete`` and ``complete_turn``.
-    registry
-        Tool registry.
-    tools
-        OpenAI-format tool schemas.
-    system_prompt : str
-        Prompt instructing the model how to plan.
-    max_steps_per_action : int
-        Tool-call budget per plan step.
+    Agent that first generates a plan, then executes each step with retries and resumability.
     """
 
     def __init__(
@@ -53,34 +41,36 @@ class PlanningAgent:
         self.system_prompt = system_prompt
         self.max_steps_per_action = max_steps_per_action
         self.plan: List[PlanStep] = []
+        self.original_task: str = ""
 
     def run(self, task: str) -> str:
         """Plan and execute a task. Returns the final answer."""
+        self.original_task = task
         self.plan = self._generate_plan(task)
+        self.execute_plan()
+        return self._finalize(task)
 
-        results: List[str] = []
-        for step in self.plan:
-            step.status = "running"
-            result = self._execute_step(step, task)
-            step.result = result
-            step.status = "done"
-            results.append(f"- {step.description}: {result}")
-
+    def _finalize(self, task: str) -> str:
         from ..providers.base import ChatMessage
+
+        results = [
+            f"- {step.description}: {step.result or step.status}"
+            for step in self.plan
+        ]
         summary_prompt = (
             f"Task: {task}\n\nCompleted steps:\n" + "\n".join(results) +
             "\n\nPlease provide a final comprehensive answer."
         )
-        final = self.provider.complete([
+        return self.provider.complete([
             ChatMessage(role="system", content=self.system_prompt),
             ChatMessage(role="user", content=summary_prompt),
         ])
-        return final
 
     def _generate_plan(self, task: str) -> List[PlanStep]:
         from ..providers.base import ChatMessage
+
         prompt = (
-            f"Break this task into 2-5 clear steps. Return ONLY a JSON array of strings.\n\n"
+            "Break this task into 2-6 clear steps. Return ONLY a JSON array of strings.\n\n"
             f"Task: {task}"
         )
         response = self.provider.complete([
@@ -91,9 +81,13 @@ class PlanningAgent:
             start = response.index("[")
             end = response.rindex("]") + 1
             steps = json.loads(response[start:end])
-            return [PlanStep(description=s) for s in steps]
+            plan = [PlanStep(description=s) for s in steps]
         except (ValueError, json.JSONDecodeError):
-            return [PlanStep(description=task)]
+            plan = [PlanStep(description=task)]
+        for index, step in enumerate(plan):
+            if index > 0:
+                step.depends_on = [index - 1]
+        return plan
 
     def _execute_step(self, step: PlanStep, original_task: str) -> str:
         messages: List[Dict[str, Any]] = [
@@ -118,8 +112,53 @@ class PlanningAgent:
             return turn.content or ""
         return "Step completed (max iterations reached)."
 
-    def get_plan_summary(self) -> List[Dict[str, str]]:
+    def execute_plan(self) -> None:
+        """Execute the current plan with dependency checks and retries."""
+        for index, step in enumerate(self.plan):
+            if any(self.plan[dep].status != "done" for dep in step.depends_on):
+                step.status = "blocked"
+                step.result = "Blocked by unmet dependency."
+                continue
+            while step.retries <= step.max_retries:
+                step.status = "running"
+                result = self._execute_step(step, self.original_task)
+                step.result = result
+                if result and not result.casefold().startswith("error:"):
+                    step.status = "done"
+                    break
+                step.retries += 1
+            else:
+                step.status = "failed"
+            if step.status not in {"done", "failed"}:
+                step.status = "failed"
+
+    def get_plan_summary(self) -> List[Dict[str, Any]]:
         return [
-            {"description": s.description, "status": s.status, "result": s.result[:200]}
-            for s in self.plan
+            {
+                "description": step.description,
+                "status": step.status,
+                "depends_on": step.depends_on,
+                "retries": step.retries,
+                "result": step.result[:200],
+            }
+            for step in self.plan
         ]
+
+    def save(self, path: str) -> Path:
+        """Persist the current plan to a JSON file."""
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            json.dumps(
+                {"task": self.original_task, "plan": [asdict(step) for step in self.plan]},
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        return target
+
+    def load(self, path: str) -> None:
+        """Load a previously saved plan."""
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+        self.original_task = data.get("task", "")
+        self.plan = [PlanStep(**item) for item in data.get("plan", [])]
