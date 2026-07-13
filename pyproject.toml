@@ -69,6 +69,9 @@ universe = [
 cosmos = [
     "matplotlib>=3.5.0",
 ]
+physics = [
+    "matplotlib>=3.5.0",
+]
 monitor = [
     "psutil>=5.9.0",
     "fastapi>=0.100.0",
@@ -153,6 +156,7 @@ develop = "aion._install_hooks.DevelopCommand"
 "aion.monitor" = ["static/*.html", "*.md"]
 "aion.monitor.examples" = ["*.md"]
 "aion.universe" = ["data/*.json", "static/**/*"]
+"aion.physics" = ["static/**/*"]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel", "pybind11>=2.10.0"]

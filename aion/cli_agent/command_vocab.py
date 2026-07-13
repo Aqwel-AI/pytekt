@@ -33,6 +33,7 @@ SLASH_COMMANDS: List[Tuple[str, str, str]] = [
     ("web", "", "Open agent web UI in browser"),
     ("db", "status|sync|memory", "Database status, sync usage/tracker, memory"),
     ("sky", "[tonight|moon|log|web]", "Moon phase, visible stars, or web dashboard"),
+    ("physics", "[query|pendulum|tasks|web]", "Physics formulas, simulations, dashboard"),
     ("quit", "", "Exit agent"),
 ]
 

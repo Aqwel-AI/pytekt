@@ -1,28 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-
-const SLASH_COMMANDS = ["/connect", "/reconnect", "/reset", "/help"];
-const CONNECT_PROVIDERS = ["ollama", "nvidia", "nim"];
-
-function filterSlashCommands(text: string): string[] {
-  if (!text.startsWith("/")) return [];
-  const body = text.slice(1);
-  if (!body.includes(" ")) {
-    const partial = body.toLowerCase();
-    return SLASH_COMMANDS.filter((cmd) => !partial || cmd.slice(1).startsWith(partial));
-  }
-  const [cmd, ...rest] = body.split(" ");
-  if (cmd.toLowerCase() === "connect") {
-    const partial = (rest.join(" ") || "").toLowerCase();
-    return CONNECT_PROVIDERS.filter((p) => !partial || p.startsWith(partial)).map(
-      (p) => `/connect ${p}`
-    );
-  }
-  return [];
-}
+import { filterSlashCommands } from "../slashCommands";
 
 interface Props {
   disabled: boolean;
   onSend: (text: string) => void;
+  onSlash?: (text: string) => void;
   draft?: string;
   onDraftChange?: (v: string) => void;
   fileEntries?: string[];
@@ -32,6 +14,7 @@ interface Props {
 export function InputBar({
   disabled,
   onSend,
+  onSlash,
   draft = "",
   onDraftChange,
   fileEntries = [],
@@ -87,9 +70,31 @@ export function InputBar({
   const handleSend = () => {
     const trimmed = text.trim();
     if (!trimmed || disabled) return;
-    onSend(trimmed);
+    if (trimmed.startsWith("/") && onSlash) {
+      onSlash(trimmed);
+    } else {
+      onSend(trimmed);
+    }
     setText("");
     if (ref.current) ref.current.style.height = "auto";
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pasted = e.clipboardData.getData("text");
+    if (!pasted) return;
+    const lines = pasted.split("\n");
+    const looksLikeCode =
+      lines.length >= 3 ||
+      /^(import |from |def |class |function |const |#include|\{|\})/m.test(pasted);
+    if (looksLikeCode) {
+      e.preventDefault();
+      const el = ref.current;
+      if (!el) return;
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const next = text.slice(0, start) + pasted + text.slice(end);
+      setText(next);
+    }
   };
 
   const activeSuggestions = slashSuggestions.length > 0 ? slashSuggestions : [];
@@ -129,6 +134,7 @@ export function InputBar({
           rows={1}
           value={text}
           onChange={(e) => onInput(e.target.value)}
+          onPaste={handlePaste}
           onKeyDown={(e) => {
             if (e.key === "Tab" && slashSuggestions.length > 0) {
               e.preventDefault();
@@ -140,7 +146,7 @@ export function InputBar({
               handleSend();
             }
           }}
-          placeholder="Message Aion…"
+          placeholder="Message Aion… Shift+Enter newline · @ file · / commands"
           disabled={disabled}
         />
         <button

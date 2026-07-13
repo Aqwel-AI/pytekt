@@ -359,6 +359,58 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
     )
     _add_universe_dashboard_args(cosmos_dash_parser)
 
+    def _add_physics_subparsers(parent):
+        p_sub = parent.add_subparsers(dest="physics_action", help="Physics actions")
+        p_query = p_sub.add_parser("query", help="Natural-language physics query")
+        p_query.add_argument("text", help='Query e.g. "kinetic energy mass=2 velocity=3"')
+        p_pend = p_sub.add_parser("pendulum", help="Simulate simple pendulum")
+        p_pend.add_argument("--length", type=float, default=1.0, help="Pendulum length (m)")
+        p_pend.add_argument("--angle-deg", type=float, default=15.0, help="Initial angle (deg)")
+        p_pend.add_argument("--dt", type=float, default=0.01, help="Time step (s)")
+        p_pend.add_argument("--steps", type=int, default=2000, help="Integration steps")
+        p_proj = p_sub.add_parser("projectile", help="Simulate projectile motion")
+        p_proj.add_argument("--v0", type=float, default=20.0, help="Initial speed (m/s)")
+        p_proj.add_argument("--angle", type=float, default=45.0, help="Launch angle (deg)")
+        p_proj.add_argument("--drag", type=float, default=0.0, help="Drag coefficient")
+        p_proj.add_argument("--dt", type=float, default=0.01)
+        p_proj.add_argument("--steps", type=int, default=1000)
+        p_force = p_sub.add_parser("force", help="Compute F = m*a")
+        p_force.add_argument("--mass", type=float, required=True)
+        p_force.add_argument("--acceleration", type=float, required=True)
+        p_ke = p_sub.add_parser("ke", help="Compute kinetic energy")
+        p_ke.add_argument("--mass", type=float, required=True)
+        p_ke.add_argument("--velocity", type=float, required=True)
+        p_gas = p_sub.add_parser("gas", help="Ideal gas pressure")
+        p_gas.add_argument("--moles", type=float, required=True)
+        p_gas.add_argument("--temperature", type=float, required=True)
+        p_gas.add_argument("--volume", type=float, required=True)
+        p_units = p_sub.add_parser("units", help="Unit conversion")
+        p_units.add_argument("value", type=float, help="Numeric value")
+        p_units.add_argument("convert", help="Conversion name e.g. km_to_m")
+        p_sub.add_parser("tasks", help="List supported NL query tasks")
+        p_sub.add_parser("demo", help="Run pendulum demo")
+        p_web = p_sub.add_parser("web", help="Open physics dashboard (browser)")
+        p_web.add_argument("--host", default="127.0.0.1")
+        p_web.add_argument("--port", "-p", type=int, default=3858)
+        p_web.add_argument("--no-browser", action="store_true")
+
+    physics_parser = subparsers.add_parser(
+        "physics",
+        help="Classical physics: simulations, formulas, query router (C++ fast path)",
+    )
+    _add_physics_subparsers(physics_parser)
+
+    def _add_physics_dashboard_args(p):
+        p.add_argument("--host", default="127.0.0.1")
+        p.add_argument("--port", "-p", type=int, default=3858)
+        p.add_argument("--no-browser", action="store_true")
+
+    physics_dash_parser = subparsers.add_parser(
+        "physics-dashboard",
+        help="Open physics dashboard (browser)",
+    )
+    _add_physics_dashboard_args(physics_dash_parser)
+
     return parser, git_parser
 
 
@@ -864,6 +916,22 @@ def main():
         from .universe.launch import run_universe_dashboard
 
         run_universe_dashboard(
+            host=args.host,
+            port=args.port,
+            open_browser=not args.no_browser,
+        )
+        return
+
+    if args.command == "physics":
+        from .physics.cli import physics_main
+
+        physics_main(args)
+        return
+
+    if args.command == "physics-dashboard":
+        from .physics.launch import run_physics_dashboard
+
+        run_physics_dashboard(
             host=args.host,
             port=args.port,
             open_browser=not args.no_browser,

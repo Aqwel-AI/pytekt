@@ -92,6 +92,17 @@ def _get_extensions():
                 language="c++",
             )
         )
+    physics_src = "src/aion_physics.cpp"
+    if os.path.isfile(physics_src):
+        exts.append(
+            Extension(
+                "aion._aion_physics",
+                sources=[physics_src],
+                include_dirs=include,
+                extra_compile_args=cxx_args,
+                language="c++",
+            )
+        )
     return exts
 
 

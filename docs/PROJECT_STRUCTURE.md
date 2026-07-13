@@ -74,15 +74,17 @@ aion/
 ├── data/, datasets/
 ├── providers/, tools/, rag/, agents/
 ├── former/, visualization/, ui/, hub/
-├── tracker/, llm_eval/, db/, universe/, cache/, store/, pipeline/
+├── tracker/, llm_eval/, db/, universe/, physics/, cache/, store/, pipeline/
 ├── experiments/, bench/, benchmarks/
 ├── io/, config/, env/, serve/, monitor/, vision/
 └── cli.py
 ```
 
-Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[full]`.
+Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[physics]`, `[full]`.
 
 **`aion/universe/`** — coordinates, time, observing, orbits, cosmology, catalogs, C++ extension (`_aion_universe`), optional viz, React web dashboard (`web/` → `static/`). See [`aion/universe/README.md`](../aion/universe/README.md). `aion/cosmos` is a deprecated import shim.
+
+**`aion/physics/`** — classical mechanics, thermo, EM, optics, relativity, integrators, NL query router, C++ extension (`_aion_physics`), agent tools, React web dashboard (port 3858). See [`aion/physics/README.md`](../aion/physics/README.md).
 
 ---
 
@@ -95,6 +97,7 @@ Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[fu
 | `aion config` | `aion.cli_agent.config` |
 | `aion auth` | `aion.cli_agent.auth` |
 | `aion universe` / `aion universe-dashboard` (`cosmos` aliases deprecated) | `aion.universe.cli` / `aion.universe.launch` |
+| `aion physics` / `aion physics-dashboard` | `aion.physics.cli` / `aion.physics.launch` |
 | `aion db` | `aion.db.cli` |
 | `aion start` | `aion.hub` |
 | `python -m aion` | `aion.cli` |

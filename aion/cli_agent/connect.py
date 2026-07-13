@@ -159,6 +159,7 @@ class AgentConnector:
             is_trusted=self.is_trusted,
             middleware=self.tool_middleware,
             read_only=read_only,
+            cfg=self.cfg,
         )
         register_mcp_tools(self.registry, saved_mcp_servers(self.cfg))
         self.tools_schema = tools_schema(is_trusted=self.is_trusted, read_only=read_only)
@@ -729,6 +730,7 @@ class AgentConnector:
             self._pending_task = user_input
             self._pending_plan_steps = plan
             self._emit("plan_ready", steps=lines)
+            self._emit("session_updated")
             self.tool_middleware.finalize_task(rollback_on_failure=False)
             return "Plan ready. Type /approve to execute."
 

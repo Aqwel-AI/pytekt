@@ -39,6 +39,7 @@ from .session_prefs import (
 )
 from .tools import build_tool_registry, tools_schema
 from .universe_cmds import handle_sky_command
+from .physics_cmds import handle_physics_command
 from .db_cmds import handle_db_command
 from .trust import ensure_trust_for_coding
 
@@ -383,6 +384,10 @@ def _handle_command(
 
     if cmd == "sky":
         handle_sky_command(args, cfg=connector.cfg)
+        return None
+
+    if cmd == "physics":
+        handle_physics_command(args, cfg=connector.cfg)
         return None
 
     if cmd == "pin":

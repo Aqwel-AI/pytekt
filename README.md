@@ -350,6 +350,15 @@ v0.1.9 already included `aion.tools`, `aion.rag`, `aion.config`, `aion.env`, `ai
 - **C++ fast path** — hot calculations in `aion._aion_universe` with Python fallbacks.
 - See [`aion/universe/README.md`](aion/universe/README.md).
 
+### Physics (`aion.physics`)
+- **Mechanics & thermo** — force, energy, ideal gas, heat transfer formulas.
+- **Simulations** — pendulum, spring-mass, projectile (RK4 integrator).
+- **NL query router** — `solve_physics_query("kinetic energy mass=2 velocity=3")`.
+- **CLI & agent** — `aion physics query|pendulum|projectile|web`, agent `/physics` and `physics_*` tools.
+- **Web dashboard** — `aion physics web` (calculator, pendulum/projectile plots, port 3858).
+- **C++ fast path** — integrators in `aion._aion_physics` with Python fallbacks.
+- See [`aion/physics/README.md`](aion/physics/README.md).
+
 ### Experiment tracking (`aion.tracker`)
 - **`Tracker` / `Run`** — Log parameters, metrics (with step tracking), tags, and artifacts to a local directory.
 - **`compare_runs` / `best_run`** — Sort and compare runs by any metric.

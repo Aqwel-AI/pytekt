@@ -560,3 +560,107 @@ button {
   margin: 0 auto;
   width: 100%;
 }
+
+.header-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-family: var(--sans);
+}
+
+.trust-pill {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.trust-pill.on {
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.msg-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.msg-row:hover .msg-actions {
+  opacity: 1;
+}
+
+.copy-btn {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  border-color: var(--accent-border);
+  color: var(--text);
+}
+
+.code-block-wrap {
+  position: relative;
+}
+
+.copy-btn-block {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+}
+
+.inline-code-wrap {
+  position: relative;
+  display: inline;
+}
+
+.copy-btn-inline {
+  margin-left: 4px;
+  padding: 0 4px;
+  vertical-align: middle;
+  font-size: 10px;
+}
+
+.slash-help-modal {
+  max-width: min(520px, 92vw);
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.slash-help-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.slash-help-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 12px;
+  font-size: 13px;
+  align-items: start;
+}
+
+.slash-help-row code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+}
