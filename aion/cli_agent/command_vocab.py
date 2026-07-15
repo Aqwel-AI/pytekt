@@ -22,6 +22,12 @@ SLASH_COMMANDS: List[Tuple[str, str, str]] = [
     ("root", "add <path>", "Add workspace root"),
     ("approve", "", "Execute pending plan"),
     ("research", "<query>", "Read-only subagent research"),
+    ("explore", "<query>", "Explore specialist (read-only)"),
+    ("edit-agent", "<task>", "Edit specialist with write tools"),
+    ("test-agent", "[task]", "Test/debug specialist"),
+    ("multi", "<task>", "Parallel explore+edit+test specialists"),
+    ("bg", "explore|edit|test <task>", "Queue specialist in background"),
+    ("role", "[mode]", "Set specialist persona on main agent"),
     ("commit", "[message]", "Git commit"),
     ("branch", "<name>", "Create/switch branch"),
     ("pr-summary", "", "Generate PR summary from git"),
@@ -31,13 +37,24 @@ SLASH_COMMANDS: List[Tuple[str, str, str]] = [
     ("help", "", "Show all commands"),
     ("usage", "", "Open usage dashboard in browser"),
     ("web", "", "Open agent web UI in browser"),
+    ("mcp", "[list|add|remove|reload|tools]", "Manage MCP servers"),
     ("db", "status|sync|memory", "Database status, sync usage/tracker, memory"),
     ("sky", "[tonight|moon|log|web]", "Moon phase, visible stars, or web dashboard"),
     ("physics", "[query|pendulum|tasks|web]", "Physics formulas, simulations, dashboard"),
     ("quit", "", "Exit agent"),
 ]
 
-_CONNECT_PROVIDERS = ("ollama", "nvidia", "nim")
+_CONNECT_PROVIDERS = (
+    "ollama",
+    "nvidia",
+    "nim",
+    "openai",
+    "anthropic",
+    "claude",
+    "gemini",
+    "google",
+    "deepseek",
+)
 
 
 def slash_command_names() -> List[str]:

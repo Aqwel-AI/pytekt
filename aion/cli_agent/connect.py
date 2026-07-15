@@ -26,7 +26,7 @@ from .constants import (
 )
 from .edit_history import EditHistory
 from .linter_hook import run_lint_on_file
-from .mcp import register_mcp_tools
+from .mcp import register_mcp_tools, stop_mcp_servers
 from .physics_tools import physics_system_hint
 from .project import discover_project
 from .session_prefs import (
@@ -127,6 +127,9 @@ class AgentConnector:
         self.session.safety_mode = saved_safety_mode(cfg)
         self.session.specialist_mode = saved_specialist_mode(cfg)
         self.edit_history = EditHistory(self.session.session_id)
+        self._mcp_servers: List[Any] = []
+        self._mcp_errors: List[str] = []
+        self._mcp_tool_names: List[str] = []
         self.tool_middleware = ToolMiddleware(
             workspace_root=self.workspace_root,
             session_id=self.session.session_id,
@@ -153,6 +156,12 @@ class AgentConnector:
     def _rebuild_registry(self) -> None:
         from .tools import build_tool_registry, tools_schema
 
+        if self._mcp_servers:
+            stop_mcp_servers(self._mcp_servers)
+            self._mcp_servers = []
+            self._mcp_errors = []
+            self._mcp_tool_names = []
+
         read_only = self.session.interaction_mode == "review"
         self.registry = build_tool_registry(
             workspace_root=self.workspace_root,
@@ -161,8 +170,27 @@ class AgentConnector:
             read_only=read_only,
             cfg=self.cfg,
         )
-        register_mcp_tools(self.registry, saved_mcp_servers(self.cfg))
-        self.tools_schema = tools_schema(is_trusted=self.is_trusted, read_only=read_only)
+        base_schema = tools_schema(is_trusted=self.is_trusted, read_only=read_only)
+        mcp_result = register_mcp_tools(self.registry, saved_mcp_servers(self.cfg))
+        self._mcp_servers = list(mcp_result.servers)
+        self._mcp_errors = list(mcp_result.errors)
+        self._mcp_tool_names = list(mcp_result.tool_names)
+        self.tools_schema = list(base_schema) + list(mcp_result.schemas)
+
+    def reload_mcp(self) -> Dict[str, Any]:
+        """Rebuild registry and re-attach MCP servers from config."""
+        self._rebuild_registry()
+        if self.session.connected and self.session.provider and self.session.model and self._raw_provider:
+            self.agent = self._build_agent(
+                self._raw_provider, self.session.provider, self.session.model
+            )
+            self._apply_session(self.session.provider, self.session.model)
+        return {
+            "ok": True,
+            "count": len(self._mcp_tool_names),
+            "tools": list(self._mcp_tool_names),
+            "errors": list(self._mcp_errors),
+        }
 
     def _tools_for_session(self) -> List[Dict[str, Any]]:
         if self.session.interaction_mode in ("plain", "review"):
@@ -245,6 +273,8 @@ class AgentConnector:
             return self._connect_ollama(m_name, quiet=quiet, prov=prov, mod=mod)
         if p_name == "nvidia":
             return self._connect_nvidia(m_name, quiet=quiet, new_key=new_key)
+        if p_name in ("openai", "anthropic", "gemini", "deepseek"):
+            return self._connect_cloud(p_name, m_name, quiet=quiet, new_key=new_key)
         return False
 
     def set_event_callback(
@@ -272,6 +302,19 @@ class AgentConnector:
                 if not key:
                     return {"ok": False, "error": "No API key for nvidia"}
                 models = NvidiaProvider.list_models(api_key=key)
+            elif provider_id == "gemini":
+                key = resolve_api_key("gemini", self.cfg)
+                if not key:
+                    return {"ok": False, "error": "No API key for gemini"}
+                from ..providers.gemini_provider import GeminiProvider
+
+                models = GeminiProvider.list_models(api_key=key)
+            elif provider_id == "openai":
+                models = ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"]
+            elif provider_id == "deepseek":
+                models = ["deepseek-chat", "deepseek-reasoner"]
+            elif provider_id == "anthropic":
+                models = ["claude-3-5-sonnet-latest", "claude-3-5-haiku-latest"]
             else:
                 models = []
             return {"ok": True, "models": models}
@@ -461,15 +504,22 @@ class AgentConnector:
     ) -> bool:
         api_key = self._ensure_api_key(provider_id, new_key=new_key, quiet=quiet)
         if not api_key:
+            env_hint = {
+                "nvidia": "NVIDIA_API_KEY",
+                "openai": "OPENAI_API_KEY",
+                "anthropic": "ANTHROPIC_API_KEY",
+                "gemini": "GEMINI_API_KEY",
+                "deepseek": "DEEPSEEK_API_KEY",
+            }.get(provider_id, "an API key env var")
             if quiet:
                 ui.error_print(
                     f"No API key for {ui.bold(label)}. "
-                    f"Run: {ui.cyan('aion api add Nvidia YOUR_KEY')}"
+                    f"Run: {ui.cyan(f'aion api add {provider_id} YOUR_KEY')}"
                 )
             else:
                 ui.error_print(
                     f"{label} requires an API key. "
-                    f"Use {ui.cyan('aion api connect')} or set NVIDIA_API_KEY."
+                    f"Use {ui.cyan('aion api connect')} or set {env_hint}."
                 )
             return False
 
@@ -674,6 +724,11 @@ class AgentConnector:
             clear_provider_keys(self.cfg, clear_keys_for)
             keys_cleared = True
         if disconnect_session:
+            if self._mcp_servers:
+                stop_mcp_servers(self._mcp_servers)
+                self._mcp_servers = []
+                self._mcp_tool_names = []
+                self._mcp_errors = []
             self.agent = None
             self.session.connected = False
             self.session.provider = None

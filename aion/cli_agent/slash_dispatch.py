@@ -133,6 +133,52 @@ def dispatch_slash(
         )
         return {"ok": True, "response": summary}
 
+    if cmd == "mcp":
+        from .session_prefs import save_mcp_servers, saved_mcp_servers
+
+        parts = args.split()
+        sub = parts[0].lower() if parts else "list"
+        servers = saved_mcp_servers(connector.cfg)
+        if sub in ("list", "ls", "status", ""):
+            tools = getattr(connector, "_mcp_tool_names", []) or []
+            return {
+                "ok": True,
+                "response": {
+                    "servers": servers,
+                    "tools": tools,
+                    "errors": getattr(connector, "_mcp_errors", []) or [],
+                },
+            }
+        if sub == "add":
+            if len(parts) < 3:
+                return {"ok": False, "error": "Usage: /mcp add <name> <command> [args…]"}
+            name, command, *cmd_args = parts[1], parts[2], parts[3:]
+            servers = [s for s in servers if s.get("name") != name]
+            servers.append({"name": name, "command": command, "args": cmd_args})
+            save_mcp_servers(connector.cfg, servers)
+            result = connector.reload_mcp()
+            _touch()
+            return {"ok": True, "message": f"Saved MCP server {name}", **result}
+        if sub == "remove":
+            if len(parts) < 2:
+                return {"ok": False, "error": "Usage: /mcp remove <name>"}
+            name = parts[1]
+            new_servers = [s for s in servers if s.get("name") != name]
+            if len(new_servers) == len(servers):
+                return {"ok": False, "error": f"No MCP server named {name}."}
+            save_mcp_servers(connector.cfg, new_servers)
+            result = connector.reload_mcp()
+            _touch()
+            return {"ok": True, "message": f"Removed {name}", **result}
+        if sub == "reload":
+            result = connector.reload_mcp()
+            _touch()
+            return {"ok": True, "message": "Reloaded MCP", **result}
+        if sub == "tools":
+            names = getattr(connector, "_mcp_tool_names", []) or []
+            return {"ok": True, "response": names}
+        return {"ok": False, "error": "Usage: /mcp [list|add|remove|reload|tools]"}
+
     if cmd == "commit":
         from .git_cmds import handle_commit
 

@@ -21,14 +21,18 @@ Shared: `aion.providers`, `aion.agents`, `aion.tools`.
 ├── SECURITY.md
 ├── .env.example
 ├── docs/
-│   └── PROJECT_STRUCTURE.md  # This file
+│   ├── PROJECT_STRUCTURE.md  # This file
+│   ├── AGENT_WEB.md
+│   ├── AGENT_CI.md
+│   └── AGENT_IDE_INTEGRATION.md
+├── extensions/               # Optional IDE extensions (see AGENT_IDE_INTEGRATION)
 ├── pyproject.toml
 ├── aion/                     # Python package
 ├── src/aion_core.cpp         # Optional native extension
 └── tests/
 ```
 
-**Private (never commit):** `.env`, `~/.aion.yaml`, checkpoints, `wandb/`, `.cursor/` — see [SECURITY.md](../SECURITY.md) and [.gitignore](../.gitignore).
+**Private (never commit):** `.env`, `~/.aion.yaml`, checkpoints, `wandb/`, `.cursor/`, `.aion/` — see [SECURITY.md](../SECURITY.md) and [.gitignore](../.gitignore).
 
 ---
 
@@ -36,18 +40,24 @@ Shared: `aion.providers`, `aion.agents`, `aion.tools`.
 
 ```
 aion/cli_agent/
-├── app.py              # Main loop, slash commands (/sky, /db, …)
-├── universe_cmds.py    # /sky moon and whats_up
-├── connect.py          # OpenAI, Gemini, Ollama, DeepSeek, …
+├── app.py              # Main loop, slash commands (/sky, /db, /mcp, …)
+├── connect.py          # Ollama, NVIDIA, OpenAI, Anthropic, Gemini, DeepSeek
 ├── connect_args.py     # /connect, /disconnect, /reconnect parsing
-├── session_prefs.py    # Saved provider, model, trust, idle
+├── session_prefs.py    # Saved provider, model, trust, idle, MCP
 ├── config.py           # ~/.aion.yaml
 ├── tools.py            # Agent tool registry
+├── mentions.py         # @mentions + .aion/open_files.json sidecar
+├── subagent.py         # Research / specialist subagents
+├── headless.py         # aion agent run (CI)
+├── mcp/                # MCP stdio client
+├── web/                # Browser UI (server + React)
+├── universe_cmds.py    # /sky …
+├── physics_cmds.py     # /physics …
+├── db_cmds.py          # /db …
 ├── api.py              # aion api
 ├── auth.py             # aion auth
 ├── trust.py
 ├── constants.py
-├── commands.py
 └── ui/                 # Dashboard, glitch intro, messages, help
 ```
 
@@ -93,6 +103,8 @@ Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[ph
 | Command | Module |
 |---------|--------|
 | `aion agent` | `aion.cli_agent.app` |
+| `aion agent web` | `aion.cli_agent.web` |
+| `aion agent run` | `aion.cli_agent.headless` |
 | `aion api` | `aion.cli_agent.api` |
 | `aion config` | `aion.cli_agent.config` |
 | `aion auth` | `aion.cli_agent.auth` |

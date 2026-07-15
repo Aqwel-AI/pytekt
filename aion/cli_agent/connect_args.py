@@ -15,6 +15,12 @@ _COMPANY_ALIASES: Dict[str, str] = {
     "local": "ollama",
     "nvidia": "nvidia",
     "nim": "nvidia",
+    "openai": "openai",
+    "anthropic": "anthropic",
+    "claude": "anthropic",
+    "gemini": "gemini",
+    "google": "gemini",
+    "deepseek": "deepseek",
 }
 
 

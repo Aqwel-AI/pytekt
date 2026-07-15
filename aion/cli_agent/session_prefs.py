@@ -159,6 +159,11 @@ def saved_mcp_servers(cfg: Dict[str, Any]) -> list:
     return list(servers) if isinstance(servers, list) else []
 
 
+def save_mcp_servers(cfg: Dict[str, Any], servers: list) -> None:
+    cfg.setdefault("agent", {})["mcp_servers"] = list(servers)
+    save_config(cfg)
+
+
 def clear_provider_keys(cfg: Dict[str, Any], provider: str) -> None:
     """Remove saved API keys from ~/.aion.yaml (environment variables are unchanged)."""
     from ..providers.keys import config_key_names
