@@ -80,8 +80,17 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path }),
     }),
-  undo: () => json("/api/undo", { method: "POST" }),
+  undo: () => json<{ ok: boolean; message?: string }>("/api/undo", { method: "POST" }),
   reset: () => json("/api/reset", { method: "POST" }),
+  slash: (line: string) =>
+    json<{ ok: boolean; response?: string; message?: string; error?: string; action?: string; url?: string }>(
+      "/api/slash",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ line }),
+      },
+    ),
   activity: (limit = 20) => json<{ events: ActivityEvent[] }>(`/api/activity?limit=${limit}`),
   files: (path = ".") => json<{ entries: string[] }>(`/api/files?path=${encodeURIComponent(path)}`),
   file: (path: string) => json<{ content: string }>(`/api/file?path=${encodeURIComponent(path)}`),

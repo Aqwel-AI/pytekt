@@ -17,7 +17,7 @@ def api_add(name: str, token: str) -> None:
 
 
 def api_connect_menu() -> None:
-    companies = ["Nvidia"]
+    companies = ["Nvidia", "OpenAI", "Anthropic", "Gemini", "DeepSeek"]
     ui.print_menu(companies, "Add API key (Ollama is local — no key needed)")
     choice = ui.get_menu_choice(companies)
     company = companies[choice - 1]

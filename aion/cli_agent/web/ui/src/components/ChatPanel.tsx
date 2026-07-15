@@ -1,5 +1,6 @@
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { CopyButton } from "./CopyButton";
 
 export interface Message {
   role: "user" | "assistant";
@@ -20,15 +21,71 @@ interface Props {
   onSuggestion: (text: string) => void;
 }
 
+function PreBlock({ children, ...props }: React.ComponentPropsWithoutRef<"pre">) {
+  const ref = useRef<HTMLPreElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const text = ref.current?.innerText ?? "";
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  return (
+    <div className="code-block-wrap">
+      <button type="button" className="copy-btn copy-btn-block" onClick={handleCopy}>
+        {copied ? "Copied" : "Copy"}
+      </button>
+      <pre ref={ref} {...props}>
+        {children}
+      </pre>
+    </div>
+  );
+}
+
+const markdownComponents = {
+  pre: PreBlock,
+  code({ className, children, ...props }: React.ComponentPropsWithoutRef<"code">) {
+    const isBlock = Boolean(className);
+    if (isBlock) {
+      return (
+        <code className={className} {...props}>
+          {children}
+        </code>
+      );
+    }
+    const text = String(children).replace(/\n$/, "");
+    return (
+      <span className="inline-code-wrap">
+        <code className={className} {...props}>
+          {children}
+        </code>
+        <CopyButton text={text} label="⎘" className="copy-btn copy-btn-inline" />
+      </span>
+    );
+  },
+};
+
 const MessageBubble = memo(function MessageBubble({ m }: { m: Message }) {
   return (
     <div className={`msg-row ${m.role}`}>
       <div className={`msg-avatar ${m.role}`}>{m.role === "user" ? "You" : "A"}</div>
       <div className="msg-body">
+        <div className="msg-actions">
+          {!m.streaming && m.content && (
+            <CopyButton text={m.content} label="Copy" className="copy-btn copy-btn-msg" />
+          )}
+        </div>
         {m.streaming ? (
           <pre className="msg-plain">{m.content}{m.content ? "" : "…"}</pre>
         ) : (
-          <ReactMarkdown>{m.content}</ReactMarkdown>
+          <ReactMarkdown components={markdownComponents}>{m.content}</ReactMarkdown>
         )}
       </div>
     </div>

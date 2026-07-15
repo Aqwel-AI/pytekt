@@ -31,7 +31,7 @@ def rk4_step(derivative_fn: DerivativeFn, t: float, state: State, dt: float) -> 
     ]
 
 
-def integrate_trajectory(
+def _integrate_trajectory_py(
     derivative_fn: DerivativeFn,
     initial_state: State,
     *,
@@ -40,7 +40,7 @@ def integrate_trajectory(
     method: str = "rk4",
     t0: float = 0.0,
 ) -> List[List[float]]:
-    """Integrate a trajectory and return every state, including the initial state."""
+    """Pure-Python trajectory integration."""
     if dt <= 0:
         raise ValueError("dt must be positive")
     if steps < 0:
@@ -59,3 +59,25 @@ def integrate_trajectory(
         time += dt
         trajectory.append(list(state))
     return trajectory
+
+
+def integrate_trajectory(
+    derivative_fn: DerivativeFn,
+    initial_state: State,
+    *,
+    dt: float,
+    steps: int,
+    method: str = "rk4",
+    t0: float = 0.0,
+) -> List[List[float]]:
+    """Integrate a trajectory and return every state, including the initial state."""
+    from ._native import integrate_trajectory as _integrate
+
+    return _integrate(
+        derivative_fn,
+        initial_state,
+        dt=dt,
+        steps=steps,
+        method=method,
+        t0=t0,
+    )

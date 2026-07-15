@@ -1,10 +1,10 @@
-# Aion IDE integration (design hook)
+# Aion IDE integration
 
-Future Cursor/VS Code extensions can write open editor state for the CLI agent.
+The Aion agent auto-attaches open editor files when the workspace contains a fresh sidecar:
+
+`.aion/open_files.json`
 
 ## Sidecar protocol
-
-Create `.aion/open_files.json` in the workspace root:
 
 ```json
 {
@@ -18,10 +18,22 @@ Create `.aion/open_files.json` in the workspace root:
 
 The agent auto-attaches files when:
 
-- The file exists
-- `updated_at` is within the last 30 seconds (fresh IDE sync)
+- The file exists under the workspace
+- `updated_at` is within the last **30 seconds** (fresh IDE sync)
 
-No extension ships in this phase; the CLI reads the sidecar when present.
+`cursor_line` is optional (forward-compatible; the CLI may ignore it).
+
+## Extension (shipped)
+
+Use **[extensions/aion-ide/](../extensions/aion-ide/)** — a VS Code / Cursor extension that:
+
+- Writes the sidecar on editor changes
+- Heartbeats every 20s so the agent never sees a stale file
+- Optionally notifies the agent web UI at `POST http://127.0.0.1:3860/api/open-files`
+
+See [extensions/aion-ide/README.md](../extensions/aion-ide/README.md) for install steps.
+
+Workspace `.vscode/` settings are gitignored in this repo; keep extension config under `extensions/aion-ide/` only.
 
 ## @ mentions
 

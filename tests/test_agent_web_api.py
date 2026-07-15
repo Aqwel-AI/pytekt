@@ -49,6 +49,34 @@ def test_chat_stream_emits_start_before_done():
     assert types.index("chat_start") < types.index("chat_done")
 
 
+def test_chat_stream_forwards_tool_step_before_done():
+    svc = WebAgentService(".")
+    svc.connector.agent = object()
+    svc.connector.session.interaction_mode = "agent"
+
+    def fake_chat(_msg: str) -> str:
+        svc.connector._emit(
+            "tool_step",
+            step=1,
+            action="read_file",
+            preview="hello.py",
+            result="ok",
+        )
+        return "Hello from agent"
+
+    svc.connector.chat = fake_chat
+
+    types: list[str] = []
+    for line in svc.chat_stream("hi"):
+        if line.startswith("data: "):
+            payload = json.loads(line[6:].strip())
+            types.append(payload["type"])
+
+    assert "tool_step" in types
+    assert "chat_done" in types
+    assert types.index("tool_step") < types.index("chat_done")
+
+
 def test_threading_server_serves_api_while_sse_open(tmp_path):
     import socket
     import time

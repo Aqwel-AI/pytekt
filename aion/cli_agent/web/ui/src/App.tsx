@@ -14,8 +14,13 @@ import { FileTree } from "./components/FileTree";
 import { InputBar } from "./components/InputBar";
 import { PlanBanner, approvePlan } from "./components/PlanBanner";
 import { SessionBar } from "./components/SessionBar";
+import { SlashHelp } from "./components/SlashHelp";
 import { ThinkingBar } from "./components/ThinkingBar";
 import "./index.css";
+
+function toolLabel(ev: Record<string, unknown>): string {
+  return `${ev.action}: ${ev.preview}`;
+}
 
 export default function App() {
   const [session, setSession] = useState<SessionInfo | null>(null);
@@ -27,6 +32,7 @@ export default function App() {
   const [thinkingStatus, setThinkingStatus] = useState("");
   const [draft, setDraft] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const fileCache = useRef<string[]>([]);
   const tokenBuffer = useRef("");
   const rafId = useRef<number | null>(null);
@@ -56,6 +62,35 @@ export default function App() {
     refreshFiles();
   }, [refreshFiles]);
 
+  const applyProgressEvent = useCallback((ev: Record<string, unknown>) => {
+    if (ev.type === "chat_status") {
+      setThinkingStatus(String(ev.text || "Thinking…"));
+    }
+    if (ev.type === "tool_step") {
+      const label = toolLabel(ev);
+      setThinkingStatus(label);
+      setActivity((prev) => [
+        ...prev,
+        {
+          kind: "tool",
+          detail: label,
+          ts: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        },
+      ]);
+    }
+    if (ev.type === "plan_ready") {
+      refreshSession();
+    }
+    if (ev.type === "approval_required") {
+      setPending({
+        id: String(ev.id),
+        path: String(ev.path),
+        tool: String(ev.tool),
+        diff: String(ev.diff),
+      });
+    }
+  }, [refreshSession]);
+
   useEffect(() => {
     refreshSession();
     const stop = streamEvents((ev) => {
@@ -73,20 +108,14 @@ export default function App() {
         setThinkingStatus(String(ev.text || "Thinking…"));
       }
       if (ev.type === "tool_step") {
-        const label = `${ev.action}: ${ev.preview}`;
-        setThinkingStatus(String(label));
-        setActivity((prev) => [
-          ...prev,
-          {
-            kind: "tool",
-            detail: label,
-            ts: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          },
-        ]);
+        applyProgressEvent(ev);
+      }
+      if (ev.type === "plan_ready") {
+        refreshSession();
       }
     });
     return stop;
-  }, [refreshSession, clearChat, busy]);
+  }, [refreshSession, clearChat, busy, applyProgressEvent]);
 
   const flushTokens = useCallback(() => {
     const chunk = tokenBuffer.current;
@@ -119,6 +148,22 @@ export default function App() {
     clearChat();
   };
 
+  const handleSlash = async (line: string) => {
+    if (line === "/help") {
+      setShowHelp(true);
+      return;
+    }
+    setMessages((m) => [...m, { role: "user", content: line }]);
+    const r = await api.slash(line);
+    if (r.action === "open_url" && r.url) {
+      window.open(String(r.url), "_blank");
+    }
+    const text = r.response || r.message || r.error || "Done.";
+    setMessages((m) => [...m, { role: "assistant", content: text }]);
+    if (line.startsWith("/reset")) clearChat();
+    refreshSession();
+  };
+
   const handleSend = (text: string) => {
     if (!session?.connected) return;
     setBusy(true);
@@ -130,9 +175,7 @@ export default function App() {
     ]);
 
     const stop = streamChat(text, (ev) => {
-      if (ev.type === "chat_status") {
-        setThinkingStatus(String(ev.text || "Thinking…"));
-      }
+      applyProgressEvent(ev);
       if (ev.type === "chat_token") {
         tokenBuffer.current += String(ev.text);
         scheduleTokenFlush();
@@ -177,12 +220,16 @@ export default function App() {
         onNewChat={handleNewChat}
         drawerOpen={drawerOpen}
         onToggleDrawer={() => (drawerOpen ? setDrawerOpen(false) : openDrawer())}
+        onShowHelp={() => setShowHelp(true)}
       />
       {session?.pending_plan && (
         <PlanBanner
           session={session}
           onApprove={() =>
-            approvePlan((r) => setMessages((m) => [...m, { role: "assistant", content: r }]))
+            approvePlan((r) => {
+              setMessages((m) => [...m, { role: "assistant", content: r }]);
+              refreshSession();
+            })
           }
         />
       )}
@@ -198,6 +245,7 @@ export default function App() {
         <InputBar
           disabled={busy || !session?.connected}
           onSend={handleSend}
+          onSlash={handleSlash}
           draft={draft}
           onDraftChange={setDraft}
           fileEntries={fileCache.current.length ? fileCache.current : files}
@@ -226,6 +274,7 @@ export default function App() {
         </>
       )}
 
+      <SlashHelp open={showHelp} onClose={() => setShowHelp(false)} />
       <DiffApprovalModal pending={pending} onClose={() => { setPending(null); refreshSession(); }} />
     </div>
   );

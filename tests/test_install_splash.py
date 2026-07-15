@@ -2,14 +2,7 @@
 
 import os
 
-from aion.install_splash import show_install_splash, INSTALL_SECTIONS
-
-
-def test_install_sections_nonempty():
-    assert len(INSTALL_SECTIONS) >= 4
-    names = [m[1] for _s, mods in INSTALL_SECTIONS for m in mods]
-    assert "models" in names
-    assert "ui" in names
+from aion.install_splash import show_install_splash
 
 
 def test_static_splash(capsys):
@@ -20,5 +13,8 @@ def test_static_splash(capsys):
         os.environ.pop("AION_NO_SPLASH", None)
     out = capsys.readouterr().out
     assert "Aqwel-Aion" in out
-    assert "PREPROCESSING" in out or "preprocessing" in out
+    assert "Aksel Aghajanyan" in out
+    assert "Aqwel AI Team" in out
+    assert "100%" in out
     assert "Installation complete" in out
+    assert "Install Overview" not in out

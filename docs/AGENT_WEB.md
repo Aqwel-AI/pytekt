@@ -30,13 +30,17 @@ Then open **http://localhost:5175**
 
 ## Features
 
-- Connect providers (Ollama, Nvidia, OpenAI, etc.)
-- Interaction modes: plain, agent, debug, plan, review, test
-- Trust toggle for write/run tools
-- Chat with streaming (plain mode) and live tool activity
+- Connect providers (Ollama, NVIDIA NIM)
+- **Mode dropdown** — plain, agent, debug, plan, review, test
+- **Trust toggle** — enable workspace write/run tools
+- **Undo** — restore last file snapshot
+- Chat with **live tool progress** on the chat SSE stream (ThinkingBar + activity)
+- **Plain mode** — real token streaming when the provider supports it
+- **Copy buttons** on code blocks and messages
+- **Slash commands** in composer — `/mode`, `/undo`, `/reset`, `/approve`, `/help`, …
+- **Help panel** — `?` in header or `/help`
 - File tree with @ attach and pin (right-click)
 - Diff approval modal when `agent.approval_gate: true`
-- Slash commands: `/undo`, `/reset`, `/approve`, `/research`, `/commit`
 - Plan banner with approve button in plan mode
 
 ## Security

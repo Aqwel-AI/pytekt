@@ -23,7 +23,16 @@ from ..session_prefs import (
 from ..tools import build_tool_registry, tools_schema
 from .. import ui
 from ..connect import AgentConnector
-from .events import EventBus
+from ..slash_dispatch import dispatch_slash
+from .events import EventBus, AgentEvent
+
+_CHAT_SSE_FORWARD = frozenset({
+    "tool_step",
+    "chat_status",
+    "plan_ready",
+    "edit_intent",
+    "approval_required",
+})
 
 
 class WebAgentService:
@@ -259,8 +268,6 @@ class WebAgentService:
         """Yield SSE lines for a chat turn (progress + tokens when possible)."""
         import queue
 
-        from .events import AgentEvent
-
         if not self.connector.agent:
             yield AgentEvent(type="error", data={"message": "Not connected"}).to_sse()
             return
@@ -273,6 +280,7 @@ class WebAgentService:
         mode = self.connector.session.interaction_mode
 
         if mode != "plain":
+            event_q = self.events.subscribe()
             result_q: queue.Queue = queue.Queue()
 
             def _run_agent() -> None:
@@ -285,18 +293,32 @@ class WebAgentService:
 
             worker = threading.Thread(target=_run_agent, daemon=True, name="aion-web-chat")
             worker.start()
-            while worker.is_alive():
-                worker.join(timeout=0.2)
-            kind, payload = result_q.get()
+            try:
+                while worker.is_alive() or not result_q.empty():
+                    try:
+                        ev = event_q.get(timeout=0.15)
+                        if ev.type in _CHAT_SSE_FORWARD:
+                            yield ev.to_sse()
+                    except queue.Empty:
+                        if not worker.is_alive():
+                            break
+
+                while True:
+                    try:
+                        ev = event_q.get_nowait()
+                        if ev.type in _CHAT_SSE_FORWARD:
+                            yield ev.to_sse()
+                    except queue.Empty:
+                        break
+
+                kind, payload = result_q.get(timeout=5.0)
+            finally:
+                self.events.unsubscribe(event_q)
+
             if kind == "err":
                 yield AgentEvent(type="error", data={"message": payload}).to_sse()
                 return
             response = str(payload)
-            step = max(12, len(response) // 80)
-            for i in range(0, len(response), step):
-                yield AgentEvent(
-                    type="chat_token", data={"text": response[i : i + step]}
-                ).to_sse()
             yield AgentEvent(type="chat_done", data={"response": response}).to_sse()
             self._publish_session()
             return
@@ -361,6 +383,19 @@ class WebAgentService:
                 handle_branch(args, workspace=self.workspace_root)
                 return {"ok": True}
             return {"ok": False, "error": f"Unknown command: {cmd}"}
+
+    def dispatch_slash(self, line: str) -> Dict[str, Any]:
+        with self._lock:
+            result = dispatch_slash(
+                line,
+                connector=self.connector,
+                workspace=self.workspace_root,
+                on_session_update=self._publish_session,
+            )
+            cmd = line.strip().lstrip("/").split(maxsplit=1)[0].lower() if line.strip().startswith("/") else ""
+            if cmd == "reset" and result.get("ok"):
+                self.events.publish("memory_cleared")
+            return result
 
 
 _SERVICE: Optional[WebAgentService] = None

@@ -26,6 +26,7 @@ def build_tool_registry(
     is_trusted: bool,
     middleware: Optional[ToolMiddleware] = None,
     read_only: bool = False,
+    cfg: Optional[Dict[str, Any]] = None,
 ) -> ToolRegistry:
     ws = Workspace(workspace_root)
     registry = ToolRegistry()
@@ -70,7 +71,7 @@ def build_tool_registry(
         )
 
     if physics_available(workspace_root):
-        register_physics_tools(registry)
+        register_physics_tools(registry, cfg=cfg or {})
 
     return registry
 

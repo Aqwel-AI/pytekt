@@ -28,7 +28,10 @@ def test_normalize_company_names():
     assert normalize_company("local") == "ollama"
     assert normalize_company("nvidia") == "nvidia"
     assert normalize_company("nim") == "nvidia"
-    assert normalize_company("openai") is None
+    assert normalize_company("openai") == "openai"
+    assert normalize_company("claude") == "anthropic"
+    assert normalize_company("google") == "gemini"
+    assert normalize_company("deepseek") == "deepseek"
 
 
 def test_disconnect_empty_active_session():

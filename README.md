@@ -51,6 +51,8 @@ This README is the **main documentation** for the GitHub repository. Deeper maps
 | [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) | Two-pillar layout (library vs `cli_agent`) |
 | [aion/cli_agent/README.md](aion/cli_agent/README.md) | Terminal agent commands and module layout |
 | [docs/AGENT_WEB.md](docs/AGENT_WEB.md) | Browser agent UI (`/web`, dev mode, security) |
+| [docs/AGENT_IDE_INTEGRATION.md](docs/AGENT_IDE_INTEGRATION.md) | Open-files sidecar + VS Code/Cursor extension |
+| [docs/AGENT_CI.md](docs/AGENT_CI.md) | Headless `aion agent run` for CI |
 | [aion/algorithms/CATALOG.md](aion/algorithms/CATALOG.md) | Full algorithms catalog (572+ functions) |
 | [aion/db/README.md](aion/db/README.md) | Unified database layer |
 | [aion/universe/README.md](aion/universe/README.md) | Astronomy module |
@@ -96,7 +98,7 @@ CLI helpers: `aion start`, `aion usage` (token & cost dashboard), `aion embed`, 
 
 ### Pillar 2 — Terminal coding agent (`aion agent`)
 
-For **developers**: interactive shell assistant in your repo—connect to **Ollama** (all local models) or **NVIDIA NIM**, chat naturally, and use tools to read/edit files when needed.
+For **developers**: interactive shell assistant in your repo—connect to **Ollama**, **NVIDIA NIM**, **OpenAI**, **Anthropic**, **Gemini**, or **DeepSeek**, chat naturally, and use tools to read/edit files when needed.
 
 ```bash
 pip install -e ".[ai,config]"
@@ -112,7 +114,7 @@ aion agent
 | Environment variables | `.env` on your machine (see [.env.example](.env.example)) |
 | `/connect nvidia new` | Prompts for key, saves to `~/.aion.yaml` |
 
-**Agent connect providers:** **Ollama** (local) and **NVIDIA NIM** (`/connect nvidia`, `NVIDIA_API_KEY`). The research library **`aion.providers`** still supports OpenAI, Gemini, Anthropic, DeepSeek, and OpenAI-compatible servers for notebooks and scripts—the terminal agent connect UI is intentionally limited to Ollama + NVIDIA.
+**Agent connect providers:** **Ollama** (local), **NVIDIA NIM**, **OpenAI**, **Anthropic**, **Gemini**, and **DeepSeek** via `/connect <provider>`. Keys: env vars (see [.env.example](.env.example)) or `aion api add <provider> YOUR_KEY` → `~/.aion.yaml`. The same stack powers notebooks through **`aion.providers`**.
 
 **Slash commands inside the agent:**
 
@@ -121,6 +123,7 @@ aion agent
 | `/` or `/help` | List commands (prefix autocomplete: `/con` → `/connect`) |
 | `/connect ollama` | List all installed Ollama models; pick one |
 | `/connect nvidia [model]` | Connect to NVIDIA NIM (API key required) |
+| `/connect openai\|anthropic\|gemini\|deepseek [model]` | Cloud providers (API key required) |
 | `/connect <provider> new` | Enter a new API key and connect |
 | `/reconnect <provider>` | Replace API key and reconnect |
 | `/disconnect [name]` | Go offline, or disconnect a named provider/model |
@@ -132,7 +135,7 @@ aion agent
 | `/quit` | Exit agent |
 | `/usage` | Open usage dashboard in browser |
 
-**Behavior:** Casual messages (e.g. “Hey”) use **chat-only** mode; coding tasks use **tool-assisted** ReAct (read file, edit, grep, run command when workspace trust is enabled). Session auto-restores last Ollama/NVIDIA provider and model from `~/.aion.yaml` on restart.
+**Behavior:** Casual messages (e.g. “Hey”) use **chat-only** mode; coding tasks use **tool-assisted** ReAct (read file, edit, grep, run command when workspace trust is enabled). Session auto-restores last provider and model from `~/.aion.yaml` on restart.
 
 **Workspace trust:** When enabled, the agent can modify files and run shell commands in your project—only use in directories you control. See [SECURITY.md](SECURITY.md).
 
@@ -142,6 +145,7 @@ flowchart LR
   CLI --> Conn[connect.py providers]
   Conn --> Ollama[Ollama local]
   Conn --> NVIDIA[NVIDIA NIM]
+  Conn --> Cloud[OpenAI Anthropic Gemini DeepSeek]
   CLI --> Agent[aion.agents ReAct]
   Agent --> Tools[aion.tools filesystem workspace]
   Tools --> Repo[Your project files]
@@ -169,7 +173,7 @@ Full details: [docs/AGENT_WEB.md](docs/AGENT_WEB.md) · dev mode (Vite hot reloa
 | I am a… | Do this |
 |---------|---------|
 | **Data scientist / researcher** | `pip install "aqwel-aion[ai]"` → `import aion` → see [Getting Started](#getting-started) |
-| **Developer using terminal AI** | `pip install -e ".[ai,config]"` → `aion agent` → `/connect ollama` or `/connect nvidia` |
+| **Developer using terminal AI** | `pip install -e ".[ai,config]"` → `aion agent` → `/connect ollama` (or `nvidia` / `openai` / `anthropic` / `gemini` / `deepseek`) |
 | **Both** | `pip install -e ".[full]"` from this repo |
 
 ---
@@ -274,7 +278,7 @@ v0.1.9 already included `aion.tools`, `aion.rag`, `aion.config`, `aion.env`, `ai
 ### Terminal coding agent (`aion agent`) — Aqwel AI CLI product
 
 - **`aion agent`** — Full-screen terminal assistant with Aion branding, intro animation, and slash commands.
-- **Connect** — `/connect ollama` (all local models) or `/connect nvidia` (NIM); auto-restore from `~/.aion.yaml`.
+- **Connect** — `/connect ollama` (local) or `/connect nvidia|openai|anthropic|gemini|deepseek`; auto-restore from `~/.aion.yaml`.
 - **Browser UI** — `/web` or `aion agent web` → http://127.0.0.1:3860/ ([docs/AGENT_WEB.md](docs/AGENT_WEB.md)).
 - **Session persistence** — Saved provider, model, trust level, idle disconnect policy.
 - **Coding tools** — Read/edit files, grep, run commands (with workspace trust).
@@ -349,6 +353,15 @@ v0.1.9 already included `aion.tools`, `aion.rag`, `aion.config`, `aion.env`, `ai
 - **Web dashboard** — `aion universe web` (React sky map, moon, cosmology, observation log).
 - **C++ fast path** — hot calculations in `aion._aion_universe` with Python fallbacks.
 - See [`aion/universe/README.md`](aion/universe/README.md).
+
+### Physics (`aion.physics`)
+- **Mechanics & thermo** — force, energy, ideal gas, heat transfer formulas.
+- **Simulations** — pendulum, spring-mass, projectile (RK4 integrator).
+- **NL query router** — `solve_physics_query("kinetic energy mass=2 velocity=3")`.
+- **CLI & agent** — `aion physics query|pendulum|projectile|web`, agent `/physics` and `physics_*` tools.
+- **Web dashboard** — `aion physics web` (calculator, pendulum/projectile plots, port 3858).
+- **C++ fast path** — integrators in `aion._aion_physics` with Python fallbacks.
+- See [`aion/physics/README.md`](aion/physics/README.md).
 
 ### Experiment tracking (`aion.tracker`)
 - **`Tracker` / `Run`** — Log parameters, metrics (with step tracking), tags, and artifacts to a local directory.
@@ -425,7 +438,7 @@ Development in this repository after the v0.2.0 tag:
 | Area | Highlights |
 |------|------------|
 | **Agent Web UI** | React UI at `:3860`, Grok/Gemini green theme, ThinkingBar, SSE streaming, `ThreadingHTTPServer`, graceful SSE disconnect |
-| **Agent connect** | Ollama + NVIDIA only in connect UI; prefix command autocomplete; persistent NVIDIA restore |
+| **Agent connect** | Ollama, NVIDIA, OpenAI, Anthropic, Gemini, DeepSeek in connect UI; prefix command autocomplete; persistent restore |
 | **Algorithms catalog** | **572** registered functions across **21** categories; `count_algorithms()`, `list_algorithms()`, [CATALOG.md](aion/algorithms/CATALOG.md) |
 | **Visualization** | Seaborn in `[viz]`; Plotly 3D in `[viz3d]` extra |
 
@@ -1360,7 +1373,7 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 ### Terminal coding agent (new in 0.2.0)
 
 - **`aion agent`:** Full-screen terminal assistant with slash commands, workspace trust, and ReAct tool loop.
-- **Connect:** Ollama (local models) and NVIDIA NIM; keys in `~/.aion.yaml`; prefix autocomplete on commands.
+- **Connect:** Ollama (local), NVIDIA NIM, OpenAI, Anthropic, Gemini, DeepSeek; keys in `~/.aion.yaml`; prefix autocomplete on commands.
 - **Browser UI:** `/web` or `aion agent web` — SSE chat at http://127.0.0.1:3860/ ([docs/AGENT_WEB.md](docs/AGENT_WEB.md)).
 - **API CLI:** `aion api add/list/disconnect` for provider keys. See [Pillar 2](#pillar-2--terminal-coding-agent-aion-agent).
 

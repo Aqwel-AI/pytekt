@@ -39,6 +39,7 @@ from .session_prefs import (
 )
 from .tools import build_tool_registry, tools_schema
 from .universe_cmds import handle_sky_command
+from .physics_cmds import handle_physics_command
 from .db_cmds import handle_db_command
 from .trust import ensure_trust_for_coding
 
@@ -137,7 +138,14 @@ def _handle_command(
                 key_ok = saved == "ollama" or bool(resolve_api_key(saved, connector.cfg))
                 quiet = bool(mod and key_ok)
             else:
-                providers = ["ollama", "nvidia"]
+                providers = [
+                    "ollama",
+                    "nvidia",
+                    "openai",
+                    "anthropic",
+                    "gemini",
+                    "deepseek",
+                ]
                 ui.print_menu(
                     [provider_display_name(p) for p in providers],
                     "Select provider",
@@ -385,6 +393,10 @@ def _handle_command(
         handle_sky_command(args, cfg=connector.cfg)
         return None
 
+    if cmd == "physics":
+        handle_physics_command(args, cfg=connector.cfg)
+        return None
+
     if cmd == "pin":
         path = args.strip()
         if not path:
@@ -471,6 +483,84 @@ def _handle_command(
             ui.info_print("Workspace roots:\n" + "\n".join(f"  • {r}" for r in roots))
         return None
 
+    if cmd == "mcp":
+        from .session_prefs import save_mcp_servers, saved_mcp_servers
+
+        parts = args.split()
+        sub = parts[0].lower() if parts else "list"
+        servers = saved_mcp_servers(connector.cfg)
+        if sub in ("list", "ls", "status", ""):
+            if not servers:
+                ui.info_print(
+                    "No MCP servers configured. "
+                    f"Add with {ui.cyan('/mcp add <name> <command> [args…]')}"
+                )
+            else:
+                lines = []
+                for spec in servers:
+                    name = spec.get("name", "mcp")
+                    cmd_s = spec.get("command", "")
+                    arg_s = " ".join(str(a) for a in (spec.get("args") or []))
+                    lines.append(f"  • {name}: {cmd_s} {arg_s}".rstrip())
+                tools = getattr(connector, "_mcp_tool_names", []) or []
+                errs = getattr(connector, "_mcp_errors", []) or []
+                msg = "MCP servers:\n" + "\n".join(lines)
+                if tools:
+                    msg += "\nTools: " + ", ".join(tools)
+                if errs:
+                    msg += "\nErrors:\n" + "\n".join(f"  • {e}" for e in errs)
+                ui.info_print(msg)
+            return None
+        if sub == "add":
+            if len(parts) < 3:
+                ui.error_print("Usage: /mcp add <name> <command> [args…]")
+                return None
+            name, command, *cmd_args = parts[1], parts[2], parts[3:]
+            servers = [s for s in servers if s.get("name") != name]
+            servers.append({"name": name, "command": command, "args": cmd_args})
+            save_mcp_servers(connector.cfg, servers)
+            result = connector.reload_mcp()
+            ui.success_print(
+                f"Saved MCP server {ui.bold(name)} "
+                f"({result.get('count', 0)} tools registered)."
+            )
+            for err in result.get("errors") or []:
+                ui.error_print(str(err))
+            return None
+        if sub == "remove":
+            if len(parts) < 2:
+                ui.error_print("Usage: /mcp remove <name>")
+                return None
+            name = parts[1]
+            new_servers = [s for s in servers if s.get("name") != name]
+            if len(new_servers) == len(servers):
+                ui.error_print(f"No MCP server named {ui.bold(name)}.")
+                return None
+            save_mcp_servers(connector.cfg, new_servers)
+            connector.reload_mcp()
+            ui.success_print(f"Removed MCP server {ui.bold(name)}.")
+            return None
+        if sub == "reload":
+            result = connector.reload_mcp()
+            ui.success_print(
+                f"Reloaded MCP ({result.get('count', 0)} tools)."
+            )
+            for err in result.get("errors") or []:
+                ui.error_print(str(err))
+            return None
+        if sub == "tools":
+            names = getattr(connector, "_mcp_tool_names", []) or []
+            filter_name = parts[1] if len(parts) > 1 else None
+            if filter_name:
+                names = [n for n in names if filter_name in n]
+            if not names:
+                ui.info_print("No MCP tools registered.")
+            else:
+                ui.info_print("MCP tools:\n" + "\n".join(f"  • {n}" for n in names))
+            return None
+        ui.error_print("Usage: /mcp [list|add|remove|reload|tools]")
+        return None
+
     if cmd == "approve":
         if connector.session.interaction_mode == "plan":
             response = connector.execute_plan()
@@ -494,6 +584,132 @@ def _handle_command(
         )
         ui.agent_print(summary, name="Research")
         print()
+        return None
+
+    if cmd == "explore":
+        if not connector.agent or not connector._raw_provider:
+            ui.error_print("Connect first.")
+            return None
+        from .subagent import run_specialist_subagent
+
+        query = args.strip() or "Explore the codebase"
+        summary = run_specialist_subagent(
+            connector._raw_provider,
+            query,
+            kind="explore",
+            workspace_root=workspace,
+        )
+        ui.agent_print(summary, name="Explore")
+        print()
+        return None
+
+    if cmd in ("edit-agent", "edit_agent"):
+        if not connector.agent or not connector._raw_provider:
+            ui.error_print("Connect first.")
+            return None
+        if not connector.is_trusted:
+            ui.error_print("Trust workspace first so the edit specialist can write files.")
+            return None
+        from .subagent import run_specialist_subagent
+
+        task = args.strip()
+        if not task:
+            ui.error_print("Usage: /edit-agent <task>")
+            return None
+        summary = run_specialist_subagent(
+            connector._raw_provider,
+            task,
+            kind="edit",
+            workspace_root=workspace,
+            max_steps=8,
+        )
+        ui.agent_print(summary, name="Edit")
+        print()
+        return None
+
+    if cmd in ("test-agent", "test_agent"):
+        if not connector.agent or not connector._raw_provider:
+            ui.error_print("Connect first.")
+            return None
+        from .subagent import run_specialist_subagent
+
+        info = connector.session.project_info
+        task = args.strip() or (
+            f"Run tests using: {info.test_command}" if info and info.test_command else "Diagnose and run tests"
+        )
+        summary = run_specialist_subagent(
+            connector._raw_provider,
+            task,
+            kind="test",
+            workspace_root=workspace,
+            test_command=info.test_command if info else None,
+            max_steps=8,
+        )
+        ui.agent_print(summary, name="Test")
+        print()
+        return None
+
+    if cmd == "multi":
+        if not connector.agent or not connector._raw_provider:
+            ui.error_print("Connect first.")
+            return None
+        from .subagent import run_parallel_specialists
+
+        task = args.strip()
+        if not task:
+            ui.error_print("Usage: /multi <task>")
+            return None
+        kinds = ["explore", "edit", "test"] if connector.is_trusted else ["explore", "test"]
+        summary = run_parallel_specialists(
+            connector._raw_provider,
+            task,
+            workspace_root=workspace,
+            kinds=kinds,
+            test_command=(
+                connector.session.project_info.test_command
+                if connector.session.project_info
+                else None
+            ),
+        )
+        ui.agent_print(summary, name="Multi")
+        print()
+        return None
+
+    if cmd == "bg":
+        if runtime is None:
+            ui.error_print("Background jobs require the interactive agent UI.")
+            return None
+        if not connector.agent or not connector._raw_provider:
+            ui.error_print("Connect first.")
+            return None
+        parts = args.split(maxsplit=1)
+        if len(parts) < 2:
+            ui.error_print("Usage: /bg explore|edit|test <task>")
+            return None
+        kind, task = parts[0].lower(), parts[1]
+        if kind not in ("explore", "edit", "test", "research"):
+            ui.error_print("Usage: /bg explore|edit|test <task>")
+            return None
+        if kind == "research":
+            kind = "explore"
+        from .subagent import run_specialist_subagent
+
+        provider = connector._raw_provider
+        info = connector.session.project_info
+        runtime.submit_background(
+            f"{kind}: {task[:60]}",
+            lambda: run_specialist_subagent(
+                provider,
+                task,
+                kind=kind,
+                workspace_root=workspace,
+                test_command=info.test_command if info else None,
+            ),
+        )
+        if tui is not None:
+            tui.show_jobs(runtime)
+        else:
+            ui.success_print(f"Queued background {kind} job.")
         return None
 
     if cmd == "commit":

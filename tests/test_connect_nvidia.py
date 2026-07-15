@@ -26,12 +26,20 @@ def test_resolve_connect_nim_alias():
     assert rejected is False
 
 
-def test_resolve_connect_openai_rejected():
+def test_resolve_connect_openai_accepted():
     provider, model, rejected = _resolve_connect_target("openai", None)
     assert provider == "openai"
-    assert rejected is True
+    assert rejected is False
 
 
-def test_resolve_connect_gemini_rejected():
+def test_resolve_connect_gemini_accepted():
     provider, model, rejected = _resolve_connect_target("gemini", None)
-    assert rejected is True
+    assert provider == "gemini"
+    assert rejected is False
+
+
+def test_resolve_connect_claude_alias():
+    provider, model, rejected = _resolve_connect_target("claude", "claude-3-5-sonnet-latest")
+    assert provider == "anthropic"
+    assert model == "claude-3-5-sonnet-latest"
+    assert rejected is False

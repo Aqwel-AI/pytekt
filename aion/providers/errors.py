@@ -72,6 +72,8 @@ class ProviderError(Exception):
             return self._clean_detail(detail)
         if self.status:
             return f"The request failed (HTTP {self.status}). Please try again."
+        if raw:
+            return raw
         return "The request failed. Please try again."
 
     def _friendly_rate_limit(self, detail: str) -> str:

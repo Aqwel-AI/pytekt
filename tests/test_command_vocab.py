@@ -9,9 +9,18 @@ from aion.cli_agent.command_vocab import (
 from aion.cli_agent.constants import CONNECTABLE_PROVIDERS, DISPLAY_PROVIDERS
 
 
-def test_only_ollama_nvidia_connectable():
-    assert CONNECTABLE_PROVIDERS == frozenset({"ollama", "nvidia"})
-    assert [pid for pid, _ in DISPLAY_PROVIDERS] == ["ollama", "nvidia"]
+def test_cloud_providers_connectable():
+    assert CONNECTABLE_PROVIDERS == frozenset(
+        {"ollama", "nvidia", "openai", "anthropic", "gemini", "deepseek"}
+    )
+    assert [pid for pid, _ in DISPLAY_PROVIDERS] == [
+        "ollama",
+        "nvidia",
+        "openai",
+        "anthropic",
+        "gemini",
+        "deepseek",
+    ]
 
 
 def test_suggest_slash_connect():

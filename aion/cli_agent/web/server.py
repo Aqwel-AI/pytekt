@@ -143,6 +143,8 @@ class AgentWebHandler(SimpleHTTPRequestHandler):
             self._json({"ok": True})
         elif path == "/api/command":
             self._json(svc.run_command(body.get("cmd", ""), body.get("args", "")))
+        elif path == "/api/slash":
+            self._json(svc.dispatch_slash(body.get("line", "")))
         else:
             self.send_error(404)
 
