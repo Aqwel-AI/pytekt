@@ -137,9 +137,6 @@ from . import tracker
 # LLM output evaluation (similarity, faithfulness, toxicity, cost)
 from . import llm_eval
 
-# Agent framework (ReAct, planning, multi-agent, memory)
-from . import agents
-
 # REST API serving (FastAPI-based model/chat/RAG endpoints)
 from . import serve
 
@@ -239,7 +236,6 @@ __all__ = [
     "universe",         # Astronomy: coordinates, observing, orbits, cosmology (C++ optional)
     "tracker",          # Experiment tracking (runs, metrics, comparison)
     "llm_eval",         # LLM output evaluation and cost tracking
-    "agents",           # ReAct, planning, multi-agent framework
     "serve",            # FastAPI-based model/chat/RAG serving
     "datasets",         # Built-in benchmark datasets and generators
     "ui",               # Hub launchers, HTML reports, optional Gradio/Streamlit

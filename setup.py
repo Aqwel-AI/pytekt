@@ -17,9 +17,9 @@ from setuptools.command.install import install as _install_cmd
 
 def _post_install_splash() -> None:
     try:
-        from aion.install_splash import show_install_splash
+        from aion.install_splash import maybe_show_install_splash
 
-        show_install_splash(animated=True)
+        maybe_show_install_splash()
     except Exception:
         pass
 

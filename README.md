@@ -1175,10 +1175,17 @@ aion welcome --no-animation
 python -m aion welcome --no-animation
 ```
 
-The animation also runs automatically at the end of **`pip install aqwel-aion`** and **`pip install -e .`**. To skip it:
+The AION logo animation runs automatically:
+
+- after **`pip install -e .`** / editable installs (setuptools hook)
+- once on the first **`aion`** command after a new install or version upgrade
+
+To skip it:
 
 ```bash
 AION_NO_SPLASH=1 pip install aqwel-aion
+# or
+AION_NO_SPLASH=1 aion …
 ```
 
 ---

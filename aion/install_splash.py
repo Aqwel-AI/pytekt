@@ -8,19 +8,74 @@ Uses ANSI colors when stdout is a TTY; falls back to plain text in CI.
 from __future__ import annotations
 
 import os
-import re
+import random
 import sys
 import time
-from typing import Dict, List, Optional, Sequence, Tuple
+from pathlib import Path
+from typing import List, Optional, Sequence, Tuple
 
 
 def _package_version() -> str:
+    try:
+        from importlib.metadata import version as pkg_version
+
+        return pkg_version("aqwel-aion")
+    except Exception:
+        pass
     try:
         from aion import __version__
 
         return __version__
     except Exception:
         return "0.2.0"
+
+
+def _state_dir() -> Path:
+    return Path.home() / ".aion"
+
+
+def _splash_marker(version: str) -> Path:
+    return _state_dir() / f".splash_shown_{version}"
+
+
+def mark_install_splash_shown(version: Optional[str] = None) -> None:
+    """Record that the install/upgrade splash was shown for this version."""
+    version = version or _package_version()
+    try:
+        _state_dir().mkdir(parents=True, exist_ok=True)
+        _splash_marker(version).touch()
+    except Exception:
+        pass
+
+
+def should_show_install_splash() -> bool:
+    """True once per installed/updated version on an interactive TTY."""
+    if os.environ.get("AION_NO_SPLASH"):
+        return False
+    if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+        return False
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return False
+    if not (hasattr(sys.stdout, "isatty") and sys.stdout.isatty()):
+        return False
+    return not _splash_marker(_package_version()).exists()
+
+
+def maybe_show_install_splash() -> None:
+    """
+    Show the Aion install animation once after install or upgrade.
+
+    Called from setuptools install hooks and from the ``aion`` CLI on first use
+    of a new version (modern pip wheel installs skip setuptools ``install``).
+    """
+    if not should_show_install_splash():
+        return
+    version = _package_version()
+    mark_install_splash_shown(version)
+    try:
+        show_install_splash(animated=True, version=version)
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -47,10 +102,6 @@ def cyan(t: str, *, on: bool) -> str:
     return _c("36", t, enabled=on)
 
 
-def green(t: str, *, on: bool) -> str:
-    return _c("32", t, enabled=on)
-
-
 def dim(t: str, *, on: bool) -> str:
     return _c("2", t, enabled=on)
 
@@ -64,7 +115,7 @@ def accent(t: str, *, on: bool) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Pixel logo data
+# AION wordmark
 # ---------------------------------------------------------------------------
 
 LOGO = r"""
@@ -76,92 +127,27 @@ LOGO = r"""
     ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 """
 
-PIXEL_PALETTE: Dict[str, Tuple[int, int, int]] = {
-    "W": (245, 247, 250),
-    "C": (72, 235, 213),
-    "T": (31, 196, 174),
-    "D": (20, 28, 35),
-}
-
-PIXEL_LOGO: Sequence[str] = (
-    "                                            ",
-    "                                            ",
-    "                                            ",
-    "                                            ",
-    "                                            ",
-    "                                            ",
-    "                   W                        ",
-    "                  WW                        ",
-    "                  WW  CCCCCC                ",
-    "                W WWW      CCC              ",
-    "               WW WWW        CCC            ",
-    "              WW W WWW  W     CCC           ",
-    "             WW  WWWWWWW W      CC          ",
-    "            WWW   WWWWWWWWW     CC          ",
-    "            WWW   WWWWWWWWWW     CC         ",
-    "            WWW    WWWWWWWWWW     C         ",
-    "            WWW     WWWWWWWWWW    CC        ",
-    "          C WWWW WWWWWWWWWWTTWW   CC        ",
-    "          CTWWWW  WWWWWWWWWWTTW    C        ",
-    "          CC WWWW   WWWWWWWWWDWW   CC       ",
-    "          CCC WWWW   WWWWWWWWWWWWW CC       ",
-    "           CCC WWWWW  WWWWWDDWWWWD CC       ",
-    "          CCCCC WWWW  WWWDDDDDDWW  CC       ",
-    "          CTCCCCTWWWW WWWDD  WW    C        ",
-    "          CC CCCCCTWWWWWWT        CC        ",
-    "           CCCCCCCCTWWWWWD        CC        ",
-    "           CCCCCCCCCCWWWWWT       CC        ",
-    "            TCCCCCCCCWDDWWW      CC         ",
-    "            WTCCCCCTCCDTWWWW     CC         ",
-    "            WWWCCCCCTC DWWWW    CC          ",
-    "             WWWWWCCCCDDWWWW   CC           ",
-    "              WWWWWCCCDDWWW   CC            ",
-    "               WWWWWTCDTWWW CCC             ",
-    "                 WWWCTDWWWCCCC              ",
-    "                   WW TWDTCC                ",
-    "                    WTW                     ",
-    "                                            ",
-    "                                            ",
-    "                                            ",
-    "                                            ",
-    "                                            ",
-    "                                            ",
-    "                                            ",
-    "                                            ",
-)
-
 INFO_ROWS: Sequence[Tuple[str, str]] = (
     ("name", "Aqwel-Aion"),
     ("author", "Aksel Aghajanyan"),
     ("company", "Aqwel AI Team"),
     ("package", "aqwel-aion"),
     ("license", "Apache-2.0"),
-    ("surface", "Python library + terminal agent"),
+    ("surface", "Python research library"),
     ("python", ">=3.8"),
     ("docs", "aqwelai.xyz"),
 )
 
-ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+_GLITCH_CHARS = "░▒▓█▀▄▌▐─│"
+AION_LOGO_LINES: Sequence[str] = tuple(
+    line for line in LOGO.strip("\n").split("\n") if line.strip() or line
+)
+
 
 def _write_line(text: str = "", *, flush: bool = True) -> None:
     sys.stdout.write(text + "\n")
     if flush:
         sys.stdout.flush()
-
-
-def _write_lines(lines: Sequence[str], *, delay: float = 0.0) -> None:
-    for line in lines:
-        _write_line(line)
-        if delay > 0:
-            time.sleep(delay)
-
-
-def _visible_len(text: str) -> int:
-    return len(ANSI_RE.sub("", text))
-
-
-def _pad_visible(text: str, width: int) -> str:
-    return text + (" " * max(0, width - _visible_len(text)))
 
 
 def _progress_line(step: int, total: int, *, color_on: bool, width: int = 26) -> str:
@@ -190,49 +176,29 @@ def _progress_line(step: int, total: int, *, color_on: bool, width: int = 26) ->
     return f"  {phase_txt} {bar_txt} {pct_txt}  {status_txt}"
 
 
-def _rgb_fg(rgb: Tuple[int, int, int], text: str, *, enabled: bool) -> str:
-    if not enabled:
-        return text
-    r, g, b = rgb
-    return f"\033[38;2;{r};{g};{b}m{text}\033[0m"
-
-
-def _rgb_bg(rgb: Tuple[int, int, int], text: str, *, enabled: bool) -> str:
-    if not enabled:
-        return text
-    r, g, b = rgb
-    return f"\033[48;2;{r};{g};{b}m{text}\033[0m"
-
-
-def _render_logo_row(top: str, bottom: str, *, color_on: bool) -> str:
-    cells: List[str] = []
-    for upper, lower in zip(top, bottom):
-        upper_rgb = PIXEL_PALETTE.get(upper)
-        lower_rgb = PIXEL_PALETTE.get(lower)
-        if upper_rgb and lower_rgb:
-            cells.append(_rgb_bg(lower_rgb, _rgb_fg(upper_rgb, "▀", enabled=color_on), enabled=color_on))
-        elif upper_rgb:
-            cells.append(_rgb_fg(upper_rgb, "▀", enabled=color_on))
-        elif lower_rgb:
-            cells.append(_rgb_fg(lower_rgb, "▄", enabled=color_on))
+def _corrupt_line(line: str, intensity: float) -> str:
+    if intensity <= 0:
+        return line
+    out: List[str] = []
+    for ch in line:
+        if ch == " ":
+            out.append(" ")
+        elif random.random() < intensity:
+            out.append(random.choice(_GLITCH_CHARS))
         else:
-            cells.append(" ")
-    return "".join(cells)
+            out.append(ch)
+    return "".join(out)
 
 
-def _logo_lines(*, color_on: bool) -> List[str]:
+def _show_aion_glitch_intro(*, color_on: bool, duration: float = 1.6) -> None:
+    """Corrupt AION logo flicker, then lock in the clean wordmark."""
+    indent = "  "
+    logo = list(AION_LOGO_LINES)
+    height = len(logo)
+
     if not color_on:
-        return [line for line in LOGO.rstrip("\n").split("\n") if line]
-    rows: List[str] = []
-    for idx in range(0, len(PIXEL_LOGO), 2):
-        rows.append(_render_logo_row(PIXEL_LOGO[idx], PIXEL_LOGO[idx + 1], color_on=color_on))
-    return rows
-
-
-def _show_logo_intro(*, color_on: bool) -> None:
-    logo_lines = _logo_lines(color_on=color_on)
-    if not color_on:
-        _write_lines(logo_lines)
+        for line in logo:
+            _write_line(indent + line)
         _write_line()
         return
 
@@ -242,31 +208,35 @@ def _show_logo_intro(*, color_on: bool) -> None:
     except Exception:
         pass
 
-    blank = " " * max((len(line) for line in logo_lines), default=0)
-    for _ in logo_lines:
-        _write_line(blank)
-
-    for idx, line in enumerate(logo_lines):
-        sys.stdout.write(f"\033[{len(logo_lines) - idx}A")
-        for _ in range(idx):
-            sys.stdout.write("\033[B")
-        sys.stdout.write("\r" + line + "\n")
-        for _ in range(idx):
-            sys.stdout.write("\033[A")
+    random.seed()
+    start = time.time()
+    frame = 0
+    while time.time() - start < duration:
+        intensity = max(0.05, 0.9 - (time.time() - start) / duration)
+        if frame > 0:
+            sys.stdout.write(f"\033[{height}A")
+        for line in logo:
+            corrupted = _corrupt_line(line, intensity * 0.5)
+            sys.stdout.write(indent + accent(bold(corrupted, on=True), on=True) + "\n")
         sys.stdout.flush()
-        time.sleep(0.035)
+        frame += 1
+        time.sleep(0.055)
 
-    _write_line()
+    sys.stdout.write(f"\033[{height}A")
+    for line in logo:
+        sys.stdout.write(indent + accent(bold(line, on=True), on=True) + "\n")
+    sys.stdout.flush()
 
     try:
         sys.stdout.write("\033[?25h")
         sys.stdout.flush()
     except Exception:
         pass
+    _write_line()
 
 
 def _show_intro(*, color_on: bool) -> None:
-    _show_logo_intro(color_on=color_on)
+    _show_aion_glitch_intro(color_on=color_on)
 
 
 def _info_panel_lines(version: str, *, color_on: bool) -> List[str]:
@@ -288,21 +258,9 @@ def _info_panel_lines(version: str, *, color_on: bool) -> List[str]:
     return rows
 
 
-def _render_side_by_side(left: Sequence[str], right: Sequence[str], *, gap: int = 4) -> List[str]:
-    left_width = max((_visible_len(line) for line in left), default=0)
-    height = max(len(left), len(right))
-    rows: List[str] = []
-    for idx in range(height):
-        left_line = left[idx] if idx < len(left) else ""
-        right_line = right[idx] if idx < len(right) else ""
-        rows.append(f"{_pad_visible(left_line, left_width)}{' ' * gap}{right_line}".rstrip())
-    return rows
-
-
-def _write_logo_profile(version: str, *, color_on: bool) -> None:
-    left = _logo_lines(color_on=color_on)
-    right = _info_panel_lines(version, color_on=color_on)
-    _write_lines(_render_side_by_side(left, right))
+def _write_info_profile(version: str, *, color_on: bool) -> None:
+    for line in _info_panel_lines(version, color_on=color_on):
+        _write_line("  " + line)
 
 
 def _show_progress(*, color_on: bool, animated: bool) -> None:
@@ -345,23 +303,14 @@ def show_install_splash(
     use_anim = animated and color_on
 
     _write_line()
-    if use_anim:
-        _show_intro(color_on=color_on)
-    else:
-        _write_logo_profile(version, color_on=color_on)
-        _write_line()
-
-    if use_anim:
-        _write_logo_profile(version, color_on=color_on)
-        _write_line()
-        _show_progress(color_on=color_on, animated=True)
-        _write_line()
-    else:
-        _show_progress(color_on=color_on, animated=False)
-        _write_line()
-
+    _show_intro(color_on=color_on)
+    _write_info_profile(version, color_on=color_on)
+    _write_line()
+    _show_progress(color_on=color_on, animated=use_anim)
+    _write_line()
     _write_line(accent(bold("  ✓ Installation complete", on=color_on), on=color_on))
     _write_line()
+    mark_install_splash_shown(version)
 
 
 def show_install_splash_if_requested() -> None:

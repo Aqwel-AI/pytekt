@@ -1,8 +1,13 @@
 """Tests for install splash (static mode, no TTY animation)."""
 
 import os
+from pathlib import Path
 
-from aion.install_splash import show_install_splash
+from aion.install_splash import (
+    maybe_show_install_splash,
+    should_show_install_splash,
+    show_install_splash,
+)
 
 
 def test_static_splash(capsys):
@@ -18,3 +23,28 @@ def test_static_splash(capsys):
     assert "100%" in out
     assert "Installation complete" in out
     assert "Install Overview" not in out
+    assert "█████╗" in out or "Aion" in out or "Aqwel-Aion" in out
+
+
+def test_maybe_show_respects_no_splash(capsys):
+    os.environ["AION_NO_SPLASH"] = "1"
+    try:
+        assert should_show_install_splash() is False
+        maybe_show_install_splash()
+    finally:
+        os.environ.pop("AION_NO_SPLASH", None)
+    assert capsys.readouterr().out == ""
+
+
+def test_marker_suppresses_repeat(tmp_path, monkeypatch):
+    monkeypatch.setenv("AION_NO_SPLASH", "1")
+    assert should_show_install_splash() is False
+    monkeypatch.delenv("AION_NO_SPLASH", raising=False)
+    monkeypatch.setattr(
+        "aion.install_splash._state_dir",
+        lambda: Path(tmp_path),
+    )
+    monkeypatch.setattr("aion.install_splash._package_version", lambda: "9.9.9-test")
+    # Non-TTY → still false
+    monkeypatch.setattr("sys.stdout.isatty", lambda: False)
+    assert should_show_install_splash() is False

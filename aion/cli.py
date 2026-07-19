@@ -68,10 +68,8 @@ def _build_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 High-value commands:
-  aion agent                     Start an interactive CLI agent (OpenAI, Gemini, etc.)
   aion help                      Show all available Aion commands
-  aion api connect               Connect to OpenAI, Gemini, etc.
-  aion config                    Manage CLI settings
+  aion config                    Manage CLI settings (~/.aion.yaml)
   aion start / aion ui           Open the Aion Hub dashboard in the browser
   aion usage / aion stats        Token usage & cost dashboard (browser)
   aion info                      Show environment and optional dependencies
@@ -79,6 +77,7 @@ High-value commands:
   aion eval <preds> <answers>    Evaluate predictions
   aion prompt --list             List prompt templates
   aion chat                      Interactive prompt tool (template-only)
+  aion physics / aion universe   Physics toolkit / astronomy toolkit
 
 Other commands:
   aion git --help                Git repository tools
@@ -224,62 +223,24 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
     )
     _add_monitor_args(dash_parser)
 
-    # agent
-    agent_parser = subparsers.add_parser("agent", help="Start an interactive CLI agent")
-    agent_parser.add_argument(
-        "--provider",
-        "-p",
-        help="Provider name (ollama, nvidia; others coming soon)",
+    # agent / api / auth — coming soon in this version
+    subparsers.add_parser(
+        "agent",
+        help="Coding agent (coming soon)",
     )
-    agent_parser.add_argument("--model", "-m", help="Model name")
-    agent_parser.add_argument("--system", "-s", help="System prompt")
-    agent_run = agent_parser.add_subparsers(dest="agent_action")
-    run_parser = agent_run.add_parser("run", help="Headless single-task agent (CI)")
-    run_parser.add_argument("--task", "-t", required=True, help="Task message")
-    run_parser.add_argument("--provider", "-p", help="Provider name")
-    run_parser.add_argument("--model", "-m", help="Model name")
-    run_parser.add_argument("--yes", "-y", action="store_true", help="Auto-approve edits")
-    run_parser.add_argument("--workspace", "-w", help="Workspace directory")
-    web_parser = agent_run.add_parser("web", help="Open agent in browser (Codex-style UI)")
-    web_parser.add_argument("--host", default="127.0.0.1", help="Bind host")
-    web_parser.add_argument("--port", type=int, default=3860, help="Port")
-    web_parser.add_argument("--workspace", "-w", help="Workspace directory")
-    web_parser.add_argument("--no-browser", action="store_true", help="Do not open browser")
-
-    # api
-    api_parser = subparsers.add_parser("api", help="Connect or disconnect company APIs")
-    api_subparsers = api_parser.add_subparsers(dest="api_action", help="API actions")
-    
-    api_connect = api_subparsers.add_parser("connect", help="Connect to a new company API")
-    api_connect.add_argument("name", nargs="?", help="Company name")
-    api_connect.add_argument("token", nargs="?", help="API token")
-    
-    api_add_parser = api_subparsers.add_parser("add", help="Alias for connect")
-    api_add_parser.add_argument("name", help="Company name")
-    api_add_parser.add_argument("token", help="API token")
-    
-    api_subparsers.add_parser("list", help="List connected companies")
-    
-    api_remove_parser = api_subparsers.add_parser("remove", help="Disconnect from a company")
-    api_remove_parser.add_argument("name", help="Company name")
-
-    api_disconnect_parser = api_subparsers.add_parser("disconnect", help="Alias for remove")
-    api_disconnect_parser.add_argument("name", help="Company name")
+    subparsers.add_parser(
+        "api",
+        help="API connect (coming soon)",
+    )
+    subparsers.add_parser(
+        "auth",
+        help="Auth commands (coming soon)",
+    )
 
     # config
     config_parser = subparsers.add_parser("config", help="Manage Aion CLI configuration")
-    config_parser.add_argument("key", nargs="?", help="Config key (e.g., agent.provider)")
+    config_parser.add_argument("key", nargs="?", help="Config key (e.g., universe.latitude)")
     config_parser.add_argument("value", nargs="?", help="Value to set")
-
-    # auth
-    auth_parser = subparsers.add_parser("auth", help="Sign in or manage accounts")
-    auth_subparsers = auth_parser.add_subparsers(dest="action", help="Auth actions")
-    
-    auth_login = auth_subparsers.add_parser("login", help="Sign in to a provider")
-    auth_login.add_argument("--provider", "-p", default="google", help="Provider (default: google)")
-    
-    auth_subparsers.add_parser("logout", help="Sign out of all accounts")
-    auth_subparsers.add_parser("status", help="Show current sign-in status")
 
     # help
     subparsers.add_parser("help", help="Show all available Aion commands")
@@ -719,6 +680,16 @@ def main():
     parser, git_parser = _build_parser()
     args = parser.parse_args()
 
+    # Once per installed/updated version (wheel installs skip setuptools hooks).
+    # Skip for ``aion welcome`` so the animation is not shown twice.
+    if args.command != "welcome" and not os.environ.get("AION_NO_SPLASH"):
+        try:
+            from .install_splash import maybe_show_install_splash
+
+            maybe_show_install_splash()
+        except Exception:
+            pass
+
     if getattr(args, "version", False) or args.command == "version":
         version_command()
         return
@@ -822,10 +793,7 @@ def main():
         return
 
     if args.command == "help":
-        from .cli_agent.ui import print_header, print_help_catalog
-
-        print_header()
-        print_help_catalog()
+        parser.print_help()
         return
 
     if args.command in ("usage", "stats"):
@@ -838,56 +806,25 @@ def main():
         )
         return
 
-    if args.command == "api":
-        from .cli_agent import api_main
-
-        api_main(args)
-        return
-
-    if args.command == "auth":
-        from .cli_agent import auth_main
-
-        auth_main(args)
-        return
-
     if args.command == "agent":
-        if getattr(args, "agent_action", None) == "run":
-            from .cli_agent.headless import run_headless_agent
-
-            raise SystemExit(
-                run_headless_agent(
-                    task=args.task,
-                    provider=args.provider,
-                    model=args.model,
-                    yes=args.yes,
-                    workspace=args.workspace,
-                )
-            )
-        if getattr(args, "agent_action", None) == "web":
-            if args.workspace:
-                import os
-
-                os.chdir(args.workspace)
-            from .cli_agent.web.launch import run_agent_web
-
-            run_agent_web(
-                host=args.host,
-                port=args.port,
-                workspace_root=args.workspace,
-                open_browser=not args.no_browser,
-            )
-            return
-        from .cli_agent import run_agent_command
-
-        run_agent_command(
-            provider_name=args.provider,
-            model=args.model,
-            system_prompt=args.system,
+        print(
+            r"""
+   ██████╗ ██████╗ ███╗   ███╗██╗███╗   ██╗ ██████╗     ███████╗ ██████╗  ██████╗ ███╗   ██╗
+  ██╔════╝██╔═══██╗████╗ ████║██║████╗  ██║██╔════╝     ██╔════╝██╔═══██╗██╔═══██╗████╗  ██║
+  ██║     ██║   ██║██╔████╔██║██║██╔██╗ ██║██║  ███╗    ███████╗██║   ██║██║   ██║██╔██╗ ██║
+  ██║     ██║   ██║██║╚██╔╝██║██║██║╚██╗██║██║   ██║    ╚════██║██║   ██║██║   ██║██║╚██╗██║
+  ╚██████╗╚██████╔╝██║ ╚═╝ ██║██║██║ ╚████║╚██████╔╝    ███████║╚██████╔╝╚██████╔╝██║ ╚████║
+   ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝
+"""
         )
         return
 
+    if args.command in ("api", "auth"):
+        print(f"aion {args.command} — coming soon.")
+        return
+
     if args.command == "config":
-        from .cli_agent import config_command
+        from .user_config import config_command
 
         config_command(key=args.key, value=args.value)
         return

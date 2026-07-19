@@ -66,10 +66,9 @@ aion/cli_agent/
 | File | Delegates to |
 |------|----------------|
 | `aion/cli.py` | All subcommands via `main()` |
-| `aion/agent_cli.py` | `cli_agent.run_agent_command` |
+| `archived/aion_agent/` | Coding agent removed from this package version |
 | `aion/api_cli.py` | `cli_agent.api_main` |
 | `aion/auth_cli.py` | `cli_agent.auth_main` |
-| `aion/agent_ui/` | `cli_agent.ui` |
 
 **Do not add** an `aion/agent/` package — that path was removed; use `cli_agent` only.
 
@@ -102,12 +101,8 @@ Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[ph
 
 | Command | Module |
 |---------|--------|
-| `aion agent` | `aion.cli_agent.app` |
-| `aion agent web` | `aion.cli_agent.web` |
-| `aion agent run` | `aion.cli_agent.headless` |
-| `aion api` | `aion.cli_agent.api` |
-| `aion config` | `aion.cli_agent.config` |
-| `aion auth` | `aion.cli_agent.auth` |
+| `aion config` | `aion.user_config` |
+| `aion agent` / `api` / `auth` | Removed — see `archived/aion_agent/` |
 | `aion universe` / `aion universe-dashboard` (`cosmos` aliases deprecated) | `aion.universe.cli` / `aion.universe.launch` |
 | `aion physics` / `aion physics-dashboard` | `aion.physics.cli` / `aion.physics.launch` |
 | `aion db` | `aion.db.cli` |
