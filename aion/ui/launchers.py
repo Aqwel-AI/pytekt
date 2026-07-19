@@ -92,7 +92,7 @@ def list_ui_interfaces() -> List[Dict[str, Any]]:
             "command": "aion agent web",
             "api": "run_agent_web()",
             "url": "http://127.0.0.1:3860",
-            "deps": "stdlib; React build in aion/cli_agent/web/ui",
+            "deps": "stdlib; coding agent archived (see archived/aion_agent/)",
             "description": "Codex-style browser chat with tools, @ mentions, and activity feed.",
         },
         {

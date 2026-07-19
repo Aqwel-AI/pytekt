@@ -1,7 +1,7 @@
 [project]
 name = "aqwel-aion"
 version = "0.2.0"
-description = "Open-source AI library for researchers and data scientists, plus a terminal coding agent (aion agent)"
+description = "Open-source AI library for researchers and data scientists (physics, universe, ML, RAG)"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [
@@ -11,7 +11,7 @@ maintainers = [
     {name = "Aqwel AI Team"}
 ]
 
-keywords = ["ai-research", "machine-learning", "data-science", "coding-agent", "ollama", "llm", "terminal", "agents", "aqwel-ai"]
+keywords = ["ai-research", "machine-learning", "data-science", "llm", "physics", "astronomy", "aqwel-ai"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -151,6 +151,7 @@ full = [
 [tool.setuptools.cmdclass]
 install = "aion._install_hooks.InstallCommand"
 develop = "aion._install_hooks.DevelopCommand"
+editable_wheel = "aion._install_hooks.EditableWheelCommand"
 
 [tool.setuptools.package-data]
 "aion.monitor" = ["static/*.html", "*.md"]
@@ -159,5 +160,5 @@ develop = "aion._install_hooks.DevelopCommand"
 "aion.physics" = ["static/**/*"]
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel", "pybind11>=2.10.0"]
+requires = ["setuptools>=64.0", "wheel", "pybind11>=2.10.0"]
 build-backend = "setuptools.build_meta"

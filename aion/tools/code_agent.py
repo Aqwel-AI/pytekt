@@ -28,12 +28,8 @@ _SKIP_DIRS = frozenset({
 
 
 def _skip_dirs(workspace: Workspace) -> frozenset:
-    try:
-        from ..cli_agent.ignore import merged_skip_dirs
-
-        return frozenset(merged_skip_dirs(str(workspace.root)))
-    except Exception:
-        return _SKIP_DIRS
+    del workspace  # reserved for future .aionignore support
+    return _SKIP_DIRS
 
 
 def _fmt_lines(text: str, *, start_line: int = 1) -> str:

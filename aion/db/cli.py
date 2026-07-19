@@ -56,7 +56,7 @@ def db_demo() -> None:
 
 
 def db_main(args: argparse.Namespace) -> None:
-    from ..cli_agent.config import get_config
+    from ..user_config import get_config
 
     cfg = get_config()
     action = getattr(args, "db_action", None) or "status"

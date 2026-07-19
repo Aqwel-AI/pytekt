@@ -37,7 +37,7 @@ def library_info() -> Dict[str, Any]:
 
 def get_observer_config() -> Dict[str, float]:
     try:
-        from ..cli_agent.config import get_config
+        from ..user_config import get_config
 
         cfg = get_config()
         section = cfg.get("universe") or cfg.get("cosmos") or {}
@@ -50,7 +50,7 @@ def get_observer_config() -> Dict[str, float]:
 
 
 def save_observer_config(latitude: float, longitude: float) -> Dict[str, float]:
-    from ..cli_agent.config import get_config, save_config
+    from ..user_config import get_config, save_config
 
     cfg = get_config()
     cfg.setdefault("universe", {})
@@ -71,18 +71,12 @@ def observer_payload(
     lon = longitude if longitude is not None else defaults["longitude"]
     jd_val = jd if jd is not None else now_jd()
     dt = datetime.now(timezone.utc)
-    try:
-        from ..cli_agent.context_info import get_agent_context
-
-        context = get_agent_context()
-    except Exception:
-        context = {}
     return {
         "latitude": lat,
         "longitude": lon,
         "jd": jd_val,
         "utc_iso": dt.isoformat(),
-        "context": context,
+        "context": {},
     }
 
 

@@ -30,22 +30,19 @@ def _library_info() -> Dict[str, Any]:
 
 
 def _agent_session() -> Dict[str, Any]:
+    """Legacy endpoint — coding agent removed from this package version."""
     try:
-        from ..cli_agent.config import get_config
-        from ..cli_agent.session_prefs import (
-            idle_disconnect_minutes,
-            saved_model,
-            saved_provider,
-            saved_trust,
-        )
+        from ..user_config import get_config
 
         cfg = get_config()
+        agent = cfg.get("agent") or {}
         return {
-            "provider": saved_provider(cfg),
-            "model": saved_model(cfg),
-            "trust": saved_trust(cfg),
-            "idle_disconnect_minutes": idle_disconnect_minutes(cfg),
+            "provider": agent.get("provider"),
+            "model": agent.get("model"),
+            "trust": bool(agent.get("trust")),
+            "idle_disconnect_minutes": agent.get("idle_disconnect_minutes"),
             "config_path": os.path.expanduser("~/.aion.yaml"),
+            "note": "aion agent was moved to archived/aion_agent/",
         }
     except Exception as e:
         return {"error": str(e)}
@@ -89,7 +86,7 @@ class UsageHandler(SimpleHTTPRequestHandler):
         elif path == "/api/session":
             self._json(_agent_session())
         elif path == "/api/meta":
-            from ..cli_agent.config import get_config
+            from ..user_config import get_config
 
             cfg = get_config()
             self._json(
@@ -124,12 +121,7 @@ class UsageHandler(SimpleHTTPRequestHandler):
             except Exception as e:
                 self._json({"error": str(e)}, status=200)
         elif path == "/api/context":
-            try:
-                from ..cli_agent.context_info import get_agent_context
-
-                self._json(get_agent_context())
-            except Exception as e:
-                self._json({"error": str(e)}, status=200)
+            self._json({"note": "aion agent was moved to archived/aion_agent/"})
         elif path.startswith("/api/"):
             self.send_error(404)
         elif path in ("/", "", "/dashboard", "/dashboard/"):

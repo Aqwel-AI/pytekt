@@ -147,6 +147,10 @@ aion/former/examples_results/*.png
 aion/agent/
 aion/code/
 
+# Archived code (kept locally, not shipped)
+# -----------------------------------------
+archived/
+
 # Scratch / accidental
 # --------------------
 text.txt
