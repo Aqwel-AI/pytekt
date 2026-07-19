@@ -472,6 +472,12 @@ button {
   font-size: 1.1rem;
 }
 
+.connect-error {
+  color: #ef4444;
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
 .modal select,
 .modal input {
   width: 100%;

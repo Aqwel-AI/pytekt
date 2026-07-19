@@ -26,6 +26,7 @@ export function SessionBar({
   const [selectedModel, setSelectedModel] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [connecting, setConnecting] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
 
   useEffect(() => {
     api.providers().then((r) => setProviders(r.providers));
@@ -33,10 +34,15 @@ export function SessionBar({
 
   useEffect(() => {
     if (selectedProvider) {
+      setConnectError(null);
       api.models(selectedProvider).then((r) => {
         if (r.ok && r.models) {
           setModels(r.models);
           setSelectedModel(r.models[0] || "");
+        } else {
+          setModels([]);
+          setSelectedModel("");
+          setConnectError(r.error || "Failed to load models");
         }
       });
     }
@@ -44,8 +50,17 @@ export function SessionBar({
 
   const handleConnect = async () => {
     setConnecting(true);
-    await api.connect(selectedProvider, selectedModel, apiKey || undefined);
+    setConnectError(null);
+    const result = await api.connect(
+      selectedProvider,
+      selectedModel || undefined,
+      apiKey || undefined
+    );
     setConnecting(false);
+    if (!result.ok) {
+      setConnectError(result.error || "Connect failed");
+      return;
+    }
     setShowConnect(false);
     onRefresh();
   };
@@ -162,10 +177,11 @@ export function SessionBar({
             </select>
             <input
               type="password"
-              placeholder="NVIDIA API key (if not saved)"
+              placeholder="API key (if not saved)"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
             />
+            {connectError && <p className="connect-error">{connectError}</p>}
             <button type="button" className="btn" onClick={handleConnect} disabled={connecting}>
               {connecting ? "Connecting…" : "Connect"}
             </button>

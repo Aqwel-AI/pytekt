@@ -487,7 +487,12 @@ class AgentConnector:
             or self.session.interaction_mode in ("debug", "plan")
         )
         self.tool_middleware.provider = provider_id
-        self._emit("provider_capabilities", **self._provider_adapter.metadata(), **cached_model_metadata(provider_id, model))
+        # Merge metadata first — both dicts may include "provider"/"model".
+        _caps = {
+            **self._provider_adapter.metadata(),
+            **cached_model_metadata(provider_id, model),
+        }
+        self._emit("provider_capabilities", **_caps)
         return agent
 
     def _connect_api_provider(
