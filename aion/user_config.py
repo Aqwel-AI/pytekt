@@ -6,6 +6,7 @@ import os
 from typing import Any, Dict, Optional
 
 from .config.core import get_nested, load_first_existing, save_yaml_file, set_nested
+from .terminal_theme import THEME_NAMES
 
 CONFIG_PATH = os.path.expanduser("~/.aion.yaml")
 
@@ -45,6 +46,11 @@ def config_command(key: Optional[str] = None, value: Optional[str] = None) -> No
             print(f"{key} is not set.")
         else:
             print(f"  {key} = {val}")
+        return
+
+    if key == "theme" and value not in THEME_NAMES:
+        options = ", ".join(THEME_NAMES)
+        print(f"Invalid theme: {value}. Choose one of: {options}")
         return
 
     set_nested(cfg, key, value)

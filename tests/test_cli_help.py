@@ -8,6 +8,7 @@ from aion.cli import (
     _completion_script,
     _format_help_json,
     _get_subparsers,
+    main,
 )
 
 
@@ -43,3 +44,12 @@ def test_completion_scripts_include_aion_commands():
         script = _completion_script(shell, commands)
         assert "aion" in script
         assert "physics" in script
+
+
+def test_cli_handles_ctrl_c_without_traceback(monkeypatch, capsys):
+    monkeypatch.setattr("aion.cli._main", lambda: (_ for _ in ()).throw(KeyboardInterrupt))
+
+    assert main() == 130
+    output = capsys.readouterr().out
+    assert "Operation cancelled by user" in output
+    assert "No changes were made" in output

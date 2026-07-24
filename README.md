@@ -855,8 +855,10 @@ aion start                    # http://127.0.0.1:3000
 aion start --port 8080        # custom port
 aion start --no-browser      # server only
 aion install                  # interactive installer wizard
+aion install --no-animation   # installer with static AION logo
 aion install --profile ai    # non-interactive profile
 aion install --profile ai --full --yes  # full install without prompts
+aion config theme cyberpunk   # cyberpunk (default), minimal, or monochrome
 aion help install            # detailed help for one command
 aion help --search physics   # search the command catalog
 aion --help --json           # export command metadata for tools
@@ -866,6 +868,20 @@ aion completion zsh          # print shell completion script
 The help screen includes categorized commands, requirements, status, and examples.
 Shell completion is available for `bash`, `zsh`, `fish`, and `powershell`; add the
 output of `aion completion <shell>` to that shell's startup configuration.
+
+The interactive installer runs a preflight check for Python, pip, permissions,
+disk space, network access, and an existing Aion install. Failed installs offer
+`Retry`, `Skip`, or `Cancel`. Installer activity is saved to
+`~/.aion/logs/install.log`. The first successful installation shows an
+`AION ONLINE` welcome screen with suggested commands.
+
+Available terminal themes:
+
+```bash
+aion config theme cyberpunk    # green/cyan animated terminal
+aion config theme minimal      # reduced color palette
+aion config theme monochrome   # no ANSI colors
+```
 
 `aion setup` always includes the core runtime dependencies (`numpy`,
 `watchdog`, `gitpython`, and `certifi`). It then asks whether to install only

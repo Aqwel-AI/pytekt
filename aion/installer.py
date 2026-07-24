@@ -8,11 +8,19 @@ profiles from a green terminal menu.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import os
+import shutil
 import subprocess
 import sys
 import time
-from typing import Dict, Optional, Sequence, Tuple
+import urllib.error
+import urllib.request
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Tuple
+
+from .terminal_theme import ansi_code, configured_theme, supports_color
 
 
 CORE_PACKAGES = ("Python >= 3.8", "numpy", "watchdog", "gitpython", "certifi")
@@ -37,9 +45,85 @@ PROFILE_PACKAGES: Dict[str, Tuple[str, ...]] = {
     "full": ("All optional Aion feature dependencies",),
 }
 
+INSTALL_LOG_PATH = Path.home() / ".aion" / "logs" / "install.log"
+FIRST_RUN_MARKER = Path.home() / ".aion" / ".first_run_complete"
+_ACTIVE_THEME = "cyberpunk"
+
+
+def _set_active_theme(theme: str) -> str:
+    """Set the theme used by installer output and return its name."""
+    global _ACTIVE_THEME
+    _ACTIVE_THEME = theme if theme in ("cyberpunk", "minimal", "monochrome") else "cyberpunk"
+    return _ACTIVE_THEME
+
 
 def _style(text: str, code: str, enabled: bool) -> str:
-    return f"\033[{code}m{text}\033[0m" if enabled else text
+    mapped_code = ansi_code(code, _ACTIVE_THEME)
+    return f"\033[{mapped_code}m{text}\033[0m" if enabled else text
+
+
+def _append_install_log(message: str) -> None:
+    """Append an installer event without making logging a fatal operation."""
+    try:
+        INSTALL_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with INSTALL_LOG_PATH.open("a", encoding="utf-8") as log_file:
+            log_file.write(f"[{datetime.now().isoformat(timespec='seconds')}] {message}\n")
+    except OSError:
+        pass
+
+
+def _print_log_path(*, color: bool) -> None:
+    print(_style(f"  Install log: {INSTALL_LOG_PATH}", "2", color))
+
+
+def _preflight_checks(*, local: bool = False) -> List[Tuple[str, str, str, bool]]:
+    """Check the local environment before starting a package installation."""
+    checks: List[Tuple[str, str, str, bool]] = []
+    python_ok = sys.version_info >= (3, 8)
+    checks.append(("Python", "OK" if python_ok else "FAIL", f"{sys.version.split()[0]} (requires >=3.8)", True))
+
+    pip_ok = importlib.util.find_spec("pip") is not None
+    checks.append(("pip", "OK" if pip_ok else "FAIL", "available" if pip_ok else "not found", True))
+
+    writable = os.access(str(Path.cwd()), os.W_OK)
+    checks.append(("Permissions", "OK" if writable else "WARN", "current directory writable" if writable else "check environment permissions", False))
+
+    try:
+        free_gb = shutil.disk_usage(Path.cwd()).free / (1024 ** 3)
+        disk_status = "OK" if free_gb >= 0.25 else "WARN"
+        checks.append(("Disk", disk_status, f"{free_gb:.1f} GB free", False))
+    except OSError:
+        checks.append(("Disk", "WARN", "could not read free space", False))
+
+    if local:
+        checks.append(("Network", "SKIP", "local checkout selected", False))
+    elif os.environ.get("CI"):
+        checks.append(("Network", "SKIP", "CI environment", False))
+    else:
+        try:
+            request = urllib.request.Request("https://pypi.org/simple/aqwel-aion/", method="HEAD")
+            with urllib.request.urlopen(request, timeout=3):
+                checks.append(("Network", "OK", "PyPI reachable", False))
+        except (OSError, urllib.error.URLError):
+            checks.append(("Network", "WARN", "PyPI is not reachable; pip may use a cache", False))
+
+    installed = importlib.util.find_spec("aion") is not None
+    checks.append(("Aion", "OK" if installed else "NEW", "existing install detected" if installed else "first installation", False))
+    return checks
+
+
+def _print_preflight(checks: Sequence[Tuple[str, str, str, bool]], *, color: bool, theme: str) -> None:
+    print()
+    print(_style("  AION PREFLIGHT CHECK", "1", color))
+    print(_style(f"  Theme: {theme}", "36", color))
+    for label, status, detail, _required in checks:
+        status_code = "31" if status == "FAIL" else "33" if status in ("WARN", "SKIP") else "92"
+        print(f"  {_style(status, status_code, color):<18} {label:<12} {detail}")
+    print()
+
+
+def _preflight_ok(checks: Sequence[Tuple[str, str, str, bool]]) -> bool:
+    return not any(status == "FAIL" and required for _, status, _, required in checks)
 
 
 def install_spec(profile: str, *, local: bool = False, full: bool = False) -> str:
@@ -198,11 +282,64 @@ def _print_success(*, color: bool) -> None:
     print()
 
 
+def _print_first_run_welcome(*, color: bool) -> None:
+    """Show the AION ONLINE screen once after a successful first install."""
+    if FIRST_RUN_MARKER.exists():
+        return
+    banner = (
+        "  ╔════════════════════════════════════════════╗\n"
+        "  ║                 AION ONLINE               ║\n"
+        "  ╚════════════════════════════════════════════╝"
+    )
+    print(_style(banner, "96", color))
+    print(_style("  Welcome to the Aqwel AI research environment.", "1", color))
+    print()
+    print("  Try these commands:")
+    print(_style("    aion info       Check your environment", "36", color))
+    print(_style("    aion doctor     Run diagnostics", "36", color))
+    print(_style("    aion start      Open the Aion Hub", "36", color))
+    print()
+    try:
+        FIRST_RUN_MARKER.parent.mkdir(parents=True, exist_ok=True)
+        FIRST_RUN_MARKER.touch()
+    except OSError:
+        pass
+
+
+def _print_cancelled(*, color: bool) -> None:
+    """Show a friendly cancellation message instead of a traceback."""
+    print()
+
+
+def _choose_failure_action(*, color: bool) -> str:
+    """Choose whether to retry a failed installation or leave the installer."""
+    return _arrow_select(
+        "Installation failed — choose an action",
+        (
+            ("retry", "Retry installation"),
+            ("skip", "Skip and exit"),
+            ("cancel", "Cancel"),
+        ),
+        color=color,
+    )
+    print(_style("  ✕ Installation cancelled by user.", "31", color))
+    print(_style("  No changes were made.", "2", color))
+    print()
+
+
 def _run_install(command: Sequence[str], *, color: bool) -> int:
     """Run pip with a compact animated progress display in a real terminal."""
+    _append_install_log("COMMAND: " + " ".join(command))
     interactive = color and hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
     if not interactive:
-        return subprocess.run(command, check=False).returncode
+        completed = subprocess.run(command, check=False, capture_output=True, text=True)
+        output = "\n".join(part for part in (completed.stdout, completed.stderr) if part)
+        if output:
+            print(output.rstrip())
+        _append_install_log(f"RESULT: exit code {completed.returncode}")
+        if output:
+            _append_install_log("OUTPUT:\n" + output.rstrip())
+        return completed.returncode
 
     quiet_command = list(command) + ["--quiet", "--disable-pip-version-check"]
     process = subprocess.Popen(
@@ -220,15 +357,25 @@ def _run_install(command: Sequence[str], *, color: bool) -> int:
     )
     started = time.monotonic()
     tick = 0
-    while process.poll() is None:
-        elapsed = int(time.monotonic() - started)
-        phase = phases[min(elapsed // 2, len(phases) - 1)]
-        frame = frames[tick % len(frames)]
-        line = _style(f"  {frame} {phase} ...", "92", color)
-        sys.stdout.write("\r\033[K" + line)
-        sys.stdout.flush()
-        tick += 1
-        time.sleep(0.08)
+    try:
+        while process.poll() is None:
+            elapsed = int(time.monotonic() - started)
+            phase = phases[min(elapsed // 2, len(phases) - 1)]
+            frame = frames[tick % len(frames)]
+            line = _style(f"  {frame} {phase} ...", "92", color)
+            sys.stdout.write("\r\033[K" + line)
+            sys.stdout.flush()
+            tick += 1
+            time.sleep(0.08)
+    except KeyboardInterrupt:
+        process.terminate()
+        try:
+            process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+        _append_install_log("RESULT: interrupted by user")
+        raise
 
     error_output = process.stderr.read() if process.stderr is not None else ""
     sys.stdout.write("\r\033[K")
@@ -238,6 +385,9 @@ def _run_install(command: Sequence[str], *, color: bool) -> int:
     elif error_output.strip():
         print(_style("  Installation output:", "31", color))
         print(error_output.rstrip())
+    _append_install_log(f"RESULT: exit code {process.returncode}")
+    if error_output.strip():
+        _append_install_log("OUTPUT:\n" + error_output.rstrip())
     return process.returncode
 
 
@@ -276,55 +426,99 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Disable green terminal colors.",
     )
+    parser.add_argument(
+        "--no-animation",
+        action="store_true",
+        help="Show the AION logo without animation.",
+    )
     return parser
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Run the interactive installer and return a process exit code."""
     args = _build_parser().parse_args(argv)
+    theme = _set_active_theme(configured_theme())
     color = (
         not args.no_color
         and not os.environ.get("NO_COLOR")
-        and hasattr(sys.stdout, "isatty")
-        and sys.stdout.isatty()
+        and supports_color(theme)
     )
 
-    interactive = not args.profile and sys.stdin.isatty()
-    if args.profile:
-        profile = args.profile
-    elif not interactive:
-        print("Aion setup needs an interactive terminal. Use --profile for scripts or CI.")
-        return 2
-    else:
-        profile = choose_profile(color=color)
+    try:
+        interactive = not args.profile and sys.stdin.isatty()
+        if not args.profile and not interactive:
+            print("Aion setup needs an interactive terminal. Use --profile for scripts or CI.")
+            return 2
 
-    full = args.full
-    if interactive and not args.full:
-        full = choose_full_install(color=color)
+        if interactive:
+            from .install_splash import show_install_intro
 
-    spec = install_spec(profile, local=args.local, full=full)
-    command = [sys.executable, "-m", "pip", "install", "--upgrade"]
-    if args.local:
-        command.extend(["-e", spec])
-    else:
-        command.append(spec)
+            show_install_intro(animated=not args.no_animation, color=color)
 
-    rendered = " ".join(command)
-    _print_plan(profile, full=full, spec=spec, color=color)
-    print(_style(f"  $ {rendered}", "2", color))
-    if interactive and not args.yes and not confirm_install(color=color):
-        print(_style("  Installation cancelled.", "33", color))
-        return 0
+        checks = _preflight_checks(local=args.local)
+        _print_preflight(checks, color=color, theme=theme)
+        if not _preflight_ok(checks):
+            print(_style("  Preflight failed. Fix the required checks and try again.", "31", color))
+            _append_install_log("PREFLIGHT: failed")
+            _print_log_path(color=color)
+            return 1
+
+        if args.profile:
+            profile = args.profile
+        else:
+            profile = choose_profile(color=color)
+
+        full = args.full
+        if interactive and not args.full:
+            full = choose_full_install(color=color)
+
+        spec = install_spec(profile, local=args.local, full=full)
+        command = [sys.executable, "-m", "pip", "install", "--upgrade"]
+        if args.local:
+            command.extend(["-e", spec])
+        else:
+            command.append(spec)
+
+        rendered = " ".join(command)
+        _append_install_log(f"PROFILE: {profile}; full={full}; theme={theme}")
+        _print_plan(profile, full=full, spec=spec, color=color)
+        print(_style(f"  $ {rendered}", "2", color))
+        if interactive and not args.yes and not confirm_install(color=color):
+            _print_cancelled(color=color)
+            return 0
+    except KeyboardInterrupt:
+        _print_cancelled(color=color)
+        return 130
+
     if args.dry_run:
         print(_style("  Dry run complete.", "92", color))
         return 0
 
-    result_code = _run_install(command, color=color)
+    try:
+        result_code = _run_install(command, color=color)
+        while result_code != 0 and interactive:
+            action = _choose_failure_action(color=color)
+            if action == "retry":
+                print(_style("  Retrying installation...", "33", color))
+                result_code = _run_install(command, color=color)
+            elif action == "skip":
+                print(_style("  Installation skipped; some dependencies may be missing.", "33", color))
+                _print_log_path(color=color)
+                return result_code
+            else:
+                _print_cancelled(color=color)
+                return 130
+    except KeyboardInterrupt:
+        _print_cancelled(color=color)
+        return 130
     if result_code == 0:
         _print_success(color=color)
+        _print_first_run_welcome(color=color)
+        _print_log_path(color=color)
         print("  Run `aion doctor` to verify your environment.")
     else:
         print(_style(f"\n  Installation failed with exit code {result_code}.", "31", color))
+        _print_log_path(color=color)
     return result_code
 
 

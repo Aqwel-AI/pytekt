@@ -411,6 +411,11 @@ def _build_parser():
         action="store_true",
         help="Disable terminal colors",
     )
+    setup_parser.add_argument(
+        "--no-animation",
+        action="store_true",
+        help="Show the AION logo without animation",
+    )
 
     # install is the framework-style alias for setup.
     install_parser = subparsers.add_parser(
@@ -423,6 +428,7 @@ def _build_parser():
     install_parser.add_argument("--full", action="store_true", help="Choose all optional dependencies without asking")
     install_parser.add_argument("--yes", action="store_true", help="Start without final confirmation")
     install_parser.add_argument("--no-color", action="store_true", help="Disable terminal colors")
+    install_parser.add_argument("--no-animation", action="store_true", help="Show the AION logo without animation")
 
     # welcome (install animation)
     welcome_parser = subparsers.add_parser(
@@ -496,7 +502,7 @@ def _build_parser():
 
     # config
     config_parser = subparsers.add_parser("config", help="Manage Aion CLI configuration")
-    config_parser.add_argument("key", nargs="?", help="Config key (e.g., universe.latitude)")
+    config_parser.add_argument("key", nargs="?", help="Config key (e.g., universe.latitude or theme)")
     config_parser.add_argument("value", nargs="?", help="Value to set")
 
     # shell completion
@@ -1018,7 +1024,7 @@ def git_diff_command(repo_path=".", commit_hash=None):
         print("No changes to show.")
 
 
-def main():
+def _main():
     """
     Parse command-line arguments and dispatch to the appropriate subcommand.
     Prints help when no command is given or when a subcommand is unknown.
@@ -1044,7 +1050,7 @@ def main():
 
     # Once per installed/updated version (wheel installs skip setuptools hooks).
     # Skip informational commands so output stays directly usable in scripts.
-    if args.command not in ("welcome", "help", "completion") and not os.environ.get("AION_NO_SPLASH"):
+    if args.command not in ("welcome", "help", "completion", "setup", "install") and not os.environ.get("AION_NO_SPLASH"):
         try:
             from .install_splash import maybe_show_install_splash
 
@@ -1120,6 +1126,8 @@ def main():
             installer_args.append("--yes")
         if args.no_color:
             installer_args.append("--no-color")
+        if args.no_animation:
+            installer_args.append("--no-animation")
         raise SystemExit(installer_main(installer_args))
     if args.command == "doctor":
         from .doctor import main as doctor_main
@@ -1295,3 +1303,27 @@ def main():
         git_parser.print_help()
     else:
         parser.print_help()
+
+
+def _print_cli_cancelled() -> None:
+    """Print one consistent cancellation message for every CLI command."""
+    color = (
+        hasattr(sys.stdout, "isatty")
+        and sys.stdout.isatty()
+        and not os.environ.get("NO_COLOR")
+    )
+    if color:
+        print("\033[31m\n  ✕ Operation cancelled by user.\033[0m")
+        print("\033[2m  No changes were made.\033[0m\n")
+    else:
+        print("\n  ✕ Operation cancelled by user.")
+        print("  No changes were made.\n")
+
+
+def main():
+    """Run the CLI and handle Ctrl+C without displaying a traceback."""
+    try:
+        return _main()
+    except KeyboardInterrupt:
+        _print_cli_cancelled()
+        return 130
