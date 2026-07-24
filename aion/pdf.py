@@ -60,19 +60,18 @@ import pkgutil
 import ast
 import csv
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Union, Tuple
+from typing import List, Dict, Any, Optional, Union
 import re
 
 # ReportLab is optional; when missing, PDF entry points emit text or Markdown instead.
 try:
-    from reportlab.lib.pagesizes import letter, A4  # pyright: ignore [reportMissingModuleSource]
+    from reportlab.lib.pagesizes import A4  # pyright: ignore [reportMissingModuleSource]
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle  # pyright: ignore [reportMissingModuleSource]
     from reportlab.lib.units import inch  # pyright: ignore [reportMissingModuleSource]
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image  # pyright: ignore [reportMissingModuleSource]
     from reportlab.lib import colors  # pyright: ignore [reportMissingModuleSource]
     from reportlab.lib.colors import HexColor  # pyright: ignore [reportMissingModuleSource]
-    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY  # pyright: ignore [reportMissingModuleSource]
-    from reportlab.pdfgen import canvas  # pyright: ignore [reportMissingModuleSource]
+    from reportlab.lib.enums import TA_CENTER  # pyright: ignore [reportMissingModuleSource]
     _HAS_REPORTLAB = True
 
     def _resolve_reportlab_color(s):
@@ -94,7 +93,6 @@ except ImportError:
 
 # Matplotlib is optional; used only when plotting support is required.
 try:
-    import matplotlib.pyplot as plt  # pyright: ignore [reportMissingImports]
     import matplotlib  # pyright: ignore [reportMissingImports]
     matplotlib.use("Agg")
     _HAS_MATPLOTLIB = True
@@ -179,58 +177,69 @@ class PDFDocumentGenerator:
     
     def _setup_custom_styles(self):
         """
-        Register custom paragraph styles used by create_document: CustomTitle,
-        Heading1, Heading2, Code, and FunctionSignature. Colors and font
-        come from instance attributes set in __init__.
+        Register custom paragraph styles used by create_document.
+
+        ReportLab's sample stylesheet already defines ``Title``, ``Heading1``,
+        and ``Heading2``. Re-adding styles with those names raises a
+        ``KeyError``, so we customize the existing heading styles in place and
+        only add truly new style names.
         """
+        def add_or_update_style(name: str, parent_name: str, **overrides):
+            """Create a style when missing, otherwise update the existing one."""
+            if name in self.styles.byName:
+                style = self.styles[name]
+                for attr, value in overrides.items():
+                    setattr(style, attr, value)
+                return style
+
+            style = ParagraphStyle(name=name, parent=self.styles[parent_name], **overrides)
+            self.styles.add(style)
+            return style
+
         title_color = self.primary_color if isinstance(self.primary_color, colors.Color) else colors.darkblue
         heading_color = self.heading_color if isinstance(self.heading_color, colors.Color) else colors.darkgreen
         font = self.font_name
-        self.styles.add(ParagraphStyle(
-            name='CustomTitle',
-            parent=self.styles['Title'],
+        add_or_update_style(
+            "CustomTitle",
+            "Title",
             fontSize=24,
             spaceAfter=30,
             alignment=TA_CENTER,
             textColor=title_color,
             fontName=font,
-        ))
-        self.styles.add(ParagraphStyle(
-            name='Heading1',
-            parent=self.styles['Heading1'],
-            fontSize=18,
-            spaceAfter=12,
-            spaceBefore=20,
-            textColor=title_color,
-            fontName=font,
-        ))
-        
-        self.styles.add(ParagraphStyle(
-            name='Heading2',
-            parent=self.styles['Heading2'],
-            fontSize=14,
-            spaceAfter=10,
-            spaceBefore=15,
-            textColor=heading_color,
-        ))
-        self.styles.add(ParagraphStyle(
-            name='Code',
-            parent=self.styles['Normal'],
-            fontName='Courier',
+        )
+
+        heading1 = self.styles["Heading1"]
+        heading1.fontSize = 18
+        heading1.spaceAfter = 12
+        heading1.spaceBefore = 20
+        heading1.textColor = title_color
+        heading1.fontName = font
+
+        heading2 = self.styles["Heading2"]
+        heading2.fontSize = 14
+        heading2.spaceAfter = 10
+        heading2.spaceBefore = 15
+        heading2.textColor = heading_color
+
+        add_or_update_style(
+            "Code",
+            "Normal",
+            fontName="Courier",
             fontSize=10,
             leftIndent=20,
             backgroundColor=colors.lightgrey,
             borderColor=colors.grey,
-            borderWidth=1
-        ))
-        self.styles.add(ParagraphStyle(
-            name='FunctionSignature',
-            parent=self.styles['Normal'],
-            fontName='Courier-Bold',
+            borderWidth=1,
+        )
+        add_or_update_style(
+            "FunctionSignature",
+            "Normal",
+            fontName="Courier-Bold",
             fontSize=12,
             textColor=colors.darkred,
-            leftIndent=10
-        ))
+            leftIndent=10,
+        )
     
     def create_document(self, filename: str, content: List[Any]) -> str:
         """

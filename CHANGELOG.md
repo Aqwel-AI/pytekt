@@ -5,6 +5,41 @@ All notable changes to the Aqwel-Aion project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-07-22
+
+### Added — Research library expansion
+- **`aion.physics`** — Classical physics toolkit (mechanics, kinematics, thermo, EM, optics, relativity, integrators, NL query); CLI `aion physics`; optional C++ path; web dashboard.
+- **`aion.universe`** — Astronomy (coordinates, observing, orbits, cosmology, catalogs); CLI `aion universe`; C++ path; web dashboard.
+- **`aion.vision`** — Classic computer vision on NumPy arrays (I/O, transforms, color, filters, draw, metrics, OpenCV ops); CLI `aion vision`; extra `[vision]` (Pillow + opencv-python-headless).
+- **`aion.cache`** — Caching with TTL: `MemoryCache`, `DiskCache`, `LLMCache`, `@cached`.
+- **`aion.data`** — CSV/JSON/JSONL loaders, splits, text augmentation, schema validation (restored after 0.1.9 remove).
+- **`aion.datasets`** — Built-in benchmarks + generators + file I/O (restored).
+- **`aion.tokenizer`** — `BPETokenizer`, `WordPieceTokenizer`, `Vocabulary`.
+- **`aion.pipeline`** — Step-based pipelines with retry / fallback / timing.
+- **`aion.store`** — SQLite key-value, persistent vector store, chat history.
+- **`aion.tracker`** — Experiment tracking (`Tracker` / `Run`, compare runs).
+- **`aion.llm_eval`** — Similarity, faithfulness, toxicity/PII checks, cost tracking.
+- **`aion.structures`** — Trie, Bloom filter, LRU, heaps, Union-Find.
+- **`aion.serve`** — FastAPI `/chat`, `/rag`, `/health` (`[serve]`).
+- **Core ML** — `preprocessing`, `models`, `metrics`, `hyperopt` (NumPy-first).
+- **`aion.ui` / Hub** — `aion start`, HTML reports, optional Gradio/Streamlit.
+- **`aion.db`** — Unified SQLite + optional MySQL/Postgres/Mongo/Redis (`[db]`).
+- **`aion.experiments`** — `Experiment`, `BenchmarkSuite`, `aion benchmark`, `aion doctor`.
+- **`aion.usage`** — Token & cost dashboard (`aion usage`).
+- **Install splash** — AION logo animation via `aion welcome` and once after install/upgrade.
+
+### Added — New extras
+- `[serve]`, `[db]`, `[universe]`, `[physics]`, `[vision]`, `[ui]`, `[monitor]`, and related groups; `[full]` includes vision OpenCV stack.
+
+### Not available in 0.2.0
+- **Terminal coding agent** (`aion agent`, browser UI, IDE bridge) — **not available**; source under `archived/aion_agent/` (local only).
+- **`aion.agents`** ReAct / Planning / MultiAgent framework — not imported in this package version.
+- **`aion api` / `aion auth`** — **not available**.
+
+### Fixed
+- Missing `matrix_transpose`, `matrix_multiply`, `z_score_normalization`, `min_max_scaling` in `aion.algorithms.arrays`.
+- `a_star` and `pagerank` import name mismatches in `aion.algorithms.__init__`.
+
 ## [0.1.9] - 2026-03-29
 
 ### Added
@@ -142,7 +177,7 @@ We welcome contributions from the AI research community! Please see our [Contrib
 
 For questions, issues, or feature requests:
 - Visit: https://aqwelai.xyz/
-- Issues: https://github.com/aqwelai/aion/issues
+- Issues: https://github.com/Aqwel-AI/Aion/issues
 - Company Gmail: aqwelai.company@gmail.com
 
 ---

@@ -131,6 +131,7 @@ def plot_matrix_surface(
     title: Optional[str] = None,
     show: bool = True
 ):
+    
     """
     Plot a 3D surface for a 2D matrix.
 
@@ -165,7 +166,6 @@ def plot_matrix_surface(
 
     finalize_plot(title, show)
     return fig
-
 
 def plot_matrix_contour(
     matrix: Sequence[Sequence[float]],

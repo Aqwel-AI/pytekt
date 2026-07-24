@@ -54,6 +54,12 @@ If you install with the `[viz]` or `[full]` extra, these are installed automatic
 pip install aqwel-aion[viz]
 ```
 
+For interactive 3D (Plotly):
+
+```bash
+pip install aqwel-aion[viz3d]
+```
+
 For the full stack (AI/ML + docs + visualization):
 
 ```bash
@@ -69,7 +75,7 @@ print(matplotlib.__version__)  # e.g. 3.5.0 or higher
 print(numpy.__version__)
 ```
 
-**Dependencies for this subpackage:** `matplotlib>=3.5.0`, `numpy`. The `[viz]` extra also pulls in `seaborn>=0.11.0`.
+**Dependencies for this subpackage:** `matplotlib>=3.5.0`, `numpy`. The `[viz]` extra also pulls in `seaborn>=0.11.0`. The `[viz3d]` extra adds `plotly>=5.18.0` for interactive 3D plots.
 
 ---
 
@@ -184,7 +190,10 @@ fig = plot_array([1, 3, 2, 5, 4], title="My curve", show=False)
 | `arrays` | 1D numerical data: line plots, histograms, scatter, distributions, rolling stats, etc. |
 | `matrices` | 2D data: heatmaps, confusion matrices, surfaces, attention maps, sparsity. |
 | `training` | Training histories: loss/accuracy over epochs, train vs val, learning rate, early stopping. |
-| `utils` | Shared helpers: `finalize_plot`, `save_plot`. |
+| `three_d` | Matplotlib 3D: scatter, surface, wireframe, trisurf, contour, bar, quiver, trajectory, voxels, mesh, density. |
+| `seaborn_plots` | Seaborn wrappers (optional `[viz]`): heatmap, kde, box/violin, regression, pair/joint plots, clustermap. |
+| `plotly_viz` | Interactive 3D (optional `[viz3d]`): scatter, surface, mesh, volume, cone, streamtube, isosurface. |
+| `utils` | Shared helpers: `finalize_plot`, `save_plot`, `require_seaborn`, `require_plotly`. |
 
 All plot functions use `utils.finalize_plot` for title, grid, and optional display; use `utils.save_plot` to write figures to disk.
 
@@ -262,6 +271,38 @@ Training and experiment metrics over epochs or steps.
 | `plot_confidence_band(mean, std, title=None, show=True)` | Mean curve with ±std confidence band. |
 | `plot_early_stopping(history, metric, patience, mode="min", title=None, show=True)` | Metric with early-stop and best point marked. |
 | `plot_epoch_time(times, title=None, show=True)` | Epoch duration over time. |
+
+### Seaborn (`[viz]`)
+
+Import from `aion.visualization` when seaborn is installed. All functions return a matplotlib `Figure` (or clustermap grid) and accept `title` / `show`.
+
+| Function | Description |
+|----------|-------------|
+| `set_aion_style()` | Apply dark research theme aligned with Aion UI palette. |
+| `sns_heatmap(data, ...)` | Annotated heatmap. |
+| `sns_kdeplot`, `sns_boxplot`, `sns_violinplot` | 1D distribution plots. |
+| `sns_stripplot`, `sns_swarmplot` | Categorical scatter variants. |
+| `sns_regplot`, `sns_jointplot`, `sns_pairplot` | Regression and bivariate plots. |
+| `sns_clustermap`, `sns_displot`, `sns_relplot`, `sns_lmplot` | Faceted / clustered plots. |
+
+### Matplotlib 3D (`three_d`)
+
+| Function | Description |
+|----------|-------------|
+| `plot_3d_scatter`, `plot_3d_surface` | Basic 3D scatter and surface. |
+| `plot_3d_wireframe`, `plot_3d_trisurf`, `plot_3d_contour` | Mesh and contour variants. |
+| `plot_3d_bar`, `plot_3d_quiver` | 3D bars and vector fields. |
+| `plot_3d_trajectory` | Parametric curve with optional velocity coloring. |
+| `plot_3d_voxels`, `plot_3d_mesh`, `plot_3d_density` | Occupancy grid, triangle mesh, 3D histogram. |
+
+### Plotly 3D (`[viz3d]`)
+
+| Function | Description |
+|----------|-------------|
+| `plotly_3d_scatter`, `plotly_3d_surface`, `plotly_3d_mesh` | Interactive scatter, surface, mesh. |
+| `plotly_3d_volume`, `plotly_3d_isosurface` | Volumetric and isosurface rendering. |
+| `plotly_3d_cone`, `plotly_3d_streamtube` | Vector field visualizations. |
+| `show_plotly(fig)`, `save_plotly_html(fig, path)` | Display or export HTML reports. |
 
 ### Utils
 
@@ -467,3 +508,4 @@ save_plot(fig, "train_vs_val.png")
 
 - **Runnable script**: The repository root contains [example.py](../../example.py) that demonstrates array, histogram, scatter, multiple arrays, mean, matrix heatmap, confusion matrix, and training history plots; all use `show=False` and `save_plot` so they run in terminal or CI.
 - **Sample outputs**: Pre-generated example images are in [examples_visualization/](examples_visualization/) (e.g. `example_array.png`, `example_histogram.png`, `example_matrix_heatmap.png`, `example_training_history.png`).
+- **Notebooks**: See [examples/04_seaborn_plots.ipynb](examples/04_seaborn_plots.ipynb), [examples/05_3d_matplotlib.ipynb](examples/05_3d_matplotlib.ipynb), and [examples/06_3d_plotly.ipynb](examples/06_3d_plotly.ipynb).

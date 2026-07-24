@@ -1,16 +1,16 @@
 """
-Full exercise script for aion.algorithms, aion.visualization, v0.1.8 pdf helpers,
-and v0.1.9 additions (I/O, LLM stack, RAG, config/env, benchmarks,
-graphs, 3D/report plots, extended pdf APIs).
+Full exercise script for aion.algorithms, aion.visualization, pdf helpers,
+and post-0.1.9 / 0.2.0 library surface (I/O, LLM stack, RAG, config/env,
+benchmarks, graphs, 3D/report plots). Compatible with Aion 0.2.0.
 
 Output is printed for algorithms and infra; standard plots go to example_output/;
-v0.1.9 extras also write under example_output/v019_examples/.
+newer extras also write under example_output/v019_examples/.
 
 Contents:
   - Section 1: aion.algorithms (search + arrays)
   - Section 2: aion.visualization (1D/2D/training plots)
-  - Section 3: v0.1.8 — aion.pdf documentation helpers (stats, guides, validation)
-  - Section 4: v0.1.9 — full surface area
+  - Section 3: aion.pdf documentation helpers (stats, guides, validation)
+  - Section 4: library surface demos (I/O, providers, tools, RAG, config, …)
     - fast_* numerics + using_native_extension
     - aion.io (atomic_write, iter_lines, file_sha256)
     - aion.providers (supported_providers, parse_chat_completion_response; no API keys)
