@@ -17,11 +17,14 @@ Copyright: 2025 Aqwel AI
 """
 
 import argparse
+import importlib.util
+import json
 import os
+import platform
 import signal
 import subprocess
 import sys
-import time
+import textwrap
 
 try:
     from . import git
@@ -60,38 +63,245 @@ def run_command(command):
     return result.stdout.strip()
 
 
+_HELP_EXAMPLES = {
+    "start": "aion start",
+    "ui": "aion ui --list",
+    "info": "aion info",
+    "embed": "aion embed notes.txt",
+    "eval": "aion eval preds.json answers.json",
+    "prompt": "aion prompt --list",
+    "watch": "aion watch notes.txt",
+    "chat": "aion chat",
+    "git": "aion git status",
+    "version": "aion --version",
+    "setup": "aion setup",
+    "install": "aion install",
+    "welcome": "aion welcome",
+    "doctor": "aion doctor",
+    "benchmark": "aion benchmark",
+    "monitor": "aion monitor",
+    "dashboard": "aion dashboard",
+    "agent": "aion agent",
+    "api": "aion api",
+    "auth": "aion auth",
+    "config": "aion config",
+    "help": "aion help",
+    "usage": "aion usage",
+    "stats": "aion stats",
+    "db": "aion db status",
+    "universe": "aion universe moon",
+    "cosmos": "aion cosmos",
+    "universe-dashboard": "aion universe-dashboard",
+    "cosmos-dashboard": "aion cosmos-dashboard",
+    "physics": "aion physics tasks",
+    "physics-dashboard": "aion physics-dashboard",
+    "vision": "aion vision --help",
+    "completion": "aion completion zsh",
+}
+
+_HELP_METADATA = {
+    "start": ("CORE", "Python", "READY"),
+    "ui": ("CORE", "Hub / UI extras", "READY"),
+    "info": ("CORE", "Python", "READY"),
+    "embed": ("AI", "sentence-transformers optional", "READY"),
+    "eval": ("AI", "Python", "READY"),
+    "prompt": ("AI", "Python", "READY"),
+    "watch": ("AI", "watchdog", "READY"),
+    "chat": ("AI", "Python", "READY"),
+    "git": ("DEVELOPER", "GitPython optional", "READY"),
+    "version": ("CORE", "Python", "READY"),
+    "setup": ("INSTALL", "pip + internet", "READY"),
+    "install": ("INSTALL", "pip + internet", "READY"),
+    "welcome": ("INSTALL", "Python", "READY"),
+    "doctor": ("DEVELOPER", "Python", "READY"),
+    "benchmark": ("AI", "numpy", "READY"),
+    "monitor": ("SYSTEM", "[monitor] extra", "OPTIONAL"),
+    "dashboard": ("SYSTEM", "[monitor] extra", "OPTIONAL"),
+    "agent": ("AI", "Planned for 0.3.0", "PLANNED"),
+    "api": ("INTEGRATION", "Planned for 0.3.0", "PLANNED"),
+    "auth": ("INTEGRATION", "Planned for 0.3.0", "PLANNED"),
+    "config": ("CORE", "Python", "READY"),
+    "help": ("CORE", "Python", "READY"),
+    "usage": ("DEVELOPER", "Python + dashboard assets", "READY"),
+    "stats": ("DEVELOPER", "Python + dashboard assets", "READY"),
+    "db": ("DATABASE", "[db] extra", "OPTIONAL"),
+    "universe": ("SCIENCE", "native extra optional", "OPTIONAL"),
+    "cosmos": ("SCIENCE", "Use universe", "DEPRECATED"),
+    "universe-dashboard": ("SCIENCE", "native extra optional", "OPTIONAL"),
+    "cosmos-dashboard": ("SCIENCE", "Use universe-dashboard", "DEPRECATED"),
+    "physics": ("SCIENCE", "native extra optional", "OPTIONAL"),
+    "physics-dashboard": ("SCIENCE", "native extra optional", "OPTIONAL"),
+    "vision": ("SCIENCE", "[vision] extra", "OPTIONAL"),
+    "completion": ("DEVELOPER", "Python", "READY"),
+}
+
+
+def _get_subparsers(parser):
+    """Return the root command registry from an argparse parser."""
+    for action in parser._actions:
+        if isinstance(action, argparse._SubParsersAction):
+            return action
+    raise RuntimeError("Aion command parser has no subcommands")
+
+
+def _command_rows(subparsers, search=None):
+    descriptions = {
+        action.dest: action.help
+        for action in subparsers._choices_actions
+    }
+    query = search.casefold().strip() if search else ""
+    rows = []
+    for command, command_parser in subparsers.choices.items():
+        description = command_parser.description or descriptions.get(command)
+        if not description or description == "==SUPPRESS==":
+            description = "Command options and actions"
+        category, requirements, status = _HELP_METADATA.get(
+            command,
+            ("OTHER", "See command help", "READY"),
+        )
+        row = {
+            "command": command,
+            "category": category,
+            "description": description,
+            "requirements": requirements,
+            "status": status,
+            "example": _HELP_EXAMPLES.get(command, f"aion {command}"),
+        }
+        if query and not any(query in str(value).casefold() for value in row.values()):
+            continue
+        rows.append(row)
+    return rows
+
+
+def _render_table(headers, rows, widths):
+    """Render wrapped rows as a portable ASCII table."""
+    separator = "+-" + "-+-".join("-" * width for width in widths) + "-+"
+    lines = [
+        separator,
+        "| " + " | ".join(f"{header:<{width}}" for header, width in zip(headers, widths)) + " |",
+        separator,
+    ]
+    for row in rows:
+        wrapped = [
+            textwrap.wrap(
+                str(value),
+                width=width,
+                break_long_words=False,
+                break_on_hyphens=False,
+            ) or [""]
+            for value, width in zip(row, widths)
+        ]
+        for index in range(max(len(cell) for cell in wrapped)):
+            lines.append(
+                "| "
+                + " | ".join(
+                    f"{cell[index] if index < len(cell) else '':<{width}}"
+                    for cell, width in zip(wrapped, widths)
+                )
+                + " |"
+            )
+        lines.append(separator)
+    return lines
+
+
+def _format_help_table(subparsers, search=None) -> str:
+    """Build the categorized command reference shown by ``aion --help``."""
+    rows = _command_rows(subparsers, search=search)
+    overview_rows = [
+        (row["command"], row["category"], row["description"], row["status"])
+        for row in rows
+    ]
+    detail_rows = [
+        (row["command"], row["requirements"], row["example"])
+        for row in rows
+    ]
+    lines = [
+        "",
+        "AION COMMAND REFERENCE" + (f" — SEARCH: {search}" if search else ""),
+    ]
+    lines.extend(_render_table(
+        ("COMMAND", "CATEGORY", "DESCRIPTION", "STATUS"),
+        overview_rows,
+        (18, 12, 48, 10),
+    ))
+    lines.extend(["", "COMMAND DETAILS"])
+    lines.extend(_render_table(
+        ("COMMAND", "REQUIREMENTS", "EXAMPLE"),
+        detail_rows,
+        (18, 28, 38),
+    ))
+
+    lines.extend(
+        [
+            "",
+            "QUICK START",
+            "  aion install                 Interactive dependency installer",
+            "  aion info                    Show runtime and optional modules",
+            "  aion doctor                  Diagnose the research environment",
+            "  aion start                   Open the Aion Hub dashboard",
+            "",
+            "COMMON OPTIONS",
+            "  aion --help                  Show this command table",
+            "  aion --version               Show the installed Aion version",
+            "  aion <command> --help        Show options for one command",
+            "  aion help --search physics  Find commands by name or description",
+            "  aion --help --json           Export this reference as JSON",
+            "  aion completion zsh          Install shell completion support",
+            "",
+            "NOTES",
+            "  Optional features may need an extra, for example:",
+            "  pip install 'aqwel-aion[monitor]'",
+            "  If the aion command is not on PATH, use: python3 -m aion <command>",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _format_help_json(subparsers, search=None) -> str:
+    """Return command metadata for scripts and documentation tooling."""
+    return json.dumps(_command_rows(subparsers, search=search), indent=2, ensure_ascii=False)
+
+
+def _completion_script(shell, commands):
+    """Return a lightweight completion script for a supported shell."""
+    command_list = " ".join(commands)
+    if shell == "bash":
+        return f'''_aion_completion() {{
+    local current="${{COMP_WORDS[COMP_CWORD]}}"
+    COMPREPLY=( $(compgen -W "{command_list}" -- "$current") )
+}}
+complete -F _aion_completion aion
+'''
+    if shell == "zsh":
+        return f'''#compdef aion
+_arguments '1:command:(({command_list}))'
+'''
+    if shell == "fish":
+        return f'''complete -c aion -f -a "{command_list}"
+'''
+    if shell == "powershell":
+        return f'''Register-ArgumentCompleter -Native -CommandName aion -ScriptBlock {{
+    param($wordToComplete, $commandAst, $cursorPosition)
+    "{command_list}" -split " " | Where-Object {{ $_ -like "$wordToComplete*" }} |
+        ForEach-Object {{ [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_) }}
+}}
+'''
+    raise ValueError(f"Unsupported shell: {shell}")
+
+
 def _build_parser():
     parser = argparse.ArgumentParser(
         description="Aqwel-Aion - AI utilities and research library CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-High-value commands:
-  aion help                      Show all available Aion commands
-  aion config                    Manage CLI settings (~/.aion.yaml)
-  aion start / aion ui           Open the Aion Hub dashboard in the browser
-  aion usage / aion stats        Token usage & cost dashboard (browser)
-  aion info                      Show environment and optional dependencies
-  aion embed <file>              Embed a file (or use --text)
-  aion eval <preds> <answers>    Evaluate predictions
-  aion prompt --list             List prompt templates
-  aion chat                      Interactive prompt tool (template-only)
-  aion physics / aion universe   Physics toolkit / astronomy toolkit
-  aion vision                    Computer vision (I/O, convert, edges) — needs [vision]
-
-Other commands:
-  aion git --help                Git repository tools
-  aion monitor / dashboard       Hardware dashboard + API (needs pip install 'aqwel-aion[monitor]')
-  aion --version                 Show version
-  aion welcome                   Animated install screen (module list)
-  aion doctor                    Check research environment (deps, tracker, native ext)
-  aion benchmark                 Run standard ML benchmark suite
-
-If ``aion`` is not found after pip install, your Python scripts directory is not on PATH.
-Use the same commands as: python3 -m aion …   (example: python3 -m aion monitor)
-        """,
+        epilog="Use `aion <command> --help` for detailed options.",
     )
     parser.add_argument("--version", action="store_true", help="Show version and exit")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    parser.add_argument("--json", dest="json_help", action="store_true", help="Export command reference as JSON")
+    subparsers = parser.add_subparsers(
+        dest="command",
+        metavar="COMMAND",
+        help=argparse.SUPPRESS,
+    )
 
     # start (hub)
     start_parser = subparsers.add_parser("start", help="Open the Aion Hub dashboard in the browser")
@@ -166,6 +376,60 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
     # version
     subparsers.add_parser("version", help="Show package version")
 
+    # setup (interactive optional dependency profiles)
+    setup_parser = subparsers.add_parser(
+        "setup",
+        help="Choose and install an Aion feature profile",
+    )
+    setup_parser.add_argument(
+        "--profile",
+        choices=("core", "ai", "science", "vision", "llm", "full"),
+        help="Install a profile without opening the interactive menu",
+    )
+    setup_parser.add_argument(
+        "--local",
+        action="store_true",
+        help="Install the current checkout in editable mode",
+    )
+    setup_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the pip command without running it",
+    )
+    setup_parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Choose the full dependency set without asking",
+    )
+    setup_parser.add_argument(
+        "--yes",
+        action="store_true",
+        help="Start installation without final confirmation",
+    )
+    setup_parser.add_argument(
+        "--no-color",
+        action="store_true",
+        help="Disable terminal colors",
+    )
+    setup_parser.add_argument(
+        "--no-animation",
+        action="store_true",
+        help="Show the AION logo without animation",
+    )
+
+    # install is the framework-style alias for setup.
+    install_parser = subparsers.add_parser(
+        "install",
+        help="Interactive installation wizard for Aion feature profiles",
+    )
+    install_parser.add_argument("--profile", choices=("core", "ai", "science", "vision", "llm", "full"))
+    install_parser.add_argument("--local", action="store_true", help="Install the current checkout in editable mode")
+    install_parser.add_argument("--dry-run", action="store_true", help="Print the pip command without running it")
+    install_parser.add_argument("--full", action="store_true", help="Choose all optional dependencies without asking")
+    install_parser.add_argument("--yes", action="store_true", help="Start without final confirmation")
+    install_parser.add_argument("--no-color", action="store_true", help="Disable terminal colors")
+    install_parser.add_argument("--no-animation", action="store_true", help="Show the AION logo without animation")
+
     # welcome (install animation)
     welcome_parser = subparsers.add_parser(
         "welcome",
@@ -238,11 +502,25 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
 
     # config
     config_parser = subparsers.add_parser("config", help="Manage Aion CLI configuration")
-    config_parser.add_argument("key", nargs="?", help="Config key (e.g., universe.latitude)")
+    config_parser.add_argument("key", nargs="?", help="Config key (e.g., universe.latitude or theme)")
     config_parser.add_argument("value", nargs="?", help="Value to set")
 
+    # shell completion
+    completion_parser = subparsers.add_parser(
+        "completion",
+        help="Print shell completion script",
+    )
+    completion_parser.add_argument(
+        "shell",
+        choices=("bash", "zsh", "fish", "powershell"),
+        help="Shell to configure",
+    )
+
     # help
-    subparsers.add_parser("help", help="Show all available Aion commands")
+    help_parser = subparsers.add_parser("help", help="Show all available Aion commands")
+    help_parser.add_argument("topic", nargs="?", help="Command to explain, for example: install")
+    help_parser.add_argument("--search", metavar="TEXT", help="Find commands by name or description")
+    help_parser.add_argument("--json", dest="json_help", action="store_true", help="Export matching commands as JSON")
 
     def _add_usage_args(p):
         p.add_argument("--host", default="127.0.0.1", help="Bind address (default 127.0.0.1)")
@@ -379,6 +657,9 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
 
     build_vision_parser(vision_parser)
 
+    # Keep the root usage compact without leaking it into subcommand help.
+    parser.usage = "%(prog)s [--version] COMMAND [OPTIONS]"
+    parser.epilog = _format_help_table(subparsers)
     return parser, git_parser
 
 
@@ -402,48 +683,112 @@ def version_command():
     print(f"aion {_version_string()}")
 
 
+def _info_style(text: str, code: str, enabled: bool) -> str:
+    return f"\033[{code}m{text}\033[0m" if enabled else text
+
+
+def _info_status(available: bool, *, color: bool) -> str:
+    if available:
+        return _info_style("● ready", "92", color)
+    return _info_style("○ optional", "2", color)
+
+
+def _module_available(module_name: str) -> bool:
+    """Check an optional module without importing its compiled dependencies."""
+    try:
+        return importlib.util.find_spec(module_name) is not None
+    except Exception:
+        return False
+
+
 def info_command():
-    """Print environment and optional dependency status."""
+    """Print a modern environment and optional dependency dashboard."""
     from . import __version__
-    from . import embed
-    print("Aqwel-Aion (aion) - Environment")
-    print("=" * 50)
-    print(f"Version:    {__version__}")
-    print(f"Python:     {sys.version.split()[0]}")
+
+    color = (
+        hasattr(sys.stdout, "isatty")
+        and sys.stdout.isatty()
+        and not os.environ.get("NO_COLOR")
+    )
+    def green(value: str) -> str:
+        return _info_style(value, "92", color)
+
+    def cyan(value: str) -> str:
+        return _info_style(value, "96", color)
+
+    def muted(value: str) -> str:
+        return _info_style(value, "2", color)
+
+    def white(value: str) -> str:
+        return _info_style(value, "1", color)
+
+    width = 58
     print()
+    print(cyan("  ╭" + "─" * width + "╮"))
+    print(cyan("  │") + white("  AION  /  ENVIRONMENT") + " " * (width - 24) + cyan("│"))
+    print(cyan("  │") + muted("  Aqwel AI research library") + " " * (width - 28) + cyan("│"))
+    print(cyan("  ╰" + "─" * width + "╯"))
+    print()
+
+    print(white("  Runtime"))
+    print(f"  {green('●')} Aion       {__version__}")
+    print(f"  {green('●')} Python     {sys.version.split()[0]}  ({platform.system()} {platform.machine()})")
+
+    try:
+        import numpy as np
+        numpy_state = f"{_info_status(True, color=color)}  {np.__version__}"
+    except ImportError:
+        numpy_state = _info_status(False, color=color)
+    print(f"  {green('●')} NumPy      {numpy_state}")
+    print()
+
+    print(white("  Optional modules"))
     optional = []
     try:
-        from . import embed
-        optional.append(("sentence-transformers", getattr(embed, "_HAS_SENTENCE_TRANSFORMERS", False)))
+        optional.append(("sentence-transformers", _module_available("sentence_transformers"), "rag"))
     except Exception:
-        optional.append(("sentence-transformers", False))
-    try:
-        import matplotlib  # type: ignore[import-untyped]
-        optional.append(("matplotlib", True))
-    except ImportError:
-        optional.append(("matplotlib", False))
-    try:
-        import openai  # type: ignore[import-untyped]
-        optional.append(("openai", True))
-    except ImportError:
-        optional.append(("openai", False))
-    print("Optional dependencies:")
-    for name, available in optional:
-        print(f"  {name}: {'available' if available else 'not installed'}")
+        optional.append(("sentence-transformers", False, "rag"))
+    optional.extend(
+        [
+            ("matplotlib", _module_available("matplotlib"), "viz"),
+            ("openai", _module_available("openai"), "ai"),
+            ("pandas", _module_available("pandas"), "ai"),
+            ("Pillow", _module_available("PIL"), "vision"),
+            ("OpenCV", _module_available("cv2"), "vision"),
+        ]
+    )
+    for name, available, extra in optional:
+        detail = _info_status(available, color=color)
+        if not available:
+            detail += muted(f"  pip install 'aqwel-aion[{extra}]'")
+        print(f"  {detail:<18} {name}")
+
     try:
         from .native import native_backends
-
-        for status in native_backends().values():
-            state = "available" if status.available else f"fallback ({status.fallback})"
-            print(f"  {status.name} (C++): {state}")
+        native = list(native_backends().values())
     except Exception:
-        print("  native C++ backends: unavailable")
+        native = []
     print()
-    print("Git integration:", "available" if GIT_AVAILABLE else "not installed (pip install gitpython)")
-    print()
+    print(white("  Native acceleration"))
+    for status in native:
+        state = _info_status(status.available, color=color)
+        if not status.available:
+            state += muted(f"  {status.fallback} fallback")
+        print(f"  {state:<18} {status.name}")
 
-    print("Usage: aion <command> [options]")
-    print("       aion --help")
+    print()
+    git_state = _info_status(GIT_AVAILABLE, color=color)
+    if not GIT_AVAILABLE:
+        git_state += muted("  pip install gitpython")
+    print(white("  Integrations"))
+    print(f"  {git_state:<18} Git integration")
+    print()
+    print(white("  Quick commands"))
+    print(f"  {cyan('aion install')}   Choose and install feature dependencies")
+    print(f"  {cyan('aion doctor')}    Check the research environment")
+    print(f"  {cyan('aion start')}     Open Aion Hub")
+    print(f"  {cyan('aion --help')}    Show all commands")
+    print()
 
 
 def embed_command(filepath=None, text=None, model="all-MiniLM-L6-v2", output=None):
@@ -679,17 +1024,33 @@ def git_diff_command(repo_path=".", commit_hash=None):
         print("No changes to show.")
 
 
-def main():
+def _main():
     """
     Parse command-line arguments and dispatch to the appropriate subcommand.
     Prints help when no command is given or when a subcommand is unknown.
     """
     parser, git_parser = _build_parser()
+    subparsers = _get_subparsers(parser)
+    raw_args = sys.argv[1:]
+
+    # argparse exits immediately for --help, so handle the root JSON form first.
+    if (
+        ("--help" in raw_args or "-h" in raw_args)
+        and "--json" in raw_args
+        and all(argument in {"--help", "-h", "--json"} for argument in raw_args)
+    ):
+        print(_format_help_json(subparsers))
+        return
+
     args = parser.parse_args()
 
+    if getattr(args, "json_help", False) and args.command is None:
+        print(_format_help_json(subparsers))
+        return
+
     # Once per installed/updated version (wheel installs skip setuptools hooks).
-    # Skip for ``aion welcome`` so the animation is not shown twice.
-    if args.command != "welcome" and not os.environ.get("AION_NO_SPLASH"):
+    # Skip informational commands so output stays directly usable in scripts.
+    if args.command not in ("welcome", "help", "completion", "setup", "install") and not os.environ.get("AION_NO_SPLASH"):
         try:
             from .install_splash import maybe_show_install_splash
 
@@ -746,6 +1107,28 @@ def main():
 
         show_install_splash(animated=not getattr(args, "no_animation", False))
         return
+    if args.command == "completion":
+        print(_completion_script(args.shell, subparsers.choices.keys()), end="")
+        return
+    if args.command in ("setup", "install"):
+        from .installer import main as installer_main
+
+        installer_args = []
+        if args.profile:
+            installer_args.extend(["--profile", args.profile])
+        if args.local:
+            installer_args.append("--local")
+        if args.dry_run:
+            installer_args.append("--dry-run")
+        if args.full:
+            installer_args.append("--full")
+        if args.yes:
+            installer_args.append("--yes")
+        if args.no_color:
+            installer_args.append("--no-color")
+        if args.no_animation:
+            installer_args.append("--no-animation")
+        raise SystemExit(installer_main(installer_args))
     if args.command == "doctor":
         from .doctor import main as doctor_main
 
@@ -800,7 +1183,30 @@ def main():
         return
 
     if args.command == "help":
-        parser.print_help()
+        if args.search:
+            if args.json_help:
+                print(_format_help_json(subparsers, search=args.search))
+            else:
+                print(_format_help_table(subparsers, search=args.search))
+            return
+        if args.topic:
+            command_parser = subparsers.choices.get(args.topic)
+            if command_parser is None:
+                parser.error(f"unknown help topic: {args.topic}")
+            if args.json_help:
+                rows = _command_rows(subparsers)
+                print(json.dumps(
+                    [row for row in rows if row["command"] == args.topic],
+                    indent=2,
+                    ensure_ascii=False,
+                ))
+            else:
+                command_parser.print_help()
+            return
+        if args.json_help:
+            print(_format_help_json(subparsers))
+        else:
+            parser.print_help()
         return
 
     if args.command in ("usage", "stats"):
@@ -897,3 +1303,27 @@ def main():
         git_parser.print_help()
     else:
         parser.print_help()
+
+
+def _print_cli_cancelled() -> None:
+    """Print one consistent cancellation message for every CLI command."""
+    color = (
+        hasattr(sys.stdout, "isatty")
+        and sys.stdout.isatty()
+        and not os.environ.get("NO_COLOR")
+    )
+    if color:
+        print("\033[31m\n  ✕ Operation cancelled by user.\033[0m")
+        print("\033[2m  No changes were made.\033[0m\n")
+    else:
+        print("\n  ✕ Operation cancelled by user.")
+        print("  No changes were made.\n")
+
+
+def main():
+    """Run the CLI and handle Ctrl+C without displaying a traceback."""
+    try:
+        return _main()
+    except KeyboardInterrupt:
+        _print_cli_cancelled()
+        return 130
