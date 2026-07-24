@@ -127,7 +127,7 @@ print(accuracy_score(ds.target, clf.predict(X)))
 
 | Module area | Capabilities |
 |-------------|--------------|
-| `aion.maths`, `aion.algorithms` | Linear algebra; **572+** algorithms across 21 categories |
+| `aion.maths`, `aion.algorithms` | Sectioned mathematics and linear algebra; **572+** algorithms across 21 categories |
 | `aion.preprocessing`, `aion.models`, `aion.metrics`, `aion.hyperopt` | Core ML stack (sklearn-style, NumPy-first) |
 | `aion.datasets`, `aion.data` | 24+ built-in benchmarks, loaders, splits |
 | `aion.providers`, `aion.tools`, `aion.rag` | LLM clients, tool loops, RAG |
