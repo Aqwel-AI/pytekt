@@ -83,6 +83,7 @@ Other commands:
   aion monitor / dashboard       Hardware dashboard + API (needs pip install 'aqwel-aion[monitor]')
   aion --version                 Show version
   aion welcome                   Animated install screen (module list)
+  aion setup                     Choose and install an Aion feature profile
   aion doctor                    Check research environment (deps, tracker, native ext)
   aion benchmark                 Run standard ML benchmark suite
 
@@ -165,6 +166,42 @@ Use the same commands as: python3 -m aion …   (example: python3 -m aion monito
 
     # version
     subparsers.add_parser("version", help="Show package version")
+
+    # setup (interactive optional dependency profiles)
+    setup_parser = subparsers.add_parser(
+        "setup",
+        help="Choose and install an Aion feature profile",
+    )
+    setup_parser.add_argument(
+        "--profile",
+        choices=("core", "ai", "science", "vision", "llm", "full"),
+        help="Install a profile without opening the interactive menu",
+    )
+    setup_parser.add_argument(
+        "--local",
+        action="store_true",
+        help="Install the current checkout in editable mode",
+    )
+    setup_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the pip command without running it",
+    )
+    setup_parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Choose the full dependency set without asking",
+    )
+    setup_parser.add_argument(
+        "--yes",
+        action="store_true",
+        help="Start installation without final confirmation",
+    )
+    setup_parser.add_argument(
+        "--no-color",
+        action="store_true",
+        help="Disable terminal colors",
+    )
 
     # welcome (install animation)
     welcome_parser = subparsers.add_parser(
@@ -746,6 +783,23 @@ def main():
 
         show_install_splash(animated=not getattr(args, "no_animation", False))
         return
+    if args.command == "setup":
+        from .installer import main as installer_main
+
+        installer_args = []
+        if args.profile:
+            installer_args.extend(["--profile", args.profile])
+        if args.local:
+            installer_args.append("--local")
+        if args.dry_run:
+            installer_args.append("--dry-run")
+        if args.full:
+            installer_args.append("--full")
+        if args.yes:
+            installer_args.append("--yes")
+        if args.no_color:
+            installer_args.append("--no-color")
+        raise SystemExit(installer_main(installer_args))
     if args.command == "doctor":
         from .doctor import main as doctor_main
 

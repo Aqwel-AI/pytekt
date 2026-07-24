@@ -840,6 +840,7 @@ aion --help
 | `aion universe web` | Astronomy web dashboard (sky map, moon, cosmology) |
 | `aion config` | CLI / library settings (`~/.aion.yaml`) |
 | `aion start` / `aion ui` | Open **Aion Hub** (module explorer, playground, quick reference) |
+| `aion setup` | Green installer wizard for core, AI, science, vision, LLM, or full profiles |
 | `aion ui --report DIR` | Build experiment HTML dashboard from tracker directory |
 | `aion ui --list` | List all available UIs (hub, monitor, reports, Gradio, Streamlit) |
 | `aion info` | Environment and optional dependency status |
@@ -853,7 +854,15 @@ aion --help
 aion start                    # http://127.0.0.1:3000
 aion start --port 8080        # custom port
 aion start --no-browser      # server only
+aion setup                    # interactive installer wizard
+aion setup --profile ai       # non-interactive profile
+aion setup --profile ai --full --yes  # full install without prompts
 ```
+
+`aion setup` always includes the core runtime dependencies (`numpy`,
+`watchdog`, `gitpython`, and `certifi`). It then asks whether to install only
+the selected profile or the complete optional dependency set. Use
+`--dry-run` to inspect the pip command before installation.
 
 The repository includes root **`example.py`**: algorithms and visualization (sections 1–3), plus v0.1.9 areas ( **`aion.io`**, providers, tools, RAG, config, env, benchmarks, graphs, 3D/PDF, **`aion.pdf`** ). Run **`python example.py`** after installing dependencies for the sections you need (e.g. matplotlib for plots; **`[config]`** for the TOML sample in section 4).
 
