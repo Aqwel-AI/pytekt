@@ -1,0 +1,45 @@
+"""Tests for the structured Aion CLI help catalog."""
+
+import json
+
+from aion.cli import (
+    _build_parser,
+    _command_rows,
+    _completion_script,
+    _format_help_json,
+    _get_subparsers,
+)
+
+
+def test_help_metadata_covers_every_command():
+    parser, _ = _build_parser()
+    subparsers = _get_subparsers(parser)
+
+    rows = _command_rows(subparsers)
+
+    assert {row["command"] for row in rows} == set(subparsers.choices)
+    assert all(row["category"] for row in rows)
+    assert all(row["requirements"] for row in rows)
+    assert all(row["status"] for row in rows)
+    assert all(row["example"] for row in rows)
+
+
+def test_help_json_is_valid_and_searchable():
+    parser, _ = _build_parser()
+    subparsers = _get_subparsers(parser)
+
+    all_rows = json.loads(_format_help_json(subparsers))
+    physics_rows = json.loads(_format_help_json(subparsers, search="physics"))
+
+    assert len(all_rows) == len(subparsers.choices)
+    assert {row["command"] for row in physics_rows} == {"physics", "physics-dashboard"}
+
+
+def test_completion_scripts_include_aion_commands():
+    parser, _ = _build_parser()
+    commands = _get_subparsers(parser).choices.keys()
+
+    for shell in ("bash", "zsh", "fish", "powershell"):
+        script = _completion_script(shell, commands)
+        assert "aion" in script
+        assert "physics" in script

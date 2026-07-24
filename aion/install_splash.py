@@ -310,6 +310,11 @@ def show_install_splash(
     _write_line()
     _write_line(accent(bold("  ✓ Installation complete", on=color_on), on=color_on))
     _write_line()
+    _write_line(accent(bold("  ╔════════════════════════════════════════════╗", on=color_on), on=color_on))
+    _write_line(accent(bold("  ║                 THANK YOU                  ║", on=color_on), on=color_on))
+    _write_line(accent(bold("  ╚════════════════════════════════════════════╝", on=color_on), on=color_on))
+    _write_line(cyan("  Aqwel AI: https://aqwelai.xyz", on=color_on))
+    _write_line()
     mark_install_splash_shown(version)
 
 
