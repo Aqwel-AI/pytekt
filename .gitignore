@@ -1,7 +1,5 @@
-# Aqwel Aion library - things to hide from the repo
-# ==============================================
-# Patterns apply recursively. After editing, run: git status --short
-# (ignored files only show with: git status --ignored)
+# Aqwel Aion — safe defaults for open source (never commit secrets or local state)
+# Run: git status --ignored   to audit
 
 # Python
 # ------
@@ -9,63 +7,153 @@
 **/*.py[cod]
 **/*$py.class
 **/*.so
-.Python
 **/*.pyd
+.Python
 *.egg
 **/.eggs/
 **/*.egg-info/
+**/*.egg
 
-# Build & distribution
-# --------------------
+# Native extension (built locally per machine)
+# -----------------------------------------
+aion/_aion_core*.so
+aion/_aion_core*.pyd
+
+# Build & packaging
+# -----------------
 build/
 dist/
+*.manifest
+*.spec
 
-# Virtual environments
-# --------------------
-.venv/
-venv/
-env/
-ENV/
+# Virtual environments (root only — do not ignore aion/env package)
+# ----------------------------------------------------------------
+/.venv/
+/venv/
+/env/
+/ENV/
+.nox/
+.tox/
 
-# Secrets (never commit)
-# ----------------------
+# Secrets & credentials (NEVER commit)
+# ------------------------------------
 .env
 .env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+credentials/
+secrets/
+**/secrets/
+id_rsa
+id_rsa.*
+*.secret
 
-# IDE / editor
-# ------------
+# User Aion config (API keys, agent prefs — lives on your machine only)
+# ---------------------------------------------------------------------
+.aion.yaml
+.aion.yml
+.aion/
+**/.aion.yaml
+*.local.yaml
+*.local.yml
+*.local.toml
+config.local.*
+
+# IDE / editor / AI assistants
+# ----------------------------
 .idea/
 .vscode/
 .cursor/
+*.swp
+*.swo
+*~
 
-# OS junk
-# -------
+# OS
+# --
 .DS_Store
 **/.DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
+Desktop.ini
 
-# Testing & tools
-# ---------------
+# Testing & quality
+# -------------------
 .coverage
 .coverage.*
 htmlcov/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.hypothesis/
 **/.ipynb_checkpoints/
-
-# Generated output
-# ----------------
-example_output/
-aion/former/examples_results/*.png
 
 # Logs & temp
 # -----------
 *.log
+logs/
 *.tmp
 *.temp
+*.bak
 
-# Accidental / scratch (do not re-add)
-# ------------------------------------
+# ML / research artifacts (local experiments)
+# -------------------------------------------
+wandb/
+mlruns/
+runs/
+tensorboard/
+tensorboard_logs/
+lightning_logs/
+checkpoints/
+checkpoint/
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.joblib
+data/raw/
+data/private/
+datasets/private/
+private_data/
+experiments/local/
+
+# Local SQLite / agent caches
+# ---------------------------
+*.sqlite
+*.sqlite3
+.aion_cache/
+.aion_store/
+**/.aion/usage/events.jsonl
+**/node_modules/
+aion/usage/web/dist/
+.agent/
+
+# Generated output (regenerate locally; do not push)
+# --------------------------------------------------
+example_output/
+aion/former/examples_results/*.png
+
+# Legacy empty package dirs (use aion/cli_agent/ and code.py only)
+# ---------------------------------------------------------------
+aion/agent/
+aion/code/
+
+# Archived code (kept locally, not shipped)
+# -----------------------------------------
+archived/
+
+# Scratch / accidental
+# --------------------
 text.txt
 LICENSE copy
+scratch/
+tmp/

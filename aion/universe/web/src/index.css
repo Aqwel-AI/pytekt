@@ -1,0 +1,35 @@
+:root {
+  --bg: #080a0f;
+  --surface: #12161f;
+  --surface-elevated: #1a2030;
+  --border: #2a3348;
+  --text: #f2f5fa;
+  --muted: #8b95ab;
+  --accent: #12b981;
+  --accent-bright: #20d492;
+  --accent-dim: #0c8260;
+  --accent-glow: rgba(18, 185, 129, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}

@@ -1,6 +1,25 @@
 include README.md
-include 0.1.9.png
+include SECURITY.md
+include CHANGELOG.md
+include LICENSE
+include .env.example
+include docs/PROJECT_STRUCTURE.md
+recursive-include src *.cpp *.hpp *.h *.cc *.cxx
+prune aion/physics/web/node_modules
+prune aion/universe/web/node_modules
+prune aion/usage/web/node_modules
+global-exclude */node_modules/*
+global-exclude node_modules
+recursive-include aion/usage/static *
+recursive-include aion/usage/static/assets *
+recursive-include aion/universe/static *
+recursive-include aion/universe/static/assets *
+recursive-include aion/physics/static *
+include aion/py.typed
 recursive-include aion *.py
+recursive-include aion/monitor/static *.html
+recursive-include aion/monitor *.md
+recursive-include aion/monitor/examples *.md *.py
 recursive-include aion/io *.md
 recursive-include aion/io/examples *.md *.py
 recursive-include aion/providers *.md
@@ -9,6 +28,10 @@ recursive-include aion/rag *.md
 recursive-include aion/rag/examples *.md *.py
 recursive-include aion/tools *.md
 recursive-include aion/tools/examples *.md *.py
+recursive-include aion/vision *.md
+recursive-include aion/vision/examples *.md *.py
+include aion/physics/README.md
+include aion/universe/README.md
 recursive-include aion/config/examples *.ipynb *.toml *.yaml *.md
 recursive-include aion/former/core *.md
 recursive-include aion/former/datasets *.md

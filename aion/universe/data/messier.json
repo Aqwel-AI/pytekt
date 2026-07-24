@@ -1,0 +1,12 @@
+[
+  {"id": "M1", "name": "Crab Nebula", "ra_hours": 5.5755, "dec_deg": 22.0145, "type": "SNR"},
+  {"id": "M31", "name": "Andromeda Galaxy", "ra_hours": 0.7120, "dec_deg": 41.2692, "type": "Galaxy"},
+  {"id": "M42", "name": "Orion Nebula", "ra_hours": 5.5880, "dec_deg": -5.3911, "type": "HII"},
+  {"id": "M45", "name": "Pleiades", "ra_hours": 3.7917, "dec_deg": 24.1050, "type": "Open cluster"},
+  {"id": "M13", "name": "Hercules Globular", "ra_hours": 16.6953, "dec_deg": 36.4617, "type": "Globular"},
+  {"id": "M57", "name": "Ring Nebula", "ra_hours": 18.8870, "dec_deg": 33.0292, "type": "PN"},
+  {"id": "M51", "name": "Whirlpool Galaxy", "ra_hours": 13.4989, "dec_deg": 47.1953, "type": "Galaxy"},
+  {"id": "M81", "name": "Bode Galaxy", "ra_hours": 9.9250, "dec_deg": 69.0653, "type": "Galaxy"},
+  {"id": "M82", "name": "Cigar Galaxy", "ra_hours": 9.9280, "dec_deg": 69.6797, "type": "Galaxy"},
+  {"id": "M104", "name": "Sombrero Galaxy", "ra_hours": 12.6660, "dec_deg": -11.6231, "type": "Galaxy"}
+]

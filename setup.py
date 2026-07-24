@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Setup script for Aqwel-Aion v0.1.9
-Professional AI Research & Development Library
+Setup script for Aqwel-Aion v0.2.0
+Open-source AI research library (physics, universe, ML, RAG, vision)
 
 Author: Aksel Aghajanyan
 Developed by: Aqwel AI Team
@@ -11,6 +11,29 @@ License: Apache-2.0
 
 import os
 from setuptools import setup, find_packages, Extension
+from setuptools.command.develop import develop as _develop_cmd
+from setuptools.command.install import install as _install_cmd
+
+
+def _post_install_splash() -> None:
+    try:
+        from aion.install_splash import maybe_show_install_splash
+
+        maybe_show_install_splash()
+    except Exception:
+        pass
+
+
+class InstallCommand(_install_cmd):
+    def run(self) -> None:
+        super().run()
+        _post_install_splash()
+
+
+class DevelopCommand(_develop_cmd):
+    def run(self) -> None:
+        super().run()
+        _post_install_splash()
 
 
 def read_readme():
@@ -28,42 +51,78 @@ def read_requirements():
 
 
 def _get_extensions():
-    """Build C++ extension if pybind11 and source are available."""
+    """Build C++ extensions if pybind11 and sources are available."""
     try:
-        import pybind11
+        import pybind11  # pyright: ignore[reportMissingImports]
         include = [pybind11.get_include()]
     except ImportError:
         return []
-    # Use path relative to setup.py directory (no absolute paths)
-    src = "src/aion_core.cpp"
-    if not os.path.isfile(src):
-        return []
-    return [
-        Extension(
-            "aion._aion_core",
-            sources=[src],
-            include_dirs=include,
-            extra_compile_args=["-O3", "-std=c++14"] if os.name != "nt" else ["/O2", "/std:c++14"],
-            language="c++",
+    root = os.path.dirname(os.path.abspath(__file__))
+    src_dir = os.path.join(root, "src")
+    include = include + [src_dir]
+    cxx_args = ["-O3", "-std=c++14"] if os.name != "nt" else ["/O2", "/std:c++14"]
+    exts = []
+    if os.path.isfile(os.path.join(src_dir, "aion_core.cpp")):
+        exts.append(
+            Extension(
+                "aion._aion_core",
+                sources=["src/aion_core.cpp"],
+                include_dirs=include,
+                extra_compile_args=cxx_args,
+                language="c++",
+            )
         )
-    ]
+    if os.path.isfile(os.path.join(src_dir, "aion_bigdata.cpp")):
+        exts.append(
+            Extension(
+                "aion._aion_bigdata",
+                sources=["src/aion_bigdata.cpp"],
+                include_dirs=include,
+                extra_compile_args=cxx_args,
+                language="c++",
+            )
+        )
+    if os.path.isfile(os.path.join(src_dir, "aion_universe.cpp")):
+        exts.append(
+            Extension(
+                "aion._aion_universe",
+                sources=["src/aion_universe.cpp"],
+                include_dirs=include,
+                extra_compile_args=cxx_args,
+                language="c++",
+            )
+        )
+    if os.path.isfile(os.path.join(src_dir, "aion_physics.cpp")):
+        exts.append(
+            Extension(
+                "aion._aion_physics",
+                sources=["src/aion_physics.cpp"],
+                include_dirs=include,
+                extra_compile_args=cxx_args,
+                language="c++",
+            )
+        )
+    return exts
 
 
 setup(
     name="aqwel-aion",
-    version="0.1.9",
+    version="0.2.0",
     author="Aksel Aghajanyan",
     maintainer="Aqwel AI Team",
     description=(
-        "Complete AI Research & Development Library with "
-        "Advanced Mathematics, AI, and Visualization Tools"
+        "Open-source AI library for researchers and data scientists "
+        "(physics, universe, ML, RAG, vision)"
     ),
     long_description=read_readme(),
     long_description_content_type="text/markdown",
     url="https://aqwelai.xyz/",
     project_urls={
-        "Homepage": "https://aqwelai.xyz",
+        "Homepage": "https://aqwelai.xyz/",
         "Documentation": "https://aqwelai.xyz/#/docs",
+        "Repository": "https://github.com/Aqwel-AI/Aion",
+        "Changelog": "https://github.com/Aqwel-AI/Aion/blob/main/CHANGELOG.md",
+        "Issues": "https://github.com/Aqwel-AI/Aion/issues",
         "PyPI": "https://pypi.org/project/aqwel-aion/",
     },
     packages=find_packages(),
@@ -74,7 +133,10 @@ setup(
         "Intended Audience :: Science/Research",
         "Intended Audience :: Education",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Scientific/Engineering :: Astronomy",
+        "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Mathematics",
+        "Topic :: Scientific/Engineering :: Image Processing",
         "Topic :: Scientific/Engineering :: Visualization",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Text Processing",
@@ -87,16 +149,17 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
     ],
     keywords=[
         "ai-research",
         "machine-learning",
-        "mathematics",
-        "statistics",
         "data-science",
-        "visualization",
+        "llm",
+        "physics",
+        "astronomy",
+        "computer-vision",
         "scientific-computing",
-        "research-tools",
         "aqwel-ai",
     ],
     python_requires=">=3.8",
@@ -106,6 +169,7 @@ setup(
         "numpy>=1.21.0",
         "watchdog>=2.1.0",
         "gitpython>=3.1.0",
+        "certifi>=2023.0.0",
     ],
 
     # Optional feature dependencies
@@ -115,6 +179,13 @@ setup(
         "viz": [
             "matplotlib>=3.5.0",
             "seaborn>=0.11.0",
+            "numpy>=1.20.0",
+        ],
+        "viz3d": [
+            "plotly>=5.18.0",
+            "matplotlib>=3.5.0",
+            "seaborn>=0.11.0",
+            "numpy>=1.20.0",
         ],
 
         # Transformer training (Aion Former: decoder-only, NumPy autograd)
@@ -141,6 +212,12 @@ setup(
             "pillow>=9.0.0",
         ],
 
+        # Computer vision (image I/O, transforms, OpenCV helpers)
+        "vision": [
+            "pillow>=9.0.0",
+            "opencv-python-headless>=4.5.0",
+        ],
+
         # Development tools
         "dev": [
             "pytest>=7.0",
@@ -159,9 +236,42 @@ setup(
             "tomli>=2.0.0; python_version<'3.11'",
             "pyyaml>=6.0",
         ],
+        "db": [
+            "pymysql>=1.1.0",
+            "psycopg[binary]>=3.1.0",
+            "pymongo>=4.6.0",
+            "redis>=5.0.0",
+        ],
+        "universe": [
+            "matplotlib>=3.5.0",
+        ],
+        "cosmos": [
+            "matplotlib>=3.5.0",
+        ],
+        "physics": [
+            "matplotlib>=3.5.0",
+        ],
+        "serve": [
+            "fastapi>=0.100.0",
+            "uvicorn[standard]>=0.22.0",
+        ],
+        "ui": [
+            "gradio>=4.0.0",
+            "streamlit>=1.28.0",
+        ],
+        "monitor": [
+            "psutil>=5.9.0",
+            "fastapi>=0.100.0",
+            "uvicorn[standard]>=0.22.0",
+            "nvidia-ml-py>=12.0.0",
+        ],
 
         # Full installation (all features; keep in sync with pyproject.toml)
         "full": [
+            "pymysql>=1.1.0",
+            "psycopg[binary]>=3.1.0",
+            "pymongo>=4.6.0",
+            "redis>=5.0.0",
             "scipy>=1.7.0",
             "scikit-learn>=1.0.0",
             "pandas>=1.3.0",
@@ -174,16 +284,31 @@ setup(
             "sentence-transformers>=2.2.0",
             "reportlab>=3.6.0",
             "pillow>=9.0.0",
+            "opencv-python-headless>=4.5.0",
             "tiktoken>=0.5.0",
             "tomli>=2.0.0; python_version<'3.11'",
             "pyyaml>=6.0",
+            "psutil>=5.9.0",
+            "fastapi>=0.100.0",
+            "uvicorn[standard]>=0.22.0",
+            "nvidia-ml-py>=12.0.0",
+            "gradio>=4.0.0",
+            "streamlit>=1.28.0",
         ],
+    },
+    package_data={
+        "aion.monitor": ["static/*.html", "*.md"],
+        "aion.monitor.examples": ["*.md"],
     },
 
     entry_points={
         "console_scripts": [
             "aion=aion.cli:main",
         ],
+    },
+    cmdclass={
+        "install": InstallCommand,
+        "develop": DevelopCommand,
     },
     include_package_data=True,
     zip_safe=False,
