@@ -21,6 +21,7 @@ import importlib.util
 import json
 import os
 import platform
+import shlex
 import signal
 import subprocess
 import sys
@@ -115,6 +116,7 @@ _HELP_EXAMPLES = {
     "release": "aion release check",
     "changelog": "aion changelog generate",
     "completion-install": "aion completion-install zsh",
+    "shell": "aion shell",
     "ask": 'aion ask "explain this result"',
     "project": "aion project init my-research",
     "run": "aion run experiment.py --experiment baseline",
@@ -192,6 +194,7 @@ _HELP_METADATA = {
     "release": ("RELEASE", "Python", "READY"),
     "changelog": ("RELEASE", "Git", "READY"),
     "completion-install": ("DEVELOPER", "Python", "READY"),
+    "shell": ("CORE", "Python", "READY"),
 }
 
 
@@ -301,6 +304,7 @@ def _format_help_table(subparsers, search=None) -> str:
             "  aion info                    Show runtime and optional modules",
             "  aion doctor                  Diagnose the research environment",
             "  aion start                   Open the Aion Hub dashboard",
+            "  aion shell                   Run Aion commands interactively",
             "",
             "COMMON OPTIONS",
             "  aion --help                  Show this command table",
@@ -351,6 +355,70 @@ _arguments '1:command:(({command_list}))'
 }}
 '''
     raise ValueError(f"Unsupported shell: {shell}")
+
+
+_SHELL_HELP = """Aion shell commands:
+  help, ?              Show this message
+  history              Show commands entered in this session
+  exit, quit           Leave the Aion shell
+
+Enter any Aion command without the `aion` prefix, for example:
+  info
+  physics force --mass 2 --acceleration 3
+  help --search physics
+
+The shell only runs Aion commands. It does not execute arbitrary system commands.
+"""
+
+
+def shell_command(command=None, *, input_fn=input, runner=None, output=print):
+    """Run an interactive prompt for Aion commands without invoking a system shell."""
+    runner = runner or subprocess.run
+    history = []
+
+    def run_line(line):
+        line = line.strip()
+        if not line:
+            return True
+        if line in {"help", "?"}:
+            output(_SHELL_HELP.rstrip())
+            return True
+        if line == "history":
+            for index, item in enumerate(history, start=1):
+                output(f"{index:>3}  {item}")
+            return True
+        if line in {"exit", "quit"}:
+            return False
+        try:
+            parts = shlex.split(line)
+        except ValueError as exc:
+            output(f"Invalid command: {exc}")
+            return True
+        if parts and parts[0] == "aion":
+            parts = parts[1:]
+        if not parts:
+            output("Enter an Aion command, for example: info")
+            return True
+        if parts[0] == "shell":
+            output("Nested Aion shells are not supported.")
+            return True
+        history.append(line)
+        runner([sys.executable, "-m", "aion", *parts], check=False)
+        return True
+
+    if command is not None:
+        run_line(command)
+        return
+
+    output("Aion shell — type 'help' for commands and 'exit' to leave.")
+    while True:
+        try:
+            line = input_fn("aion> ")
+        except EOFError:
+            output("")
+            return
+        if not run_line(line):
+            return
 
 
 def _build_parser():
@@ -495,6 +563,16 @@ def _build_parser():
     # chat
     subparsers.add_parser(
         "chat", help="Start interactive chat (prompt templates + embedding)"
+    )
+
+    shell_parser = subparsers.add_parser(
+        "shell", help="Open an interactive prompt for running Aion commands"
+    )
+    shell_parser.add_argument(
+        "-c",
+        "--command",
+        dest="shell_command",
+        help="Run one Aion command and exit (without the `aion` prefix)",
     )
 
     # git
@@ -677,9 +755,9 @@ def _build_parser():
         "config", help="Manage Aion CLI configuration"
     )
     config_parser.add_argument(
-        "key", nargs="?", help="Config key (e.g., universe.latitude or theme)"
+        "items", nargs="*", help="Use list, get KEY, set KEY VALUE, or reset --yes"
     )
-    config_parser.add_argument("value", nargs="?", help="Value to set")
+    config_parser.add_argument("--yes", action="store_true", help="Confirm reset")
 
     # shell completion
     completion_parser = subparsers.add_parser(
@@ -1325,6 +1403,10 @@ def _main():
         print(_format_help_json(subparsers))
         return
 
+    if args.command == "shell":
+        shell_command(args.shell_command)
+        return
+
     from .cli_extensions import run_extended_command
 
     if run_extended_command(args):
@@ -1336,6 +1418,7 @@ def _main():
         "welcome",
         "help",
         "completion",
+        "shell",
         "setup",
         "install",
     ) and not os.environ.get("AION_NO_SPLASH"):
@@ -1533,7 +1616,7 @@ def _main():
     if args.command == "config":
         from .user_config import config_command
 
-        config_command(key=args.key, value=args.value)
+        config_command(items=args.items, confirm=args.yes)
         return
 
     if args.command == "db":

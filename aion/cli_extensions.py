@@ -29,6 +29,15 @@ def add_extended_parsers(subparsers: Any) -> None:
     init.add_argument("path", nargs="?", default=".")
     init.add_argument("--name", default=None)
     project_sub.add_parser("info", help="Show project configuration")
+    project_sub.add_parser("validate", help="Validate the project configuration")
+    clean = project_sub.add_parser("clean", help="Remove generated project files")
+    clean.add_argument("--yes", action="store_true", help="Confirm removal")
+    template = project_sub.add_parser("template", help="Manage project templates")
+    template_sub = template.add_subparsers(dest="template_action")
+    template_sub.add_parser("list", help="List built-in templates")
+    template_create = template_sub.add_parser("create", help="Create a template project")
+    template_create.add_argument("name", choices=("research", "service", "library"))
+    template_create.add_argument("path", nargs="?", default=".")
 
     run = subparsers.add_parser(
         "run", help="Run a Python script with optional experiment tracking"
@@ -58,6 +67,24 @@ def add_extended_parsers(subparsers: Any) -> None:
     export.add_argument(
         "--format", choices=("markdown", "csv", "latex", "html"), default=None
     )
+    diff = exp_sub.add_parser("diff", help="Compare two experiment runs")
+    diff.add_argument("run_a")
+    diff.add_argument("run_b")
+    diff.add_argument("--tracker-dir", default=".aion_experiments")
+    tag = exp_sub.add_parser("tag", help="Add a tag to an experiment run")
+    tag.add_argument("run_id")
+    tag.add_argument("name")
+    tag.add_argument("value", nargs="?", default="true")
+    tag.add_argument("--tracker-dir", default=".aion_experiments")
+    delete = exp_sub.add_parser("delete", help="Delete an experiment run")
+    delete.add_argument("run_id")
+    delete.add_argument("--tracker-dir", default=".aion_experiments")
+    delete.add_argument("--yes", action="store_true", help="Confirm deletion")
+    reproduce = exp_sub.add_parser(
+        "reproduce", help="Show the reproducibility manifest for a run"
+    )
+    reproduce.add_argument("run_id")
+    reproduce.add_argument("--tracker-dir", default=".aion_experiments")
 
     data = subparsers.add_parser(
         "data", help="Inspect tabular, JSON, and JSONL datasets"
@@ -66,6 +93,19 @@ def add_extended_parsers(subparsers: Any) -> None:
     inspect = data_sub.add_parser("inspect")
     inspect.add_argument("path")
     inspect.add_argument("--json", action="store_true")
+    sample = data_sub.add_parser("sample", help="Print a representative data sample")
+    sample.add_argument("path")
+    sample.add_argument("--rows", type=int, default=20)
+    convert = data_sub.add_parser("convert", help="Convert CSV, JSON, or JSONL data")
+    convert.add_argument("input")
+    convert.add_argument("output")
+    validate = data_sub.add_parser("validate", help="Validate required data columns")
+    validate.add_argument("path")
+    validate.add_argument("--required", nargs="+", default=[])
+    split = data_sub.add_parser("split", help="Create deterministic train/validation/test files")
+    split.add_argument("path")
+    split.add_argument("--output-dir", default="splits")
+    split.add_argument("--seed", type=int, default=42)
 
     model = subparsers.add_parser(
         "model", help="List providers and inspect saved models"
@@ -84,6 +124,9 @@ def add_extended_parsers(subparsers: Any) -> None:
     pipeline_sub = pipeline.add_subparsers(dest="pipeline_action")
     pipe_run = pipeline_sub.add_parser("run")
     pipe_run.add_argument("path")
+    pipe_run.add_argument("--dry-run", action="store_true", help="Print steps without executing them")
+    pipe_validate = pipeline_sub.add_parser("validate", help="Validate a pipeline without running it")
+    pipe_validate.add_argument("path")
 
     test_cmd = subparsers.add_parser("test", help="Run the project test suite")
     test_cmd.add_argument("paths", nargs="*", default=["tests"])
@@ -138,6 +181,13 @@ def add_extended_parsers(subparsers: Any) -> None:
     api.add_argument("--watch", action="store_true")
     auth = subparsers.add_parser("auth", help="Check configured provider credentials")
     auth.add_argument("provider", nargs="?", default=None)
+    env = subparsers.add_parser("env", help="Create and validate environment configuration")
+    env_sub = env.add_subparsers(dest="env_action")
+    env_init = env_sub.add_parser("init", help="Create a safe .env.example file")
+    env_init.add_argument("--output", default=".env.example")
+    env_check = env_sub.add_parser("check", help="Check provider credentials without displaying values")
+    env_check.add_argument("--provider", default=None)
+    env_sub.add_parser("export", help="Print shell setup instructions")
 
     notebook = subparsers.add_parser("notebook", help="Create or run Jupyter notebooks")
     notebook_sub = notebook.add_subparsers(dest="notebook_action")
@@ -344,6 +394,49 @@ def run_extended_command(args: Any) -> bool:
                 f"# {name}\n\nCreated with `aion project init`.\n", encoding="utf-8"
             )
             print(f"Initialized Aion project: {root}")
+        elif args.project_action == "validate":
+            config = pathlib.Path("aion.yaml")
+            issues = []
+            if not config.exists():
+                issues.append("missing aion.yaml")
+            for directory in ("src", "tests", "data"):
+                if not pathlib.Path(directory).exists():
+                    issues.append(f"missing {directory}/")
+            if issues:
+                print("Project validation failed: " + ", ".join(issues))
+                raise SystemExit(1)
+            print("Project validation: OK")
+        elif args.project_action == "clean":
+            targets = [pathlib.Path(".aion_cache.db"), pathlib.Path(".aion_experiments")]
+            present = [path for path in targets if path.exists()]
+            if not args.yes:
+                print("Would remove: " + (", ".join(map(str, present)) or "nothing"))
+                print("Re-run with --yes to confirm.")
+                return True
+            import shutil
+            for path in present:
+                if path.is_dir():
+                    shutil.rmtree(path)
+                else:
+                    path.unlink()
+            print("Removed: " + (", ".join(map(str, present)) or "nothing"))
+        elif args.project_action == "template":
+            templates = {
+                "research": ("src", "tests", "data", "notebooks", "runs"),
+                "service": ("src", "tests", "configs"),
+                "library": ("src", "tests", "docs"),
+            }
+            if args.template_action in (None, "list"):
+                print("\n".join(templates))
+            else:
+                target = pathlib.Path(args.path).resolve()
+                target.mkdir(parents=True, exist_ok=True)
+                for directory in templates[args.name]:
+                    (target / directory).mkdir(exist_ok=True)
+                (target / "README.md").write_text(
+                    f"# {target.name}\n\nAion {args.name} template.\n", encoding="utf-8"
+                )
+                print(f"Created {args.name} template: {target}")
         else:
             print(
                 json.dumps(
@@ -397,6 +490,51 @@ def run_extended_command(args: Any) -> bool:
             if row is None:
                 raise SystemExit(f"Run not found: {args.run_id}")
             rows = row
+        elif args.experiment_action == "diff":
+            first, second = tracker.get_run(args.run_a), tracker.get_run(args.run_b)
+            if first is None or second is None:
+                raise SystemExit("Both run IDs must exist.")
+            result = {
+                "runs": [args.run_a, args.run_b],
+                "params": {
+                    key: [first.get("params", {}).get(key), second.get("params", {}).get(key)]
+                    for key in sorted(set(first.get("params", {})) | set(second.get("params", {})))
+                    if first.get("params", {}).get(key) != second.get("params", {}).get(key)
+                },
+                "metrics": {
+                    key: [first.get("metrics", {}).get(key), second.get("metrics", {}).get(key)]
+                    for key in sorted(set(first.get("metrics", {})) | set(second.get("metrics", {})))
+                    if first.get("metrics", {}).get(key) != second.get("metrics", {}).get(key)
+                },
+            }
+            print(json.dumps(result, indent=2))
+            return True
+        elif args.experiment_action == "tag":
+            path = pathlib.Path(args.tracker_dir, args.run_id, "meta.json")
+            if not path.exists():
+                raise SystemExit(f"Run not found: {args.run_id}")
+            row = json.loads(path.read_text(encoding="utf-8"))
+            row.setdefault("tags", {})[args.name] = args.value
+            path.write_text(json.dumps(row, indent=2) + "\n", encoding="utf-8")
+            print(f"Tagged {args.run_id}: {args.name}={args.value}")
+            return True
+        elif args.experiment_action == "delete":
+            if not args.yes:
+                print(f"Would delete run {args.run_id}. Re-run with --yes to confirm.")
+                return True
+            if not tracker.delete_run(args.run_id):
+                raise SystemExit(f"Run not found: {args.run_id}")
+            print(f"Deleted run: {args.run_id}")
+            return True
+        elif args.experiment_action == "reproduce":
+            manifest = pathlib.Path(args.tracker_dir, args.run_id, "manifest.json")
+            if not manifest.exists():
+                raise SystemExit(
+                    f"No reproducibility manifest for run: {args.run_id}. "
+                    "Run scripts with aion run --experiment NAME first."
+                )
+            print(manifest.read_text(encoding="utf-8"))
+            return True
         else:
             rows = tracker.list_runs()
             fmt = (
@@ -419,11 +557,41 @@ def run_extended_command(args: Any) -> bool:
         )
         return True
     if command == "data":
-        if getattr(args, "data_action", None) != "inspect":
-            print("Use: aion data inspect FILE --help")
+        if not getattr(args, "data_action", None):
+            print("Use: aion data {inspect|sample|convert|validate|split} --help")
+            return True
+        if args.data_action == "convert":
+            rows = _load_rows(args.input)
+            from .data import save_csv, save_json, save_jsonl
+            writers = {".csv": save_csv, ".json": save_json, ".jsonl": save_jsonl}
+            writer = writers.get(pathlib.Path(args.output).suffix.lower())
+            if writer is None:
+                raise SystemExit("Output must end with .csv, .json, or .jsonl")
+            writer(args.output, rows)
+            print(f"Converted: {args.output}")
             return True
         rows = _load_rows(args.path)
         records = rows if isinstance(rows, list) else [rows]
+        if args.data_action == "sample":
+            print(json.dumps(records[: max(0, args.rows)], indent=2, default=str))
+            return True
+        if args.data_action == "validate":
+            keys = {key for row in records if isinstance(row, dict) for key in row}
+            missing = sorted(set(args.required) - keys)
+            if missing:
+                print("Missing required columns: " + ", ".join(missing))
+                raise SystemExit(1)
+            print(f"Data validation: OK ({len(records)} records)")
+            return True
+        if args.data_action == "split":
+            from .data import save_json, train_val_test_split
+            train, validation, test = train_val_test_split(records, seed=args.seed)
+            output = pathlib.Path(args.output_dir)
+            output.mkdir(parents=True, exist_ok=True)
+            for name, subset in (("train", train), ("validation", validation), ("test", test)):
+                save_json(str(output / f"{name}.json"), subset)
+            print(f"Created splits in: {output}")
+            return True
         keys = sorted({key for row in records if isinstance(row, dict) for key in row})
         summary = {
             "path": args.path,
@@ -506,12 +674,26 @@ def run_extended_command(args: Any) -> bool:
             print(pathlib.Path(args.path, "meta.json").read_text(encoding="utf-8"))
         return True
     if command == "pipeline":
-        if getattr(args, "pipeline_action", None) != "run":
-            print("Use: aion pipeline run pipeline.json")
+        if not getattr(args, "pipeline_action", None):
+            print("Use: aion pipeline {validate|run} pipeline.json")
             return True
         spec = _load_rows(args.path)
-        for step in spec.get("steps", []) if isinstance(spec, dict) else []:
+        steps = spec.get("steps", []) if isinstance(spec, dict) else []
+        errors = [
+            f"step {index + 1} needs a non-empty command"
+            for index, step in enumerate(steps)
+            if not isinstance(step, dict) or not isinstance(step.get("command"), str) or not step["command"].strip()
+        ]
+        if errors:
+            raise SystemExit("Invalid pipeline: " + "; ".join(errors))
+        if args.pipeline_action == "validate":
+            print(f"Pipeline validation: OK ({len(steps)} steps)")
+            return True
+        for step in steps:
             print(f"→ {step.get('name', step.get('command', 'step'))}")
+            if args.dry_run:
+                print(f"  {step['command']}")
+                continue
             subprocess.run(step["command"], shell=True, check=True)
         return True
     if command == "test":
@@ -632,6 +814,34 @@ def run_extended_command(args: Any) -> bool:
         for name in names:
             state = "configured" if os.environ.get(envs.get(name, "")) else "missing"
             print(f"{name}: {state} ({envs.get(name, 'provider key')})")
+        return True
+    if command == "env":
+        providers = {
+            "openai": "OPENAI_API_KEY", "gemini": "GEMINI_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY", "deepseek": "DEEPSEEK_API_KEY",
+            "nvidia": "NVIDIA_API_KEY",
+        }
+        if not getattr(args, "env_action", None):
+            print("Use: aion env {init|check|export} --help")
+        elif args.env_action == "init":
+            output = pathlib.Path(args.output)
+            output.write_text(
+                "# Add values locally; never commit secrets.\n" +
+                "\n".join(f"{key}=" for key in providers.values()) + "\n",
+                encoding="utf-8",
+            )
+            print(f"Created: {output}")
+        elif args.env_action == "check":
+            selected = {args.provider: providers.get(args.provider)} if args.provider else providers
+            if args.provider and selected[args.provider] is None:
+                raise SystemExit(f"Unknown provider: {args.provider}")
+            missing = [name for name, key in selected.items() if not os.environ.get(key)]
+            for name, key in selected.items():
+                print(f"{name}: {'configured' if name not in missing else 'missing'} ({key})")
+            if args.provider and missing:
+                raise SystemExit(1)
+        else:
+            print("export OPENAI_API_KEY='…'  # replace with your provider key")
         return True
     if command == "notebook":
         if not getattr(args, "notebook_action", None):

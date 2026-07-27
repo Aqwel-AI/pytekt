@@ -17,7 +17,11 @@ aion install --profile ai    # Install one profile
 aion info                    # Show runtime and optional modules
 aion doctor                  # Diagnose the environment
 aion auth                    # Check provider API-key variables
-aion config theme minimal    # Configure terminal output
+aion config set theme minimal # Configure terminal output
+aion config get theme         # Read a config value
+aion config list              # Show non-secret settings
+aion env init                 # Create a safe .env.example
+aion env check --provider openai
 ```
 
 Provider credentials are read from standard environment variables such as
@@ -33,24 +37,40 @@ aion embed notes.txt --output notes.npy
 aion eval predictions.json answers.json
 aion prompt --list
 aion watch notes.txt --output-dir embeddings
+aion shell
+aion shell --command "physics force --mass 2 --acceleration 3"
 ```
 
 `ask` performs one provider request and exits. It requires the selected
 provider's SDK/configuration and API key. `embed` can use the optional
 sentence-transformers integration or its built-in fallback.
 
+`shell` opens a small interactive Aion-only terminal: type commands such as
+`info`, `help --search physics`, or `physics force --mass 2 --acceleration 3`.
+It supports `history`, `help`, and `exit`, and intentionally does not execute
+arbitrary operating-system commands.
+
 ## Project and research workflows
 
 ```bash
 aion project init my-study --name climate-study
 aion project info
+aion project validate
+aion project template create research my-study
+aion project clean --yes
 aion run train.py --experiment baseline --seed 42
 aion experiment list --tracker-dir .aion_experiments
 aion experiment compare --metric accuracy
 aion experiment show RUN_ID
 aion experiment export results.md
+aion experiment diff RUN_A RUN_B
+aion experiment tag RUN_ID baseline
+aion experiment reproduce RUN_ID
+aion experiment delete RUN_ID --yes
 aion benchmark --seeds 5 --output leaderboard.md
 aion pipeline run pipeline.json
+aion pipeline validate pipeline.json
+aion pipeline run pipeline.json --dry-run
 ```
 
 `pipeline.json` or `pipeline.yaml` contains a list of shell commands:
@@ -71,6 +91,10 @@ by the local shell.
 
 ```bash
 aion data inspect data.csv --json
+aion data sample data.csv --rows 10
+aion data validate data.csv --required id label
+aion data convert data.csv data.json
+aion data split data.json --output-dir splits --seed 42
 aion model list
 aion model test --provider ollama
 aion model info saved_model
