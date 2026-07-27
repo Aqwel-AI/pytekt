@@ -8,9 +8,8 @@ diffs, file history. Optional dependency; install with: pip install gitpython.
 """
 
 import os
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Tuple
 import tempfile
-import shutil
 
 try:
     from git import Repo, GitCommandError  # pyright: ignore [reportMissingImports]
@@ -43,7 +42,7 @@ class GitManager:
         
         try:
             self.repo = Repo(self.repo_path)
-        except Exception as e:
+        except Exception:
             self.repo = None
             raise ValueError(f"Not a Git repository: {self.repo_path}")
     
@@ -358,7 +357,7 @@ def get_remote_url(repo_path: str, remote: str = "origin") -> str:
     try:
         mgr = GitManager(repo_path)
         return list(mgr.repo.remote(name=remote).urls)[0]
-    except Exception as e:
+    except Exception:
         return ""
 
 def get_current_commit(repo_path: str) -> Dict[str, any]:
@@ -476,8 +475,7 @@ def init_repository(path: str = None, bare: bool = False) -> Dict[str, any]:
     """Initialize a new Git repository."""
     try:
         repo_path = path or os.getcwd()
-        repo = Repo.init(repo_path, bare=bare)
+        Repo.init(repo_path, bare=bare)
         return {"success": True, "data": repo_path}
     except Exception as e:
         return {"success": False, "error": str(e)}
-
