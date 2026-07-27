@@ -20,8 +20,38 @@ def save_config(cfg: Dict[str, Any]) -> None:
     save_yaml_file(CONFIG_PATH, cfg)
 
 
-def config_command(key: Optional[str] = None, value: Optional[str] = None) -> None:
+def config_command(
+    key: Optional[str] = None,
+    value: Optional[str] = None,
+    *,
+    items: Optional[list[str]] = None,
+    confirm: bool = False,
+) -> None:
     """``aion config`` — show, get, or set dotted keys."""
+    if items is not None:
+        if not items or items == ["list"]:
+            key = value = None
+        elif items[0] == "get" and len(items) == 2:
+            key, value = items[1], None
+        elif items[0] == "set" and len(items) == 3:
+            key, value = items[1], items[2]
+        elif items[0] == "reset" and len(items) == 1:
+            if not confirm:
+                print(f"Would remove {CONFIG_PATH}. Re-run with --yes to confirm.")
+                return
+            if os.path.exists(CONFIG_PATH):
+                os.remove(CONFIG_PATH)
+                print(f"Removed config: {CONFIG_PATH}")
+            else:
+                print(f"No config at {CONFIG_PATH}")
+            return
+        elif len(items) == 1:
+            key, value = items[0], None
+        elif len(items) == 2:
+            key, value = items
+        else:
+            print("Use: aion config [list|get KEY|set KEY VALUE|reset --yes]")
+            return
     cfg = get_config()
 
     if key is None:

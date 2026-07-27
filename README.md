@@ -830,6 +830,8 @@ aion --help
 
 **High-value commands:**
 
+For the complete command reference, see [docs/CLI.md](docs/CLI.md).
+
 | Command | Description |
 |---------|-------------|
 | `aion benchmark` | Run standard ML benchmark suite on built-in datasets |
@@ -849,6 +851,34 @@ aion --help
 | `aion eval <preds> <answers>` | Evaluate predictions |
 | `aion chat` | Interactive prompt REPL |
 | `aion git status` | Git repository tools (needs GitPython) |
+| `aion ask "..."` | One-shot LLM question through a configured provider |
+| `aion project init` | Create an Aion project skeleton |
+| `aion run script.py` | Run a script, optionally tracked as an experiment |
+| `aion experiment list|compare|export` | Manage tracked experiment runs |
+| `aion data inspect file` | Inspect CSV, JSON, and JSONL datasets |
+| `aion model list|test|info` | Provider and saved-model utilities |
+| `aion pipeline run file.json` | Run a simple command pipeline |
+| `aion test` | Run the project test suite |
+| `aion cache status|clear` | Inspect or clear the local cache |
+| `aion serve` | Start the local FastAPI service |
+| `aion security` | Scan for likely exposed secrets |
+| `aion auth` | Check provider API-key configuration |
+| `aion upgrade` | Upgrade Aion from PyPI |
+| `aion notebook`, `explain`, `summarize` | Notebook and code/document utilities |
+| `aion rag index|query` | Local document indexing and search |
+| `aion visualize` | Create charts from CSV/JSON |
+| `aion model benchmark|evaluate` | Model timing and dataset evaluation |
+| `aion experiment report` | Generate an HTML experiment report |
+| `aion physics fit` | Fit a linear model to measurements |
+| `aion universe observe` | List visible astronomical objects |
+| `aion hardware info` | Show machine resource information |
+| `aion performance profile` | Profile a Python script |
+| `aion lint` | Run Ruff, Black, and tests |
+| `aion dependency audit` | Check package health or updates |
+| `aion snapshot create|restore` | Archive or restore a project |
+| `aion session list|open|export` | Manage local session files |
+| `aion release check` | Validate release files |
+| `aion changelog generate` | Generate Git-based changelog text |
 
 ```bash
 aion start                    # http://127.0.0.1:3000

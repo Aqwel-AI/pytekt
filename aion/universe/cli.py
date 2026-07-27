@@ -19,7 +19,7 @@ def universe_main(args: argparse.Namespace) -> None:
         print(f"  Moon: {name} (phase {phase:.2f})")
         return
 
-    if action == "sky":
+    if action in ("sky", "observe"):
         jd = now_jd()
         lat = args.lat
         lon = args.lon
@@ -43,8 +43,10 @@ def universe_main(args: argparse.Namespace) -> None:
 
     if action == "separation":
         sep = angular_separation(
-            parse_ra(args.ra1), parse_dec(args.dec1),
-            parse_ra(args.ra2), parse_dec(args.dec2),
+            parse_ra(args.ra1),
+            parse_dec(args.dec1),
+            parse_ra(args.ra2),
+            parse_dec(args.dec2),
         )
         print(f"  Angular separation: {sep:.4f}°")
         return

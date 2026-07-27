@@ -1,6 +1,7 @@
 """Tests for the structured Aion CLI help catalog."""
 
 import json
+import sys
 
 from aion.cli import (
     _build_parser,
@@ -9,6 +10,7 @@ from aion.cli import (
     _format_help_json,
     _get_subparsers,
     main,
+    shell_command,
 )
 
 
@@ -53,3 +55,37 @@ def test_cli_handles_ctrl_c_without_traceback(monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "Operation cancelled by user" in output
     assert "No changes were made" in output
+
+
+def test_shell_runs_aion_command_without_a_system_shell():
+    calls = []
+
+    shell_command(
+        "physics force --mass 2 --acceleration 3",
+        runner=lambda args, check: calls.append((args, check)),
+    )
+
+    assert calls == [
+        (
+            [
+                sys.executable,
+                "-m",
+                "aion",
+                "physics",
+                "force",
+                "--mass",
+                "2",
+                "--acceleration",
+                "3",
+            ],
+            False,
+        )
+    ]
+
+
+def test_shell_rejects_nested_shells():
+    output = []
+
+    shell_command("shell", runner=lambda *_args, **_kwargs: None, output=output.append)
+
+    assert output == ["Nested Aion shells are not supported."]
