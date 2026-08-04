@@ -55,7 +55,14 @@ An autonomous model-driven coding agent is not part of this package.
 
 ```
 aion/
-├── maths.py, algorithms/
+├── maths/                         # Sectioned mathematics package
+│   ├── maths.py                   # Flat compatibility API
+│   ├── arithmetic/, random/       # Each contains functions.py and __init__.py
+│   ├── linear_algebra/, statistics/
+│   ├── trigonometry/, machine_learning/
+│   ├── signal_processing/, probability/
+│   └── number_theory/, utilities/
+├── algorithms/
 ├── preprocessing/, models/, metrics/, hyperopt/   # Core ML
 ├── data/, datasets/
 ├── providers/, tools/, rag/
