@@ -1,7 +1,8 @@
 """Machine Learning mathematics functions."""
 
 from .._shared import Any, List, Sequence, Union, math
-from ..linear_algebra.functions import dot_product, vector_magnitude
+from ..linear_algebra import dot_product, vector_magnitude
+
 
 
 def sigmoid(x: Union[int, float, List[Union[int, float]]]) -> Union[float, List[float]]:
