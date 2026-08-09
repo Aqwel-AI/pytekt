@@ -1,0 +1,1 @@
+PKG_CXXFLAGS = /O2 /std:c++14 -I../../src

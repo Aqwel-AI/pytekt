@@ -66,7 +66,31 @@ aion physics tasks    # physics toolkit (needs [physics] / matplotlib)
 aion vision --help    # computer vision CLI (needs [vision])
 ```
 
-More paths: [Quick start](#quick-start-choose-your-path) · [Installation](#installation) · [Getting Started](#getting-started)
+More paths: [Quick start](#quick-start-choose-your-path) · [Installation](#installation) · [Getting Started](#getting-started) · [R Language Support](#r-language-support)
+
+---
+
+## R Language Support (`r_aion`)
+
+Aion provides high-performance native R support through the `r_aion` package built with **Rcpp**.
+
+### Installation in R
+
+```R
+# Install directly from local repository or GitHub
+devtools::install("r_aion")
+```
+
+### Usage in R
+
+```R
+library(aion)
+
+x <- c(1.0, 2.0, 3.0, 4.0, 5.0)
+cat("Fast Sum:", aion_sum(x), "\n")
+cat("Fast Mean:", aion_mean(x), "\n")
+print(aion_rolling_mean(x, window = 3))
+```
 
 ---
 
