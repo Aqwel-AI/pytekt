@@ -8,6 +8,8 @@ import math
 from typing import List, Sequence, Union
 
 Number = Union[int, float]
+Vector = List[float]
+
 
 
 def dot_product(a: Sequence[Number], b: Sequence[Number]) -> float:
@@ -168,7 +170,78 @@ def angle_between_vectors(a: Sequence[Number], b: Sequence[Number]) -> float:
     return math.acos(cos_theta)
 
 
+def vector_project(u: Sequence[Number], v: Sequence[Number]) -> Vector:
+    """
+    Project vector *u* onto vector *v*.
+
+    Args:
+        u: The vector to project.
+        v: The vector onto which *u* is projected.
+
+    Returns:
+        Projected vector.
+
+    Raises:
+        ValueError: If v has zero magnitude or if vectors have different lengths.
+
+    Examples:
+        >>> vector_project([3, 4], [1, 0])
+        [3.0, 0.0]
+    """
+    if len(u) != len(v):
+        raise ValueError("Vectors must have the same length.")
+    mag_v_sq = sum(x * x for x in v)
+    if mag_v_sq == 0:
+        raise ValueError("Cannot project onto a zero-magnitude vector.")
+    scale = dot_product(u, v) / mag_v_sq
+    return vector_scale(v, scale)
+
+
+def vector_reject(u: Sequence[Number], v: Sequence[Number]) -> Vector:
+    """
+    Compute the vector rejection of *u* from *v* (the orthogonal component).
+
+    Args:
+        u: The source vector.
+        v: The reference vector.
+
+    Returns:
+        Vector component of *u* orthogonal to *v*.
+
+    Examples:
+        >>> vector_reject([3, 4], [1, 0])
+        [0.0, 4.0]
+    """
+    proj = vector_project(u, v)
+    return vector_subtract(u, proj)
+
+
+def scalar_triple_product(u: Sequence[Number], v: Sequence[Number], w: Sequence[Number]) -> float:
+    """
+    Compute the scalar triple product u · (v × w).
+
+    Args:
+        u: First 3D vector.
+        v: Second 3D vector.
+        w: Third 3D vector.
+
+    Returns:
+        Scalar triple product.
+
+    Raises:
+        ValueError: If any vector is not 3D.
+
+    Examples:
+        >>> scalar_triple_product([1, 0, 0], [0, 1, 0], [0, 0, 1])
+        1.0
+    """
+    if len(u) != 3 or len(v) != 3 or len(w) != 3:
+        raise ValueError("Scalar triple product requires 3D vectors.")
+    return dot_product(u, cross_product(v, w))
+
+
 __all__ = [
+    "Vector",
     "dot_product",
     "cross_product",
     "vector_magnitude",
@@ -177,4 +250,7 @@ __all__ = [
     "vector_subtract",
     "vector_scale",
     "angle_between_vectors",
+    "vector_project",
+    "vector_reject",
+    "scalar_triple_product",
 ]

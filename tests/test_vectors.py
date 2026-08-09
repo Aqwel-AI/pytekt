@@ -9,6 +9,9 @@ from aion.maths.linear_algebra.vectors import (
     vector_subtract,
     vector_scale,
     angle_between_vectors,
+    vector_project,
+    vector_reject,
+    scalar_triple_product,
 )
 
 
@@ -66,3 +69,24 @@ def test_angle_between_vectors():
     assert math.isclose(angle_between_vectors([1, 0], [-1, 0]), math.pi)
     with pytest.raises(ValueError, match="zero-magnitude vector"):
         angle_between_vectors([0, 0], [1, 1])
+
+
+def test_vector_project():
+    assert vector_project([3, 4], [1, 0]) == [3.0, 0.0]
+    assert vector_project([3, 4], [0, 1]) == [0.0, 4.0]
+    with pytest.raises(ValueError, match="same length"):
+        vector_project([1, 2], [1, 2, 3])
+    with pytest.raises(ValueError, match="zero-magnitude vector"):
+        vector_project([1, 2], [0, 0])
+
+
+def test_vector_reject():
+    assert vector_reject([3, 4], [1, 0]) == [0.0, 4.0]
+    assert vector_reject([3, 4], [0, 1]) == [3.0, 0.0]
+
+
+def test_scalar_triple_product():
+    assert scalar_triple_product([1, 0, 0], [0, 1, 0], [0, 0, 1]) == 1.0
+    with pytest.raises(ValueError, match="3D vectors"):
+        scalar_triple_product([1, 2], [1, 2], [1, 2])
+
