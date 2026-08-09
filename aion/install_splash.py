@@ -14,6 +14,8 @@ import time
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
 
+from .terminal_theme import ansi_code, configured_theme, supports_color
+
 
 def _package_version() -> str:
     try:
@@ -85,13 +87,13 @@ def maybe_show_install_splash() -> None:
 def _supports_color() -> bool:
     if os.environ.get("NO_COLOR") or os.environ.get("AION_NO_SPLASH"):
         return False
-    return hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
+    return supports_color(configured_theme())
 
 
 def _c(code: str, text: str, *, enabled: bool) -> str:
     if not enabled:
         return text
-    return f"\033[{code}m{text}\033[0m"
+    return f"\033[{ansi_code(code, _SPLASH_THEME)}m{text}\033[0m"
 
 
 def bold(t: str, *, on: bool) -> str:
@@ -142,6 +144,12 @@ _GLITCH_CHARS = "░▒▓█▀▄▌▐─│"
 AION_LOGO_LINES: Sequence[str] = tuple(
     line for line in LOGO.strip("\n").split("\n") if line.strip() or line
 )
+_SPLASH_THEME = "cyberpunk"
+
+
+def _set_splash_theme(theme: str) -> None:
+    global _SPLASH_THEME
+    _SPLASH_THEME = theme
 
 
 def _write_line(text: str = "", *, flush: bool = True) -> None:
@@ -202,41 +210,53 @@ def _show_aion_glitch_intro(*, color_on: bool, duration: float = 1.6) -> None:
         _write_line()
         return
 
+    cursor_hidden = False
     try:
         sys.stdout.write("\033[?25l")
         sys.stdout.flush()
-    except Exception:
-        pass
+        cursor_hidden = True
 
-    random.seed()
-    start = time.time()
-    frame = 0
-    while time.time() - start < duration:
-        intensity = max(0.05, 0.9 - (time.time() - start) / duration)
-        if frame > 0:
-            sys.stdout.write(f"\033[{height}A")
+        random.seed()
+        start = time.time()
+        frame = 0
+        while time.time() - start < duration:
+            intensity = max(0.05, 0.9 - (time.time() - start) / duration)
+            if frame > 0:
+                sys.stdout.write(f"\033[{height}A")
+            for line in logo:
+                corrupted = _corrupt_line(line, intensity * 0.5)
+                sys.stdout.write(indent + accent(bold(corrupted, on=True), on=True) + "\n")
+            sys.stdout.flush()
+            frame += 1
+            time.sleep(0.055)
+
+        sys.stdout.write(f"\033[{height}A")
         for line in logo:
-            corrupted = _corrupt_line(line, intensity * 0.5)
-            sys.stdout.write(indent + accent(bold(corrupted, on=True), on=True) + "\n")
+            sys.stdout.write(indent + accent(bold(line, on=True), on=True) + "\n")
         sys.stdout.flush()
-        frame += 1
-        time.sleep(0.055)
-
-    sys.stdout.write(f"\033[{height}A")
-    for line in logo:
-        sys.stdout.write(indent + accent(bold(line, on=True), on=True) + "\n")
-    sys.stdout.flush()
-
-    try:
-        sys.stdout.write("\033[?25h")
-        sys.stdout.flush()
-    except Exception:
-        pass
+    finally:
+        if cursor_hidden:
+            try:
+                sys.stdout.write("\033[?25h")
+                sys.stdout.flush()
+            except Exception:
+                pass
     _write_line()
 
 
 def _show_intro(*, color_on: bool) -> None:
     _show_aion_glitch_intro(color_on=color_on)
+
+
+def show_install_intro(*, animated: bool = True, color: Optional[bool] = None) -> None:
+    """Show the AION wordmark before the interactive installer menu."""
+    _set_splash_theme(configured_theme())
+    color_on = _supports_color() if color is None else color
+    _write_line()
+    _show_aion_glitch_intro(color_on=color_on if animated else False)
+    _write_line(cyan("  AION INSTALL SEQUENCE", on=color_on))
+    _write_line(dim("  Select a profile to configure your environment.", on=color_on))
+    _write_line()
 
 
 def _info_panel_lines(version: str, *, color_on: bool) -> List[str]:
@@ -299,6 +319,7 @@ def show_install_splash(
         Seconds between module lines (animated mode only).
     """
     version = version or _package_version()
+    _set_splash_theme(configured_theme())
     color_on = _supports_color()
     use_anim = animated and color_on
 
@@ -309,6 +330,11 @@ def show_install_splash(
     _show_progress(color_on=color_on, animated=use_anim)
     _write_line()
     _write_line(accent(bold("  ✓ Installation complete", on=color_on), on=color_on))
+    _write_line()
+    _write_line(accent(bold("  ╔════════════════════════════════════════════╗", on=color_on), on=color_on))
+    _write_line(accent(bold("  ║                 THANK YOU                  ║", on=color_on), on=color_on))
+    _write_line(accent(bold("  ╚════════════════════════════════════════════╝", on=color_on), on=color_on))
+    _write_line(cyan("  Aqwel AI: https://aqwelai.xyz", on=color_on))
     _write_line()
     mark_install_splash_shown(version)
 

@@ -2,12 +2,12 @@
 
 > **Aqwel AI product** — see [README](../README.md#aion-product-documentation).
 
-**Aion 0.2.0** ships as a **research library** (`import aion`). The terminal coding agent is **not available** in this release (CLI stubs only; source under `archived/aion_agent/` locally).
+**Aion 0.2.0** ships as a **research library** (`import aion`) with a multi-purpose terminal CLI. The CLI includes research, data, provider, experiment, and safe workspace-inspection commands.
 
 | Focus | Package path | Entry |
 |-------|--------------|-------|
 | **Research library** | `aion/*` | `import aion` / `aion …` CLI |
-| **Terminal agent** | **Not available** in 0.2.0 | — |
+| **Terminal CLI** | `aion.cli` / `aion.cli_extensions` | `aion …` |
 
 Shared today: `aion.providers`, `aion.tools`, `aion.rag`, Core ML, physics, universe, vision.
 
@@ -21,6 +21,7 @@ Shared today: `aion.providers`, `aion.tools`, `aion.rag`, Core ML, physics, univ
 ├── SECURITY.md
 ├── .env.example
 ├── docs/
+│   ├── CLI.md                # Complete terminal command reference
 │   ├── PROJECT_STRUCTURE.md  # This file
 │   └── ADDING_PHYSICAL_AI.md # Guide for Physical AI modules
 ├── pyproject.toml
@@ -35,15 +36,18 @@ Shared today: `aion.providers`, `aion.tools`, `aion.rag`, Core ML, physics, univ
 
 ---
 
-## Coding agent (not available)
+## Workspace agent
 
-In 0.2.0:
+The current lightweight workspace agent provides read/search inspection:
 
-- `aion agent` / `aion api` / `aion auth` print **not available**
-- No `aion/cli_agent/` in the wheel
-- Do **not** add a new `aion/agent/` package path
+- `aion agent --root .`
+- `aion agent read path/to/file.py`
+- `aion agent search pattern`
 
-Future work: a terminal coding agent is **not** part of this package.
+It is not an autonomous coding agent and does not perform model-driven file
+edits. API serving is available separately through `aion serve` / `aion api`.
+
+An autonomous model-driven coding agent is not part of this package.
 
 ---
 
@@ -67,7 +71,8 @@ aion/
 ├── experiments/, bench/, benchmarks/
 ├── io/, config/, env/, serve/, monitor/, vision/
 ├── user_config.py, install_splash.py
-└── cli.py
+├── cli.py                  # command entry point and command catalog
+└── cli_extensions.py       # research, data, provider, and operations commands
 ```
 
 Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[physics]`, `[vision]`, `[full]`.
@@ -85,7 +90,7 @@ Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[ph
 | Command | Module |
 |---------|--------|
 | `aion config` | `aion.user_config` |
-| `aion agent` / `api` / `auth` | Not available in 0.2.0 |
+| `aion agent` / `api` / `auth` | `aion.cli_extensions` |
 | `aion universe` / `aion universe-dashboard` | `aion.universe.cli` / `aion.universe.launch` |
 | `aion physics` / `aion physics-dashboard` | `aion.physics.cli` / `aion.physics.launch` |
 | `aion vision` | `aion.vision.cli` |
@@ -101,4 +106,4 @@ Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[ph
 - [ ] No `aion/agent/` or `aion/code/` directories (only `code.py` module)
 - [ ] No API keys in git — use `~/.aion.yaml` or `.env`
 - [ ] `__pycache__/` not committed (in `.gitignore`)
-- [ ] Docs match shipping surface (agent = not available in 0.2.0)
+- [ ] Docs match shipping surface (workspace agent is inspection-only)
