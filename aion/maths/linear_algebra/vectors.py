@@ -11,6 +11,7 @@ Number = Union[int, float]
 Vector = List[float]
 
 
+
 def dot_product(a: Sequence[Number], b: Sequence[Number]) -> float:
     """
     Compute the scalar dot product of two vectors.
