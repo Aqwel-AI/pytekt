@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2026-07-22
 
+### Added — R language support
+- **`r_aion`** — Native R bindings for Aion's high-performance C++ numerical core via **Rcpp** (R ≥ 4.0). Includes fast 1D reductions (`aion_sum`, `aion_mean`, `aion_variance`, `aion_norm2`), dot product, rolling mean, prefix sum, and matrix multiplication. Install via `devtools::install_github("aqwel/aion", subdir = "r_aion")`. See [`r_aion/README.md`](r_aion/README.md).
+
 ### Added — Research library expansion
 - **`aion.physics`** — Classical physics toolkit (mechanics, kinematics, thermo, EM, optics, relativity, integrators, NL query); CLI `aion physics`; optional C++ path; web dashboard.
 - **`aion.universe`** — Astronomy (coordinates, observing, orbits, cosmology, catalogs); CLI `aion universe`; C++ path; web dashboard.
