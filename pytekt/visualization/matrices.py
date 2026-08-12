@@ -1,5 +1,5 @@
 """
-Matrix visualization utilities for AION.
+Matrix visualization utilities for PYTEKT.
 
 This module provides visualization helpers for 2D numerical data,
 commonly used in AI and machine learning research, such as:

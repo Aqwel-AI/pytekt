@@ -60,7 +60,7 @@ def _start_server_thread(host: str, port: int) -> None:
         run_server(host=host, port=port)
 
     _SERVER_PORT = port
-    _SERVER_THREAD = threading.Thread(target=_run, name="aion-physics-server", daemon=True)
+    _SERVER_THREAD = threading.Thread(target=_run, name="pytekt-physics-server", daemon=True)
     _SERVER_THREAD.start()
 
 
@@ -118,7 +118,7 @@ def run_physics_dashboard(
     url = dashboard_url(host, use_port)
 
     if already:
-        print(f"Aion Physics dashboard already running at {url}")
+        print(f"PyTekt Physics dashboard already running at {url}")
         if open_browser:
             webbrowser.open(url)
         return

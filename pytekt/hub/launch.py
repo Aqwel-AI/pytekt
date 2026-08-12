@@ -1,4 +1,4 @@
-"""Launch the Aion Hub dashboard in the browser."""
+"""Launch the PyTekt Hub dashboard in the browser."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def run_hub(
             webbrowser.open(url)
         threading.Thread(target=_open, daemon=True).start()
 
-    print(f"Aion Hub: {url}")
+    print(f"PyTekt Hub: {url}")
     print("Press Ctrl+C to stop.")
     try:
         run_server(host=host, port=port)

@@ -1,1 +1,1 @@
-"""Demos for ``aion.former.training``."""
+"""Demos for ``pytekt.former.training``."""

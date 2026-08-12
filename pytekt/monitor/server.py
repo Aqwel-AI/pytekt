@@ -37,7 +37,7 @@ async def _lifespan(app: FastAPI):
     sampler.stop()
 
 
-app = FastAPI(title="Aion monitor", version="0.2.0", lifespan=_lifespan)
+app = FastAPI(title="PyTekt monitor", version="0.2.0", lifespan=_lifespan)
 
 
 @app.get("/", include_in_schema=False)

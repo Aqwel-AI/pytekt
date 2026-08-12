@@ -1,4 +1,4 @@
-# Aion Former training config — small transformer on text
+# PyTekt Former training config — small transformer on text
 
 model:
   vocab_size: 256   # set from dataset after tokenizer build

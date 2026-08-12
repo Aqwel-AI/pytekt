@@ -1,8 +1,8 @@
-# Aion Transformer Architecture
+# PyTekt Transformer Architecture
 
 ## Overview
 
-The Aion transformer module implements a **decoder-only** transformer (GPT-style) for next-token prediction. The implementation is minimal and NumPy-based, with a custom autograd for clarity and experimentation.
+The PyTekt transformer module implements a **decoder-only** transformer (GPT-style) for next-token prediction. The implementation is minimal and NumPy-based, with a custom autograd for clarity and experimentation.
 
 ## Components
 

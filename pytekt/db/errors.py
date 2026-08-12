@@ -1,10 +1,10 @@
-"""Database errors for :mod:`aion.db`."""
+"""Database errors for :mod:`pytekt.db`."""
 
 from __future__ import annotations
 
 
 class DbError(Exception):
-    """Base error for aion.db."""
+    """Base error for pytekt.db."""
 
 
 class ConnectionError(DbError):

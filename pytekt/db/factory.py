@@ -66,7 +66,7 @@ def connect(source: Union[str, Dict[str, Any]]) -> Connection:
     if engine == "sqlite":
         from .backends.sqlite import connect_sqlite
 
-        path = cfg.get("path") or cfg.get("database") or cfg.get("db_path") or "sqlite://./.aion.db"
+        path = cfg.get("path") or cfg.get("database") or cfg.get("db_path") or "sqlite://./.pytekt.db"
         if not str(path).startswith("sqlite:"):
             path = f"sqlite:///{path}"
         return connect_sqlite(str(path))

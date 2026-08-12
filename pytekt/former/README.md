@@ -1,8 +1,8 @@
-# Aion — Transformer module
+# PyTekt — Transformer module
 
 **Lightweight decoder-only transformer training for research and experimentation.**
 
-The **transformer module** is part of the [Aion](https://github.com/Aqwel-AI/pytekt) library. It lives under `pytekt.former` and provides a minimal, NumPy-based implementation of GPT-style transformers with autograd, training utilities, and visualization. Use it to understand transformer internals, try architecture changes, and run small-scale next-token prediction experiments without PyTorch or TensorFlow.
+The **transformer module** is part of the [PyTekt](https://github.com/Aqwel-AI/pytekt) library. It lives under `pytekt.former` and provides a minimal, NumPy-based implementation of GPT-style transformers with autograd, training utilities, and visualization. Use it to understand transformer internals, try architecture changes, and run small-scale next-token prediction experiments without PyTorch or TensorFlow.
 
 ---
 
@@ -29,7 +29,7 @@ The **transformer module** is part of the [Aion](https://github.com/Aqwel-AI/pyt
 
 ## Overview
 
-The Aion transformer module (`pytekt.former`) is a **library** you call from your code; it does not take over your program flow. It offers:
+The PyTekt transformer module (`pytekt.former`) is a **library** you call from your code; it does not take over your program flow. It offers:
 
 - **Core:** NumPy-backed `Tensor` with autograd; operations such as `matmul`, `softmax`, `layer_norm`, and scaled dot-product attention.
 - **Model:** Embedding, sinusoidal positional encoding, multi-head attention, feed-forward blocks, and a pre-norm decoder stack with LM head.
@@ -52,9 +52,9 @@ It is **not** a general-purpose deep learning framework. For production or large
 
 ## Installation
 
-The transformer module is an optional part of Aion. Install Aion with the `former` extra:
+The transformer module is an optional part of PyTekt. Install PyTekt with the `former` extra:
 
-From the Aion repository (editable):
+From the PyTekt repository (editable):
 
 ```bash
 pip install -e ".[former]"
@@ -233,7 +233,7 @@ Subpackages: `pytekt.former.core`, `pytekt.former.models`, `pytekt.former.traini
 
 ## Configuration
 
-Training is configured via **`aion/former/experiments/config.yaml`** (or the fallback dict in `train_small_model.py`).
+Training is configured via **`pytekt/former/experiments/config.yaml`** (or the fallback dict in `train_small_model.py`).
 
 | Section | Key | Description |
 |--------|-----|-------------|
@@ -256,7 +256,7 @@ Training is configured via **`aion/former/experiments/config.yaml`** (or the fal
 ## Package layout
 
 ```
-aion/former/
+pytekt/former/
 ├── __init__.py          # Version, Transformer, Trainer, datasets, visualization
 ├── core/                # Tensor, ops — core/README.md, core/examples/
 ├── models/              # Transformer — models/README.md, models/examples/
@@ -269,7 +269,7 @@ aion/former/
 └── README.md            # This file
 ```
 
-Each of **`core/`**, **`datasets/`**, **`experiments/`**, **`models/`**, **`training/`**, and **`visualization/`** includes a **`README.md`** with module-level documentation (API tables, layout, and cross-links), similar in spirit to **`aion/algorithms/README.md`**.
+Each of **`core/`**, **`datasets/`**, **`experiments/`**, **`models/`**, **`training/`**, and **`visualization/`** includes a **`README.md`** with module-level documentation (API tables, layout, and cross-links), similar in spirit to **`pytekt/algorithms/README.md`**.
 
 ---
 
@@ -288,7 +288,7 @@ Details: **`docs/architecture.md`**.
 - **Pre-norm:** Layer norm is applied before attention and before the feed-forward block in each transformer block for training stability.
 - **NumPy only:** No CUDA; single CPU. Suitable for education and small experiments.
 - **Library usage:** You import and call APIs; the module does not control your program flow.
-- **Optional dependency:** Install with `pip install pytekt[former]` so Aion core can remain minimal.
+- **Optional dependency:** Install with `pip install pytekt[former]` so PyTekt core can remain minimal.
 
 ---
 
@@ -326,7 +326,7 @@ for epoch in range(10):
     loss = trainer.train_epoch(get_batch, 50)
     print(f"Epoch {epoch + 1}  loss = {loss:.4f}")
 
-plot_training_metrics(trainer.history, title="Aion transformer training loss")
+plot_training_metrics(trainer.history, title="PyTekt transformer training loss")
 plt.savefig("training_metrics.png")
 plt.close()
 
@@ -372,15 +372,15 @@ print(dataset.tokenizer.decode(generated))
 
 ## Command-line scripts
 
-Run from the project root (or with `python -m` from anywhere Aion is installed).
+Run from the project root (or with `python -m` from anywhere PyTekt is installed).
 
-- **Train a small model** (uses built-in sample text or `aion/former/experiments/config.yaml`):
+- **Train a small model** (uses built-in sample text or `pytekt/former/experiments/config.yaml`):
 
   ```bash
   python -m pytekt.former.experiments.train_small_model
   ```
 
-  Writes `training_metrics.png` (and optionally `weight_spectrum.png`) into `aion/former/experiments/`.
+  Writes `training_metrics.png` (and optionally `weight_spectrum.png`) into `pytekt/former/experiments/`.
 
 - **Attention visualization** (no training):
 
@@ -388,7 +388,7 @@ Run from the project root (or with `python -m` from anywhere Aion is installed).
   python -m pytekt.former.examples.attention_demo
   ```
 
-  Saves `attention_demo_head0.png` and `attention_demo_all_heads.png` in `aion/former/examples/`.
+  Saves `attention_demo_head0.png` and `attention_demo_all_heads.png` in `pytekt/former/examples/`.
 
 - **Text generation** (demo with random weights; extend to load a trained model):
 
@@ -409,6 +409,6 @@ Run from the project root (or with `python -m` from anywhere Aion is installed).
 
 ## License
 
-Part of **Aion** (PyTekt). See the root [LICENSE](../../LICENSE) and [README](../../README.md).
+Part of **PyTekt** (PyTekt). See the root [LICENSE](../../LICENSE) and [README](../../README.md).
 
-**Aion** — AI Research & Development Library · **Aqwel AI**
+**PyTekt** — AI Research & Development Library · **Aqwel AI**

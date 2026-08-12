@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Aion Physics — classical mechanics, thermo, EM, and simulation toolkit.
+PyTekt Physics — classical mechanics, thermo, EM, and simulation toolkit.
 
 Examples
 --------

@@ -1,1 +1,1 @@
-"""Demos for ``aion.providers`` (factory, parsing; live API optional)."""
+"""Demos for ``pytekt.providers`` (factory, parsing; live API optional)."""

@@ -66,7 +66,7 @@ def _start_server_thread(host: str, port: int) -> None:
         run_server(host=host, port=port)
 
     _SERVER_PORT = port
-    _SERVER_THREAD = threading.Thread(target=_run, name="aion-universe-server", daemon=True)
+    _SERVER_THREAD = threading.Thread(target=_run, name="pytekt-universe-server", daemon=True)
     _SERVER_THREAD.start()
 
 
@@ -100,7 +100,7 @@ def ensure_universe_dashboard(
 
         if use_port != port and _port_open(host, port):
             print(
-                f"Note: port {port} is used by another app (not Aion Universe). "
+                f"Note: port {port} is used by another app (not PyTekt Universe). "
                 f"Using port {use_port}."
             )
 
@@ -133,7 +133,7 @@ def run_universe_dashboard(
     url = dashboard_url(host, use_port)
 
     if already:
-        print(f"Aion Universe dashboard already running at {url}")
+        print(f"PyTekt Universe dashboard already running at {url}")
         if open_browser:
             webbrowser.open(url)
         return

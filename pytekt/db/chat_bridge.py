@@ -1,4 +1,4 @@
-"""Bridge :mod:`aion.store` chat history to :mod:`aion.db` SQLite connections."""
+"""Bridge :mod:`pytekt.store` chat history to :mod:`pytekt.db` SQLite connections."""
 
 from __future__ import annotations
 

@@ -1,5 +1,5 @@
 """
-Aion Universe — lightweight astronomy toolkit (optional C++ acceleration).
+PyTekt Universe — lightweight astronomy toolkit (optional C++ acceleration).
 
 Coordinates, time, observing, orbits, cosmology, catalogs, and optional plots.
 

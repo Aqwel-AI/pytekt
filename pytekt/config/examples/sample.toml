@@ -1,7 +1,7 @@
-# Sample TOML for aion.config examples (not loaded automatically).
+# Sample TOML for pytekt.config examples (not loaded automatically).
 
 [app]
-name = "aion-demo"
+name = "pytekt-demo"
 debug = false
 
 [db]

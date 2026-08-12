@@ -1,1 +1,1 @@
-"""Runnable demos for ``aion.io`` (streaming, atomic writes, checksums)."""
+"""Runnable demos for ``pytekt.io`` (streaming, atomic writes, checksums)."""

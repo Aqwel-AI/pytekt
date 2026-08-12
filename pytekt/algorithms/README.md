@@ -29,15 +29,15 @@ See [CATALOG.md](CATALOG.md) for the full category table (~570+ functions).
 
 ```mermaid
 graph TD
-    subgraph Aion_Algorithms [pytekt.algorithms]
+    subgraph PyTekt_Algorithms [pytekt.algorithms]
         search[search.py: Search & Selection]
         arrays[arrays.py: Matrix & Sequence]
         graphs[graphs.py: Advanced Graphs]
     end
     
-    Aion_Algorithms --> Search_Ops
-    Aion_Algorithms --> Vector_Ops
-    Aion_Algorithms --> Graph_Ops
+    PyTekt_Algorithms --> Search_Ops
+    PyTekt_Algorithms --> Vector_Ops
+    PyTekt_Algorithms --> Graph_Ops
 ```
 
 ---

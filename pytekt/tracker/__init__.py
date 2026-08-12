@@ -2,7 +2,7 @@
 Experiment tracking: log runs, compare metrics, local storage.
 
 A lightweight alternative to MLflow/W&B that stores everything locally
-in JSON files. Integrates with :mod:`aion.former` for automatic training
+in JSON files. Integrates with :mod:`pytekt.former` for automatic training
 run logging.
 
 Examples

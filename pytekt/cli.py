@@ -3,11 +3,11 @@
 PyTekt - Command Line Interface
 ===================================
 
-Entry point for running Aion library functionality from the shell. Exposes
+Entry point for running PyTekt library functionality from the shell. Exposes
 subcommands for chat, embeddings, evaluation, prompt templates, file watching,
 and Git operations (status, log, diff, etc.). Uses argparse for parsing;
 help text and defaults are defined per subcommand. The Git subcommands
-require the optional aion.git module; if it is not importable, Git-related
+require the optional pytekt.git module; if it is not importable, Git-related
 options are still defined but may report that Git is unavailable at runtime.
 
 Author: Aksel Aghajanyan
@@ -66,27 +66,27 @@ def _build_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 High-value commands:
-  aion help                      Show all available Aion commands
-  aion config                    Manage CLI settings (~/.pytekt.yaml)
-  aion start / aion ui           Open the Aion Hub dashboard in the browser
-  aion usage / aion stats        Token usage & cost dashboard (browser)
-  aion info                      Show environment and optional dependencies
-  aion embed <file>              Embed a file (or use --text)
-  aion eval <preds> <answers>    Evaluate predictions
-  aion prompt --list             List prompt templates
-  aion chat                      Interactive prompt tool (template-only)
-  aion physics / aion universe   Physics toolkit / astronomy toolkit
-  aion vision                    Computer vision (I/O, convert, edges) — needs [vision]
+  pytekt help                      Show all available PyTekt commands
+  pytekt config                    Manage CLI settings (~/.pytekt.yaml)
+  pytekt start / pytekt ui           Open the PyTekt Hub dashboard in the browser
+  pytekt usage / pytekt stats        Token usage & cost dashboard (browser)
+  pytekt info                      Show environment and optional dependencies
+  pytekt embed <file>              Embed a file (or use --text)
+  pytekt eval <preds> <answers>    Evaluate predictions
+  pytekt prompt --list             List prompt templates
+  pytekt chat                      Interactive prompt tool (template-only)
+  pytekt physics / pytekt universe   Physics toolkit / astronomy toolkit
+  pytekt vision                    Computer vision (I/O, convert, edges) — needs [vision]
 
 Other commands:
-  aion git --help                Git repository tools
-  aion monitor / dashboard       Hardware dashboard + API (needs pip install 'pytekt[monitor]')
-  aion --version                 Show version
-  aion welcome                   Animated install screen (module list)
-  aion doctor                    Check research environment (deps, tracker, native ext)
-  aion benchmark                 Run standard ML benchmark suite
+  pytekt git --help                Git repository tools
+  pytekt monitor / dashboard       Hardware dashboard + API (needs pip install 'pytekt[monitor]')
+  pytekt --version                 Show version
+  pytekt welcome                   Animated install screen (module list)
+  pytekt doctor                    Check research environment (deps, tracker, native ext)
+  pytekt benchmark                 Run standard ML benchmark suite
 
-If ``aion`` is not found after pip install, your Python scripts directory is not on PATH.
+If ``pytekt`` is not found after pip install, your Python scripts directory is not on PATH.
 Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt monitor)
         """,
     )
@@ -94,7 +94,7 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # start (hub)
-    start_parser = subparsers.add_parser("start", help="Open the Aion Hub dashboard in the browser")
+    start_parser = subparsers.add_parser("start", help="Open the PyTekt Hub dashboard in the browser")
     start_parser.add_argument("--host", default="127.0.0.1", help="Bind address")
     start_parser.add_argument("--port", "-p", type=int, default=3000, help="Port (default 3000)")
     start_parser.add_argument("--no-browser", action="store_true", help="Do not open a browser tab")
@@ -237,12 +237,12 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     )
 
     # config
-    config_parser = subparsers.add_parser("config", help="Manage Aion CLI configuration")
+    config_parser = subparsers.add_parser("config", help="Manage PyTekt CLI configuration")
     config_parser.add_argument("key", nargs="?", help="Config key (e.g., universe.latitude)")
     config_parser.add_argument("value", nargs="?", help="Value to set")
 
     # help
-    subparsers.add_parser("help", help="Show all available Aion commands")
+    subparsers.add_parser("help", help="Show all available PyTekt commands")
 
     def _add_usage_args(p):
         p.add_argument("--host", default="127.0.0.1", help="Bind address (default 127.0.0.1)")
@@ -257,7 +257,7 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
 
     stats_parser = subparsers.add_parser(
         "stats",
-        help="Alias for aion usage — LLM usage analytics dashboard",
+        help="Alias for pytekt usage — LLM usage analytics dashboard",
     )
     _add_usage_args(stats_parser)
 
@@ -300,7 +300,7 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
 
     universe_parser = subparsers.add_parser("universe", help="Astronomy: moon, sky, coordinates (C++ fast path)")
     _add_universe_subparsers(universe_parser)
-    cosmos_parser = subparsers.add_parser("cosmos", help="[deprecated] use: aion universe")
+    cosmos_parser = subparsers.add_parser("cosmos", help="[deprecated] use: pytekt universe")
     _add_universe_subparsers(cosmos_parser)
 
     def _add_universe_dashboard_args(p):
@@ -315,7 +315,7 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     _add_universe_dashboard_args(universe_dash_parser)
     cosmos_dash_parser = subparsers.add_parser(
         "cosmos-dashboard",
-        help="[deprecated] use: aion universe-dashboard",
+        help="[deprecated] use: pytekt universe-dashboard",
     )
     _add_universe_dashboard_args(cosmos_dash_parser)
 
@@ -399,14 +399,14 @@ def run_help():
 
 def version_command():
     """Print package version."""
-    print(f"aion {_version_string()}")
+    print(f"pytekt {_version_string()}")
 
 
 def info_command():
     """Print environment and optional dependency status."""
     from . import __version__
     from . import embed
-    print("PyTekt (aion) - Environment")
+    print("PyTekt (pytekt) - Environment")
     print("=" * 50)
     print(f"Version:    {__version__}")
     print(f"Python:     {sys.version.split()[0]}")
@@ -442,8 +442,8 @@ def info_command():
     print("Git integration:", "available" if GIT_AVAILABLE else "not installed (pip install gitpython)")
     print()
 
-    print("Usage: aion <command> [options]")
-    print("       aion --help")
+    print("Usage: pytekt <command> [options]")
+    print("       pytekt --help")
 
 
 def embed_command(filepath=None, text=None, model="all-MiniLM-L6-v2", output=None):
@@ -542,7 +542,7 @@ def chat_command():
     """Interactive chat REPL with prompt templates and optional embedding."""
     from . import prompt as prompt_module
     templates = prompt_module.get_prompt_templates()
-    print("Aion Chat (prompt templates + helpers)")
+    print("PyTekt Chat (prompt templates + helpers)")
     print("Commands: /list, /prompt <type>, /quit")
     print("Types:", ", ".join(templates.keys()))
     print("-" * 50)
@@ -688,7 +688,7 @@ def main():
     args = parser.parse_args()
 
     # Once per installed/updated version (wheel installs skip setuptools hooks).
-    # Skip for ``aion welcome`` so the animation is not shown twice.
+    # Skip for ``pytekt welcome`` so the animation is not shown twice.
     if args.command != "welcome" and not os.environ.get("PYTEKT_NO_SPLASH"):
         try:
             from .install_splash import maybe_show_install_splash
@@ -815,13 +815,13 @@ def main():
 
     if args.command == "agent":
         print(
-            "aion agent — not available in 0.2.0.\n"
-            "Use aion.providers and aion.tools from Python for LLM workflows."
+            "pytekt agent — not available in 0.2.0.\n"
+            "Use pytekt.providers and pytekt.tools from Python for LLM workflows."
         )
         return
 
     if args.command in ("api", "auth"):
-        print(f"aion {args.command} — not available in 0.2.0.")
+        print(f"pytekt {args.command} — not available in 0.2.0.")
         return
 
     if args.command == "config":
@@ -840,7 +840,7 @@ def main():
         if args.command == "cosmos":
             import warnings
 
-            warnings.warn("aion cosmos is deprecated; use aion universe", DeprecationWarning)
+            warnings.warn("pytekt cosmos is deprecated; use pytekt universe", DeprecationWarning)
         from .universe.cli import universe_main
 
         universe_main(args)
@@ -850,7 +850,7 @@ def main():
         if args.command == "cosmos-dashboard":
             import warnings
 
-            warnings.warn("aion cosmos-dashboard is deprecated; use aion universe-dashboard", DeprecationWarning)
+            warnings.warn("pytekt cosmos-dashboard is deprecated; use pytekt universe-dashboard", DeprecationWarning)
         from .universe.launch import run_universe_dashboard
 
         run_universe_dashboard(

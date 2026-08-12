@@ -1,4 +1,4 @@
-"""Tests for aion.hyperopt."""
+"""Tests for pytekt.hyperopt."""
 
 import numpy as np
 

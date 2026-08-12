@@ -79,7 +79,7 @@ def save_yaml_file(path: PathLike, data: Mapping[str, Any], *, default_flow_styl
 
 def merge_env_overrides(
     cfg: MutableMapping[str, Any],
-    prefix: str = "AION_",
+    prefix: str = "PYTEKT_",
 ) -> MutableMapping[str, Any]:
     """
     For each env var ``PREFIX_KEY`` (nested keys as ``PREFIX_SECTION__KEY``),
@@ -105,7 +105,7 @@ def load_config(
     path: PathLike,
     *,
     merge_env: bool = True,
-    env_prefix: str = "AION_",
+    env_prefix: str = "PYTEKT_",
 ) -> Dict[str, Any]:
     """Load ``.toml`` or ``.yaml`` / ``.yml`` from path."""
     p = Path(path)
@@ -204,7 +204,7 @@ def load_config_typed(
     path: PathLike,
     *,
     merge_env: bool = True,
-    env_prefix: str = "AION_",
+    env_prefix: str = "PYTEKT_",
 ) -> Dict[str, Any]:
     """Like :func:`load_config`, then apply :func:`coerce_string_values`."""
     cfg = load_config(path, merge_env=merge_env, env_prefix=env_prefix)
@@ -216,7 +216,7 @@ def load_first_existing(
     paths: Iterable[PathLike],
     *,
     merge_env: bool = True,
-    env_prefix: str = "AION_",
+    env_prefix: str = "PYTEKT_",
 ) -> Tuple[Dict[str, Any], Optional[Path]]:
     """
     Load the first path in ``paths`` that exists. Returns ``({}, None)`` if
@@ -239,7 +239,7 @@ def load_first_existing(
 def load_layered(
     *paths: PathLike,
     merge_env: bool = True,
-    env_prefix: str = "AION_",
+    env_prefix: str = "PYTEKT_",
 ) -> Dict[str, Any]:
     """
     Load each existing file in order and deep-merge later files over earlier

@@ -3,7 +3,7 @@ Array and sequence processing utilities.
 
 Flattening, chunking, windowing, deduplication, rolling sums, and related
 helpers for list/sequence operations. Full package documentation:
-aion/algorithms/README.md
+pytekt/algorithms/README.md
 """
 from typing import Any, Union, Iterator, List, Optional, Tuple, Dict
 import random

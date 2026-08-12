@@ -1,5 +1,5 @@
 """
-Aion — Transformer module
+PyTekt — Transformer module
 =========================
 
 Lightweight decoder-only (GPT-style) transformer training for research and

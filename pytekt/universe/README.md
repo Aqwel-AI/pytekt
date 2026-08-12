@@ -42,24 +42,24 @@ pytekt universe-dashboard        # alias for universe web
 pytekt universe demo
 
 # deprecated aliases still work:
-aion cosmos web
+pytekt cosmos web
 ```
 
 ## Web dashboard
 
-React SPA at `aion/universe/web/` (built to `aion/universe/static/`).
+React SPA at `pytekt/universe/web/` (built to `pytekt/universe/static/`).
 
 **Tabs:** Tonight (Alt/Az sky map), Moon, Coordinates, Cosmology, Catalogs, Observation log.
 
 ```bash
 pytekt universe web
 # or build + launch:
-./aion/universe/run_dashboard.sh
+./pytekt/universe/run_dashboard.sh
 
 # Dev: terminal 1
 pytekt universe web --no-browser
 # terminal 2
-cd aion/universe/web && npm run dev   # proxies /api → :3857
+cd pytekt/universe/web && npm run dev   # proxies /api → :3857
 ```
 
 Observer lat/lon is read from `~/.pytekt.yaml` (`universe.latitude`, `universe.longitude`; `cosmos.*` still accepted) and can be saved from the UI.
@@ -70,7 +70,7 @@ Slash commands below require the terminal agent, which is **not available** in 0
 
 - `/sky` — moon phase and bright stars above horizon
 - `/sky moon` — moon only
-- `/sky log` — log session to `~/.aion/cosmos.db`
+- `/sky log` — log session to `~/.pytekt/cosmos.db`
 - `/sky web` — open Universe dashboard in browser
 
 ## Native C++ extension
@@ -83,7 +83,7 @@ pip install -e .
 python -c "from pytekt.universe import using_native_extension; print(using_native_extension())"
 ```
 
-Accelerated paths (C++ in `src/aion_universe.cpp`):
+Accelerated paths (C++ in `src/pytekt_universe.cpp`):
 
 | Area | Functions |
 |------|-----------|

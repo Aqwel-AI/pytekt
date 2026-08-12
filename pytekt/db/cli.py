@@ -1,4 +1,4 @@
-"""``aion db`` — sync, status, and quick demos."""
+"""``pytekt db`` — sync, status, and quick demos."""
 
 from __future__ import annotations
 
@@ -84,4 +84,4 @@ def db_main(args: argparse.Namespace) -> None:
         db_demo()
         return
 
-    _print("  Unknown db action. Try: aion db status | sync-usage | sync-tracker | demo")
+    _print("  Unknown db action. Try: pytekt db status | sync-usage | sync-tracker | demo")

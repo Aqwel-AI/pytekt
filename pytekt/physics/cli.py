@@ -1,4 +1,4 @@
-"""``aion physics`` subcommands."""
+"""``pytekt physics`` subcommands."""
 
 from __future__ import annotations
 
@@ -102,6 +102,6 @@ def physics_main(args: argparse.Namespace) -> None:
         return
 
     print(
-        "  Usage: aion physics query | pendulum | projectile | force | ke | gas | "
+        "  Usage: pytekt physics query | pendulum | projectile | force | ke | gas | "
         "units | tasks | demo | web"
     )

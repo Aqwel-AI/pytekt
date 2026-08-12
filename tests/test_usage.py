@@ -1,4 +1,4 @@
-"""Tests for aion.usage store and aggregates."""
+"""Tests for pytekt.usage store and aggregates."""
 
 from __future__ import annotations
 
@@ -50,11 +50,11 @@ def test_timeseries_today():
 
 
 def test_resolve_port_when_3333_not_aion():
-    """Port 3333 may be another app; Aion should not treat it as our dashboard."""
+    """Port 3333 may be another app; PyTekt should not treat it as our dashboard."""
     port, running = resolve_usage_port("127.0.0.1", 3847)
     assert port >= 3847
     if is_pytekt_usage_server("127.0.0.1", 3333):
-        pytest.skip("3333 happens to be Aion in this environment")
+        pytest.skip("3333 happens to be PyTekt in this environment")
     else:
         p, already = resolve_usage_port("127.0.0.1", 3333)
         assert not already or is_pytekt_usage_server("127.0.0.1", p)

@@ -23,7 +23,7 @@ def test_static_splash(capsys):
     assert "100%" in out
     assert "Installation complete" in out
     assert "Install Overview" not in out
-    assert "█████╗" in out or "Aion" in out or "PyTekt" in out
+    assert "█████╗" in out or "PyTekt" in out or "PyTekt" in out
 
 
 def test_maybe_show_respects_no_splash(capsys):
@@ -41,10 +41,10 @@ def test_marker_suppresses_repeat(tmp_path, monkeypatch):
     assert should_show_install_splash() is False
     monkeypatch.delenv("PYTEKT_NO_SPLASH", raising=False)
     monkeypatch.setattr(
-        "aion.install_splash._state_dir",
+        "pytekt.install_splash._state_dir",
         lambda: Path(tmp_path),
     )
-    monkeypatch.setattr("aion.install_splash._package_version", lambda: "9.9.9-test")
+    monkeypatch.setattr("pytekt.install_splash._package_version", lambda: "9.9.9-test")
     # Non-TTY → still false
     monkeypatch.setattr("sys.stdout.isatty", lambda: False)
     assert should_show_install_splash() is False

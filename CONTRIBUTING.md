@@ -28,8 +28,8 @@ Thank you for your interest in contributing to PyTekt! We welcome contributions 
 
 1. **Fork the repository**
    ```bash
-   git clone https://github.com/aqwelai/aion.git
-   cd aion
+   git clone https://github.com/aqwelai/pytekt.git
+   cd pytekt
    ```
 
 2. **Set up development environment**
@@ -102,8 +102,8 @@ Thank you for your interest in contributing to PyTekt! We welcome contributions 
 
 ### Project Structure
 ```
-aion/
-├── aion/           # Main package
+pytekt/
+├── pytekt/           # Main package
 │   ├── maths.py    # Mathematical operations (71+ functions)
 │   ├── embed.py    # Text embeddings and similarity
 │   ├── evaluate.py # Model evaluation metrics
@@ -132,13 +132,13 @@ pytest
 pytest tests/test_maths.py
 
 # Run with coverage
-pytest --cov=aion
+pytest --cov=pytekt
 ```
 
 ### Building Documentation
 ```bash
 # Generate API documentation
-python -c "import pytekt.pdf; aion.pdf.generate_complete_documentation('docs')"
+python -c "import pytekt.pdf; pytekt.pdf.generate_complete_documentation('docs')"
 ```
 
 ## Community Guidelines

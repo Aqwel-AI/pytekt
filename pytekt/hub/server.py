@@ -1,4 +1,4 @@
-"""Lightweight HTTP server for Aion Hub (stdlib only — no FastAPI needed)."""
+"""Lightweight HTTP server for PyTekt Hub (stdlib only — no FastAPI needed)."""
 
 from __future__ import annotations
 
@@ -184,7 +184,7 @@ class HubHandler(SimpleHTTPRequestHandler):
 
 def run_server(host: str = "127.0.0.1", port: int = 3000) -> None:
     server = HTTPServer((host, port), HubHandler)
-    print(f"Aion Hub running at http://{host}:{port}")
+    print(f"PyTekt Hub running at http://{host}:{port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

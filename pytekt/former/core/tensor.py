@@ -1,8 +1,8 @@
 """
-Minimal tensor class for the Aion transformer module.
+Minimal tensor class for the PyTekt transformer module.
 
 NumPy-backed array with optional gradient tracking for autograd.
-Used by all model layers and operations in aion.former.
+Used by all model layers and operations in pytekt.former.
 """
 
 import numpy as np

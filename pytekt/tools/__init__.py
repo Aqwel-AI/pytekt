@@ -3,7 +3,7 @@ LLM tool-calling helpers: schemas, registry, multi-turn loop, retry, rate limit.
 
 Works with ``OpenAIProvider`` / ``OpenAICompatibleProvider.complete_turn``.
 Optional: ``tiktoken`` via ``pip install pytekt[tools]`` for token estimates.
-See ``aion/tools/README.md`` for package documentation.
+See ``pytekt/tools/README.md`` for package documentation.
 """
 
 from .fake_provider import FakeToolProvider, make_tool_turn

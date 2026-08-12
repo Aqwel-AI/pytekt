@@ -1,4 +1,4 @@
-# Aion Physics
+# PyTekt Physics
 
 Classical physics toolkit for **teaching**, **simulation**, and **Physical AI** agent tools — NumPy-free scalar API, optional C++ acceleration for integrators.
 
@@ -79,9 +79,9 @@ Pure Python fallbacks always available.
 ## Web dashboard
 
 ```bash
-./aion/physics/run_web.sh
+./pytekt/physics/run_web.sh
 # or
-cd aion/physics/web && npm install && npm run dev   # proxies /api to 3858
+cd pytekt/physics/web && npm install && npm run dev   # proxies /api to 3858
 ```
 
 ## See also

@@ -8,7 +8,7 @@ import pytekt.db as db
 def main() -> None:
     conn = db.connect("sqlite://./demo_hybrid.db")
     conn.docs.insert({
-        "content": "Training transformers with Aion",
+        "content": "Training transformers with PyTekt",
         "embedding": [0.9, 0.1, 0.0],
         "source": "docs",
     })

@@ -1,4 +1,4 @@
-"""Filter operators and field descriptors for :mod:`aion.db`."""
+"""Filter operators and field descriptors for :mod:`pytekt.db`."""
 
 from __future__ import annotations
 

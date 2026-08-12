@@ -1,5 +1,5 @@
 """
-Common visualization utilities for AION.
+Common visualization utilities for PYTEKT.
 
 This module contains shared helper functions used across
 visualization submodules (arrays, matrices, training).

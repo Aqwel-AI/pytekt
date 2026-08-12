@@ -1,7 +1,7 @@
 {
-  "name": "aion-ide",
-  "displayName": "Aion IDE Bridge",
-  "description": "Writes open editor paths to .aion/open_files.json for the Aion coding agent",
+  "name": "pytekt-ide",
+  "displayName": "PyTekt IDE Bridge",
+  "description": "Writes open editor paths to .pytekt/open_files.json for the PyTekt coding agent",
   "version": "0.1.0",
   "publisher": "aqwel-ai",
   "engines": {
@@ -17,8 +17,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "aion.syncOpenFiles",
-        "title": "Aion: Sync Open Files Now"
+        "command": "pytekt.syncOpenFiles",
+        "title": "PyTekt: Sync Open Files Now"
       }
     ]
   },

@@ -1,4 +1,4 @@
-"""Tests for aion.models."""
+"""Tests for pytekt.models."""
 
 import numpy as np
 import pytest

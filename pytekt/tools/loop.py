@@ -59,7 +59,7 @@ def run_tool_loop(
     messages
         Mutable list of chat API messages (dicts); updated in place.
     tools
-        OpenAI ``tools`` array (from ``aion.tools.schemas.function_tool``).
+        OpenAI ``tools`` array (from ``pytekt.tools.schemas.function_tool``).
     registry
         ``ToolRegistry`` with registered implementations.
 

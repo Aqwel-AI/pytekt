@@ -2,7 +2,7 @@
 
 ## 1. Title and overview
 
-**`pytekt.monitor`** is a **local hardware and runtime observability** slice of Aion: **CPU** (overall + per-core), **RAM**, **disk usage and I/O rates**, optional **NVIDIA GPU** metrics (utilization, VRAM, temperature), **top processes by memory**, and a **browser dashboard** with about **1–5 minutes** of rolling history (1 sample per second).
+**`pytekt.monitor`** is a **local hardware and runtime observability** slice of PyTekt: **CPU** (overall + per-core), **RAM**, **disk usage and I/O rates**, optional **NVIDIA GPU** metrics (utilization, VRAM, temperature), **top processes by memory**, and a **browser dashboard** with about **1–5 minutes** of rolling history (1 sample per second).
 
 It is meant for **developers on their own machine** (training jobs, local APIs), not for multi-host production monitoring.
 
@@ -39,7 +39,7 @@ Core pieces: **`psutil`**, **`fastapi`**, **`uvicorn[standard]`**, **`nvidia-ml-
 
 ### CLI (recommended)
 
-If the shell cannot find `aion` (scripts dir not on `PATH`), use **`python3 -m pytekt`** — same as the `aion` console script.
+If the shell cannot find `pytekt` (scripts dir not on `PATH`), use **`python3 -m pytekt`** — same as the `pytekt` console script.
 
 ```bash
 python3 -m pytekt monitor              # dashboard + API; opens browser by default
@@ -101,7 +101,7 @@ python -m pytekt.monitor.examples.demo_snapshot
 
 ## 5. Conventions
 
-- **Lazy imports:** `psutil` and **FastAPI** are not required to **import** `aion` itself; they are required when you call hardware helpers or load `server.py`.
+- **Lazy imports:** `psutil` and **FastAPI** are not required to **import** `pytekt` itself; they are required when you call hardware helpers or load `server.py`.
 - **GPU:** Apple Silicon / AMD / machines without NVIDIA drivers will show **no GPU** in the dashboard; that is expected.
 - **Disk I/O:** Rates come from **`psutil.disk_io_counters()`** (aggregate); may be **zero** or **unavailable** on some OS configurations.
 - **Security:** The server defaults to **127.0.0.1**; do not expose it to untrusted networks without authentication and TLS.

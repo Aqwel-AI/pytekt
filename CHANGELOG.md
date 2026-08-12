@@ -11,50 +11,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`pytekt.physics`** — Classical physics toolkit (mechanics, kinematics, thermo, EM, optics, relativity, integrators, NL query); CLI `pytekt physics`; optional C++ path; web dashboard.
 - **`pytekt.universe`** — Astronomy (coordinates, observing, orbits, cosmology, catalogs); CLI `pytekt universe`; C++ path; web dashboard.
 - **`pytekt.vision`** — Classic computer vision on NumPy arrays (I/O, transforms, color, filters, draw, metrics, OpenCV ops); CLI `pytekt vision`; extra `[vision]` (Pillow + opencv-python-headless).
-- **`aion.cache`** — Caching with TTL: `MemoryCache`, `DiskCache`, `LLMCache`, `@cached`.
-- **`aion.data`** — CSV/JSON/JSONL loaders, splits, text augmentation, schema validation (restored after 0.1.9 remove).
-- **`aion.datasets`** — Built-in benchmarks + generators + file I/O (restored).
-- **`aion.tokenizer`** — `BPETokenizer`, `WordPieceTokenizer`, `Vocabulary`.
-- **`aion.pipeline`** — Step-based pipelines with retry / fallback / timing.
-- **`aion.store`** — SQLite key-value, persistent vector store, chat history.
-- **`aion.tracker`** — Experiment tracking (`Tracker` / `Run`, compare runs).
-- **`aion.llm_eval`** — Similarity, faithfulness, toxicity/PII checks, cost tracking.
-- **`aion.structures`** — Trie, Bloom filter, LRU, heaps, Union-Find.
-- **`aion.serve`** — FastAPI `/chat`, `/rag`, `/health` (`[serve]`).
+- **`pytekt.cache`** — Caching with TTL: `MemoryCache`, `DiskCache`, `LLMCache`, `@cached`.
+- **`pytekt.data`** — CSV/JSON/JSONL loaders, splits, text augmentation, schema validation (restored after 0.1.9 remove).
+- **`pytekt.datasets`** — Built-in benchmarks + generators + file I/O (restored).
+- **`pytekt.tokenizer`** — `BPETokenizer`, `WordPieceTokenizer`, `Vocabulary`.
+- **`pytekt.pipeline`** — Step-based pipelines with retry / fallback / timing.
+- **`pytekt.store`** — SQLite key-value, persistent vector store, chat history.
+- **`pytekt.tracker`** — Experiment tracking (`Tracker` / `Run`, compare runs).
+- **`pytekt.llm_eval`** — Similarity, faithfulness, toxicity/PII checks, cost tracking.
+- **`pytekt.structures`** — Trie, Bloom filter, LRU, heaps, Union-Find.
+- **`pytekt.serve`** — FastAPI `/chat`, `/rag`, `/health` (`[serve]`).
 - **Core ML** — `preprocessing`, `models`, `metrics`, `hyperopt` (NumPy-first).
-- **`aion.ui` / Hub** — `aion start`, HTML reports, optional Gradio/Streamlit.
-- **`aion.db`** — Unified SQLite + optional MySQL/Postgres/Mongo/Redis (`[db]`).
-- **`aion.experiments`** — `Experiment`, `BenchmarkSuite`, `aion benchmark`, `aion doctor`.
-- **`aion.usage`** — Token & cost dashboard (`aion usage`).
-- **Install splash** — AION logo animation via `aion welcome` and once after install/upgrade.
+- **`pytekt.ui` / Hub** — `pytekt start`, HTML reports, optional Gradio/Streamlit.
+- **`pytekt.db`** — Unified SQLite + optional MySQL/Postgres/Mongo/Redis (`[db]`).
+- **`pytekt.experiments`** — `Experiment`, `BenchmarkSuite`, `pytekt benchmark`, `pytekt doctor`.
+- **`pytekt.usage`** — Token & cost dashboard (`pytekt usage`).
+- **Install splash** — PYTEKT logo animation via `pytekt welcome` and once after install/upgrade.
 
 ### Added — New extras
 - `[serve]`, `[db]`, `[universe]`, `[physics]`, `[vision]`, `[ui]`, `[monitor]`, and related groups; `[full]` includes vision OpenCV stack.
 
 ### Not available in 0.2.0
 - **Terminal coding agent** (`pytekt agent`, browser UI, IDE bridge) — **not available**; source under `archived/aion_agent/` (local only).
-- **`aion.agents`** ReAct / Planning / MultiAgent framework — not imported in this package version.
-- **`aion api` / `aion auth`** — **not available**.
+- **`pytekt.agents`** ReAct / Planning / MultiAgent framework — not imported in this package version.
+- **`pytekt api` / `pytekt auth`** — **not available**.
 
 ### Fixed
-- Missing `matrix_transpose`, `matrix_multiply`, `z_score_normalization`, `min_max_scaling` in `aion.algorithms.arrays`.
-- `a_star` and `pagerank` import name mismatches in `aion.algorithms.__init__`.
+- Missing `matrix_transpose`, `matrix_multiply`, `z_score_normalization`, `min_max_scaling` in `pytekt.algorithms.arrays`.
+- `a_star` and `pagerank` import name mismatches in `pytekt.algorithms.__init__`.
 
 ## [0.1.9] - 2026-03-29
 
 ### Added
-- **`aion.tools`** — OpenAI-style tool schemas, `ToolRegistry`, `run_tool_loop`, HTTP retry helper, token bucket, optional `tiktoken` estimates (`pip install pytekt[tools]`).
-- **`aion.rag`** — Text chunking, `MemoryVectorStore`, optional `FaissVectorStore`, `SimpleRAGIndex` pipeline (`[rag]` extra).
+- **`pytekt.tools`** — OpenAI-style tool schemas, `ToolRegistry`, `run_tool_loop`, HTTP retry helper, token bucket, optional `tiktoken` estimates (`pip install pytekt[tools]`).
+- **`pytekt.rag`** — Text chunking, `MemoryVectorStore`, optional `FaissVectorStore`, `SimpleRAGIndex` pipeline (`[rag]` extra).
 - **Providers** — `complete_turn` / `AssistantTurn` / `NormalizedToolCall` for OpenAI and OpenAI-compatible APIs; `complete_turn` stubs on Anthropic/Gemini with clear `NotImplementedError`.
-- **`aion.config`**, **`aion.env`** — TOML/YAML config merge with env overrides, `.env` parsing.
-- **`aion.benchmarks`** — Timing helpers. Offline tool-loop testing uses **`aion.tools.FakeToolProvider`** (former checkpoint sidecars use stdlib JSON in `save_checkpoint_sidecar_meta`).
-- **Graph algorithms** — `dijkstra`, `connected_components`, `shortest_path_unweighted` in `aion.algorithms.graphs`.
+- **`pytekt.config`**, **`pytekt.env`** — TOML/YAML config merge with env overrides, `.env` parsing.
+- **`pytekt.benchmarks`** — Timing helpers. Offline tool-loop testing uses **`pytekt.tools.FakeToolProvider`** (former checkpoint sidecars use stdlib JSON in `save_checkpoint_sidecar_meta`).
+- **Graph algorithms** — `dijkstra`, `connected_components`, `shortest_path_unweighted` in `pytekt.algorithms.graphs`.
 - **Visualization** — `plot_3d_scatter`, `plot_3d_surface`, `save_figures_pdf`, `figures_to_html_img_tags`.
 - **Former** — `save_checkpoint_sidecar_meta` for JSON metadata next to `.npz` checkpoints.
 - **Optional extras** in `pyproject.toml` / `setup.py`: `[tools]`, `[rag]`, `[config]`; `[full]` extended with tiktoken, tomli (Python 3.8–3.10), PyYAML.
 
 ### Removed (package trim)
-- Top-level **`aion.datasets`** and **`aion.dataframe`** — use **`aion.io`**, the stdlib, or **pandas** directly; transformer text pipelines remain under **`aion.former.datasets`**.
+- Top-level **`pytekt.datasets`** and **`pytekt.dataframe`** — use **`pytekt.io`**, the stdlib, or **pandas** directly; transformer text pipelines remain under **`pytekt.former.datasets`**.
 
 ## [0.1.8] - 2025-02-22
 
@@ -95,7 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Changed
 - **Branding Update**: LinkAI → Aqwel AI
-- **Package Name**: linkai-aion → pytekt
+- **Package Name**: linkai-pytekt → pytekt
 - **Focus**: General utilities → AI research library
 - **Target Audience**: Developers → AI researchers and developers
 - **URLs**: linkaiapps.com → aqwelai.com
@@ -157,7 +157,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2024-10-01
 
 ### Added
-- Initial release of LinkAI-Aion
+- Initial release of LinkAI-PyTekt
 - Basic utility functions
 - Text processing capabilities
 - File management tools

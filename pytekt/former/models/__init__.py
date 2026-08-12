@@ -3,7 +3,7 @@ Transformer model components.
 
 Decoder-only stack: Transformer, TransformerBlock, MultiHeadAttention,
 FeedForward, Embedding, PositionalEncoding. Full documentation:
-aion/former/README.md and aion/former/docs/architecture.md.
+pytekt/former/README.md and pytekt/former/docs/architecture.md.
 """
 
 from .transformer import Transformer

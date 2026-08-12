@@ -1,4 +1,4 @@
-"""CLI smoke tests for aion vision."""
+"""CLI smoke tests for pytekt vision."""
 
 from __future__ import annotations
 

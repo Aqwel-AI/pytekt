@@ -80,7 +80,7 @@ class Dataset:
         return "\n".join(lines)
 
     def to_csv(self, path: str, **kwargs: Any) -> None:
-        """Write this dataset to a CSV file (see :mod:`aion.datasets.io`)."""
+        """Write this dataset to a CSV file (see :mod:`pytekt.datasets.io`)."""
         from .io import write_csv
         write_csv(self, path, **kwargs)
 

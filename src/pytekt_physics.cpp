@@ -138,7 +138,7 @@ std::vector<std::vector<double>> pendulum_trajectory(
 }
 
 PYBIND11_MODULE(_pytekt_physics, m) {
-    m.doc() = "Aion physics fast calculations";
+    m.doc() = "PyTekt physics fast calculations";
     m.def("rk4_step", &rk4_step, "Single RK4 integration step");
     m.def("integrate_trajectory_rk4", &integrate_trajectory_rk4, "RK4 trajectory integration");
     m.def("pendulum_trajectory", &pendulum_trajectory, "Simulate simple pendulum");

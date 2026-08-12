@@ -1,4 +1,4 @@
-# AION Visualization
+# PYTEKT Visualization
 
 Research-friendly plotting for 1D/2D data and training metrics. The module is lightweight, backend-safe (CLI, notebooks, CI), and returns matplotlib `Figure` objects so you can display or save plots as needed.
 
@@ -33,7 +33,7 @@ Research-friendly plotting for 1D/2D data and training metrics. The module is li
 
 Before using the visualization module, ensure you have:
 
-1. **Python**: Version 3.8 or higher (same as the main AION package).
+1. **Python**: Version 3.8 or higher (same as the main PYTEKT package).
 2. **pip**: So you can install the package and its extras.
 3. **Optional but recommended**: A virtual environment (e.g. `venv` or `conda`) so visualization dependencies do not conflict with other projects.
 
@@ -92,8 +92,8 @@ Follow these steps once per environment (e.g. your machine or a CI runner).
      ```
    - With conda:
      ```bash
-     conda create -n aion python=3.10
-     conda activate aion
+     conda create -n pytekt python=3.10
+     conda activate pytekt
      ```
 
 2. **Install the package with the viz extra.**

@@ -1,7 +1,7 @@
 """
 Train a small transformer on text (next-token prediction).
 
-Reads aion/former/experiments/config.yaml (or uses built-in defaults),
+Reads pytekt/former/experiments/config.yaml (or uses built-in defaults),
 builds dataset and model, runs training, and saves loss curve and optional
 weight spectrum plot. Run: python -m pytekt.former.experiments.train_small_model
 """
@@ -97,7 +97,7 @@ def main():
         print(f"Epoch {epoch + 1}/{epochs}  loss = {loss:.4f}")
 
     try:
-        plot_training_metrics(trainer.history, title="Aion transformer training loss")
+        plot_training_metrics(trainer.history, title="PyTekt transformer training loss")
         import matplotlib.pyplot as plt
         plt.savefig(os.path.join(os.path.dirname(__file__), "training_metrics.png"), dpi=120)
         plt.close()
@@ -119,7 +119,7 @@ def main():
     except Exception as e:
         print("Could not save weights:", e)
 
-    print("Done. Use aion.former.examples.text_generation with the same tokenizer/dataset to generate text.")
+    print("Done. Use pytekt.former.examples.text_generation with the same tokenizer/dataset to generate text.")
 
 
 if __name__ == "__main__":

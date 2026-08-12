@@ -95,7 +95,7 @@ def test_list_models_parses_openai_shape(monkeypatch):
         assert headers and headers.get("Authorization") == "Bearer test-key"
         return payload
 
-    monkeypatch.setattr("aion.providers.nvidia_provider.get_json", fake_get_json)
+    monkeypatch.setattr("pytekt.providers.nvidia_provider.get_json", fake_get_json)
     models = NvidiaProvider.list_models(api_key="test-key")
 
     assert models[0] == "meta/llama-3.1-8b-instruct"
@@ -105,7 +105,7 @@ def test_list_models_parses_openai_shape(monkeypatch):
 
 def test_list_models_falls_back_when_empty(monkeypatch):
     monkeypatch.setattr(
-        "aion.providers.nvidia_provider.get_json",
+        "pytekt.providers.nvidia_provider.get_json",
         lambda *args, **kwargs: {"data": []},
     )
     models = NvidiaProvider.list_models(api_key="test-key")

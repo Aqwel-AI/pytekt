@@ -15,7 +15,7 @@ From the project root:
 
 ```bash
 pip install -e .
-jupyter notebook aion/algorithms/examples/
+jupyter notebook pytekt/algorithms/examples/
 ```
 
 Or open the notebooks in JupyterLab or VS Code. The package uses only the Python standard library for algorithms (no extra dependencies for these examples).

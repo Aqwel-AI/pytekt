@@ -1,4 +1,4 @@
-"""Log observing sessions to :mod:`aion.db`."""
+"""Log observing sessions to :mod:`pytekt.db`."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-DEFAULT_DB = os.path.expanduser("~/.aion/universe.db")
+DEFAULT_DB = os.path.expanduser("~/.pytekt/universe.db")
 
 _OBSERVATION_SCHEMA = {
     "ts": "",

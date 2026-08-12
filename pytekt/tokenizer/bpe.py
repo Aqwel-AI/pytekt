@@ -15,7 +15,7 @@ class BPETokenizer:
     Byte-Pair Encoding tokenizer.
 
     Train on a corpus to learn sub-word merges, then encode / decode text.
-    Compatible with :class:`aion.tokenizer.Vocabulary` for id mapping.
+    Compatible with :class:`pytekt.tokenizer.Vocabulary` for id mapping.
 
     Parameters
     ----------

@@ -12,14 +12,14 @@ PathLike = Union[str, Path]
 
 
 def build_experiment_dashboard(
-    tracker_dir: str = ".aion_experiments",
+    tracker_dir: str = ".pytekt_experiments",
     *,
     output: PathLike = "experiments.html",
     title: str = "Experiment runs",
     metric_sort: Optional[str] = None,
     open_browser: bool = False,
 ) -> str:
-    """Generate an HTML dashboard from :class:`aion.tracker.Tracker` data.
+    """Generate an HTML dashboard from :class:`pytekt.tracker.Tracker` data.
 
   Returns the path to the saved HTML file.
     """
@@ -75,7 +75,7 @@ def build_dataset_report(
     sample_rows: int = 10,
     open_browser: bool = False,
 ) -> str:
-    """Generate an HTML preview for a :class:`aion.datasets.Dataset`.
+    """Generate an HTML preview for a :class:`pytekt.datasets.Dataset`.
 
     Parameters
     ----------

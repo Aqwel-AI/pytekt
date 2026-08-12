@@ -1,6 +1,6 @@
 # `pytekt.config`
 
-Small, dependency-light helpers to load **TOML** and **YAML**, merge **`AION_*` environment** overrides, and combine **layered** config files.
+Small, dependency-light helpers to load **TOML** and **YAML**, merge **`PYTEKT_*` environment** overrides, and combine **layered** config files.
 
 ## Install
 
@@ -27,7 +27,7 @@ Open the notebook from the repo root or after `pip install -e .` so `import pyte
 | `load_toml_file` / `load_yaml_file` | Load one file into a `dict`. |
 | `load_config(path)` | Pick parser by extension; optional `merge_env=True`. |
 | `load_config_typed` | Like `load_config`, then coerce string leaves (bools, ints, floats). |
-| `merge_env_overrides` | Apply `AION_KEY` or `AION_section__key` env vars. |
+| `merge_env_overrides` | Apply `PYTEKT_KEY` or `PYTEKT_section__key` env vars. |
 | `deep_merge(base, override)` | Recursive dict merge; override wins. |
 | `get_nested` / `set_nested` | Dotted paths (`"db.host"`). |
 | `load_first_existing` | Try a list of paths; return `(cfg, path_or_none)`. |
@@ -40,8 +40,8 @@ Open the notebook from the repo root or after `pip install -e .` so `import pyte
 
 ## Environment naming
 
-- Top-level: `AION_LOGLEVEL=debug` → `cfg["loglevel"] == "debug"` (keys lowercased after the prefix).
-- Nested: `AION_DB__HOST=postgres` → `cfg["db"]["host"] == "postgres"`.
+- Top-level: `PYTEKT_LOGLEVEL=debug` → `cfg["loglevel"] == "debug"` (keys lowercased after the prefix).
+- Nested: `PYTEKT_DB__HOST=postgres` → `cfg["db"]["host"] == "postgres"`.
 
 Values are **strings** until you call `coerce_string_values` or `load_config_typed`.
 

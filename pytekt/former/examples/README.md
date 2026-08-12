@@ -1,4 +1,4 @@
-# Aion transformer — examples
+# PyTekt transformer — examples
 
 Runnable examples for the `pytekt.former` module.
 
@@ -34,4 +34,4 @@ Training with config and plots is in the experiments package:
 python -m pytekt.former.experiments.train_small_model
 ```
 
-See `aion/former/README.md` for full documentation.
+See `pytekt/former/README.md` for full documentation.

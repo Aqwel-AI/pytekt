@@ -9,7 +9,7 @@ clustering, time-series, multi-label, and sparse data.
 All loaders return a :class:`Dataset` dataclass with ``data``, ``target``,
 ``feature_names``, ``target_names``, and ``metadata`` fields.
 
-File I/O (CSV, JSON, Parquet, Excel) lives in :mod:`aion.datasets.io` — stdlib
+File I/O (CSV, JSON, Parquet, Excel) lives in :mod:`pytekt.datasets.io` — stdlib
 for CSV/JSON/JSONL; install ``[ai]`` for pandas formats.
 
 Quick start

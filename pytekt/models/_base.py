@@ -1,4 +1,4 @@
-"""Base estimator for Aion models."""
+"""Base estimator for PyTekt models."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Tests for aion.experiments research utilities."""
+"""Tests for pytekt.experiments research utilities."""
 
 import json
 import os

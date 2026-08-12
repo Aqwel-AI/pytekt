@@ -15,7 +15,7 @@ _SERVER_THREAD: Optional[threading.Thread] = None
 _SERVER_PORT: Optional[int] = None
 _SERVER_LOCK = threading.Lock()
 _DEFAULT_HOST = "127.0.0.1"
-# Not 3333 — often taken by other local apps (e.g. PHP). Aion-only default:
+# Not 3333 — often taken by other local apps (e.g. PHP). PyTekt-only default:
 _DEFAULT_PORT = 3847
 _PORT_SCAN_RANGE = 15
 
@@ -29,7 +29,7 @@ def _port_open(host: str, port: int) -> bool:
 
 
 def is_pytekt_usage_server(host: str, port: int) -> bool:
-    """True if this port serves the Aion usage API (not another app)."""
+    """True if this port serves the PyTekt usage API (not another app)."""
     url = f"http://{host}:{port}/api/info"
     try:
         with urllib.request.urlopen(url, timeout=1.0) as resp:
@@ -41,7 +41,7 @@ def is_pytekt_usage_server(host: str, port: int) -> bool:
 
 def resolve_usage_port(host: str, preferred: int = _DEFAULT_PORT) -> Tuple[int, bool]:
     """
-    Pick a port for the Aion React dashboard.
+    Pick a port for the PyTekt React dashboard.
 
     Returns ``(port, already_running)``.
     """
@@ -70,7 +70,7 @@ def _start_server_thread(host: str, port: int) -> None:
         run_server(host=host, port=port)
 
     _SERVER_PORT = port
-    _SERVER_THREAD = threading.Thread(target=_run, name="aion-usage-server", daemon=True)
+    _SERVER_THREAD = threading.Thread(target=_run, name="pytekt-usage-server", daemon=True)
     _SERVER_THREAD.start()
 
 
@@ -86,7 +86,7 @@ def ensure_usage_dashboard(
     wait_ready: float = 2.0,
 ) -> Tuple[str, bool]:
     """
-    Ensure the Aion React dashboard server is running; open the browser.
+    Ensure the PyTekt React dashboard server is running; open the browser.
 
     Returns ``(url, started_new_server)``.
     Never opens a random app on a busy port — verifies ``/api/info`` first.
@@ -110,7 +110,7 @@ def ensure_usage_dashboard(
 
         if use_port != port and _port_open(host, port):
             print(
-                f"Note: port {port} is used by another app (not Aion). "
+                f"Note: port {port} is used by another app (not PyTekt). "
                 f"Using port {use_port} for the usage dashboard."
             )
 
@@ -136,19 +136,19 @@ def run_usage_dashboard(
     port: int = _DEFAULT_PORT,
     open_browser: bool = True,
 ) -> None:
-    """Blocking entry for ``aion usage`` — runs Aion server in foreground."""
+    """Blocking entry for ``pytekt usage`` — runs PyTekt server in foreground."""
     use_port, already = resolve_usage_port(host, port)
     url = dashboard_url(host, use_port)
 
     if already:
-        print(f"Aion usage dashboard already running at {url}")
+        print(f"PyTekt usage dashboard already running at {url}")
         if open_browser:
             webbrowser.open(url)
         return
 
     if use_port != port and _port_open(host, port):
         print(
-            f"Port {port} is in use by another program — starting Aion on {use_port} instead."
+            f"Port {port} is in use by another program — starting PyTekt on {use_port} instead."
         )
 
     if open_browser:

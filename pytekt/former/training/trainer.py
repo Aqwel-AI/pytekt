@@ -41,7 +41,7 @@ class Trainer:
     Parameters
     ----------
     model : object with .forward() and .parameters()
-        The transformer model (e.g. aion.former.Transformer).
+        The transformer model (e.g. pytekt.former.Transformer).
     lr : float, optional
         Learning rate for Adam (default 1e-3).
     beta1, beta2 : float, optional

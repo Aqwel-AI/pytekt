@@ -34,7 +34,7 @@ def show_prompt(prompt_type: str) -> str:
 def get_prompt_templates() -> Dict[str, str]:
     """Return predefined AI prompt templates (system, code_review, debugging, etc.)."""
     return {
-        "system": "You are Aion, an advanced AI assistant specialized in helping with software development, data science, and AI/ML tasks. You provide accurate, helpful, and detailed responses.",
+        "system": "You are PyTekt, an advanced AI assistant specialized in helping with software development, data science, and AI/ML tasks. You provide accurate, helpful, and detailed responses.",
         
         "code_review": "Please review the following code and provide feedback on:\n1. Code quality and best practices\n2. Potential bugs or issues\n3. Performance optimizations\n4. Readability improvements\n\nCode to review:",
         

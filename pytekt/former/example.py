@@ -1,9 +1,9 @@
 """
-Aion transformer module — runnable examples.
+PyTekt transformer module — runnable examples.
 
 Single entry point that demonstrates: tokenizer/dataset, forward pass,
 short training, attention visualization, text generation, and training
-metrics plot. Outputs are saved to aion/former/examples_results/.
+metrics plot. Outputs are saved to pytekt/former/examples_results/.
 
 Run from project root:
   python -m pytekt.former.example
@@ -12,9 +12,9 @@ Or from this directory:
   python example.py
 
 For full scripts see:
-  - aion.former.experiments.train_small_model  (training + config)
-  - aion.former.examples.attention_demo       (attention heatmaps)
-  - aion.former.examples.text_generation      (next-token generation)
+  - pytekt.former.experiments.train_small_model  (training + config)
+  - pytekt.former.examples.attention_demo       (attention heatmaps)
+  - pytekt.former.examples.text_generation      (next-token generation)
 """
 
 import os
@@ -233,7 +233,7 @@ def example_plot_training_metrics(trainer):
 # -----------------------------------------------------------------------------
 def main():
     print("=" * 60)
-    print("Aion transformer module — examples")
+    print("PyTekt transformer module — examples")
     print("=" * 60)
 
     print("\n--- 1. Tokenizer and dataset ---")

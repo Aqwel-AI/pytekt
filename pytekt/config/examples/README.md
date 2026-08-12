@@ -29,7 +29,7 @@ From the project root:
 
 ```bash
 pip install -e ".[config]"
-jupyter notebook aion/config/examples/
+jupyter notebook pytekt/config/examples/
 ```
 
 Or open **`01_config_loading_merge.ipynb`** in JupyterLab or VS Code. Cells assume `import pytekt.config` works (editable install or a normal install of `pytekt`).

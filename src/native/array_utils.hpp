@@ -1,5 +1,5 @@
 /*
- * Shared helpers for Aion C++ extensions.
+ * Shared helpers for PyTekt C++ extensions.
  *
  * These utilities keep the native modules small and consistent while
  * enforcing contiguous double-precision inputs for numeric kernels.

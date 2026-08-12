@@ -6,7 +6,7 @@ import pytekt.db as db
 
 
 def main() -> None:
-    conn = db.connect("sqlite://./demo_aion.db")
+    conn = db.connect("sqlite://./demo_pytekt.db")
     print("Engines:", db.supported_engines())
     conn.users.insert({"name": "Alice", "tags": ["ai", "ml"]})
     print("Users:", conn.users.find(name="Alice"))

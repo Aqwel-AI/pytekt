@@ -1,4 +1,4 @@
-"""Stdlib HTTP server for the Aion physics dashboard."""
+"""Stdlib HTTP server for the PyTekt physics dashboard."""
 
 from __future__ import annotations
 
@@ -97,7 +97,7 @@ class PhysicsHandler(SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
     def log_message(self, fmt: str, *args) -> None:
-        if os.environ.get("AION_PHYSICS_QUIET"):
+        if os.environ.get("PYTEKT_PHYSICS_QUIET"):
             return
         super().log_message(fmt, *args)
 
@@ -107,7 +107,7 @@ def run_server(host: str = "127.0.0.1", port: int = 3858) -> None:
     if not os.path.isfile(os.path.join(STATIC_DIR, "index.html")):
         _write_fallback_static()
     server = _ThreadingHTTPServer((host, port), PhysicsHandler)
-    print(f"Aion Physics dashboard at http://{host}:{port}/")
+    print(f"PyTekt Physics dashboard at http://{host}:{port}/")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -117,8 +117,8 @@ def run_server(host: str = "127.0.0.1", port: int = 3858) -> None:
 
 def _write_fallback_static() -> None:
     html = """<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Aion Physics</title></head>
-<body><h1>Aion Physics</h1><p>Build the UI: cd aion/physics/web && npm install && npm run build</p>
+<html><head><meta charset="utf-8"><title>PyTekt Physics</title></head>
+<body><h1>PyTekt Physics</h1><p>Build the UI: cd pytekt/physics/web && npm install && npm run build</p>
 <script>
 fetch('/api/info').then(r=>r.json()).then(d=>document.body.innerHTML+='<pre>'+JSON.stringify(d,null,2)+'</pre>');
 </script></body></html>"""

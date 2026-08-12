@@ -2,7 +2,7 @@
 Tokenization: BPE, WordPiece, and vocabulary management.
 
 Trainable tokenizers that work standalone or integrate with
-:mod:`aion.former` for transformer training.
+:mod:`pytekt.former` for transformer training.
 
 Examples
 --------

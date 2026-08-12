@@ -47,7 +47,7 @@ class SqliteConnection(SqlConnection):
 
     @property
     def kv(self):
-        """Key-value store (:mod:`aion.store`)."""
+        """Key-value store (:mod:`pytekt.store`)."""
         if self._kv is None:
             from ...store import KeyValueStore
 
@@ -57,7 +57,7 @@ class SqliteConnection(SqlConnection):
 
     @property
     def chat(self):
-        """Chat history (:mod:`aion.store`) with ``save_thread`` helper."""
+        """Chat history (:mod:`pytekt.store`) with ``save_thread`` helper."""
         if self._chat is None:
             from ...store import ChatHistoryStore
             from ..chat_bridge import ChatBridge

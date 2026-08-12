@@ -11,7 +11,7 @@ def _register_module(module, category: str) -> None:
         if name.startswith("_"):
             continue
         obj = getattr(module, name)
-        if callable(obj) and getattr(obj, "__module__", "").startswith("aion.algorithms"):
+        if callable(obj) and getattr(obj, "__module__", "").startswith("pytekt.algorithms"):
             register_existing(obj, category=category, module=module.__name__.rsplit(".", 1)[-1])
 
 
@@ -25,7 +25,7 @@ def load_all() -> None:
     """Import all algorithm modules and register legacy functions."""
     from importlib import import_module
 
-    import_module("aion.algorithms.sliding_window")
+    import_module("pytekt.algorithms.sliding_window")
     from . import (  # noqa: F401
         backtracking,
         bit_manipulation,

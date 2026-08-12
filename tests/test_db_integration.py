@@ -17,26 +17,26 @@ def _skip_unless_env(var: str) -> str:
 
 
 @pytest.mark.skipif(
-    not os.environ.get("AION_TEST_MYSQL_URL"),
-    reason="Set AION_TEST_MYSQL_URL for MySQL integration test",
+    not os.environ.get("PYTEKT_TEST_MYSQL_URL"),
+    reason="Set PYTEKT_TEST_MYSQL_URL for MySQL integration test",
 )
 def test_mysql_connect():
     import pytekt.db as db
 
-    conn = db.connect(os.environ["AION_TEST_MYSQL_URL"])
+    conn = db.connect(os.environ["PYTEKT_TEST_MYSQL_URL"])
     conn.probe.insert({"ping": 1})
     assert conn.probe.count() >= 1
     conn.close()
 
 
 @pytest.mark.skipif(
-    not os.environ.get("AION_TEST_MONGO_URL"),
-    reason="Set AION_TEST_MONGO_URL for MongoDB integration test",
+    not os.environ.get("PYTEKT_TEST_MONGO_URL"),
+    reason="Set PYTEKT_TEST_MONGO_URL for MongoDB integration test",
 )
 def test_mongo_connect():
     import pytekt.db as db
 
-    conn = db.connect(os.environ["AION_TEST_MONGO_URL"])
+    conn = db.connect(os.environ["PYTEKT_TEST_MONGO_URL"])
     conn.probe.insert({"ping": 1})
     assert conn.probe.count() >= 1
     conn.close()

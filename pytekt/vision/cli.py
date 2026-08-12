@@ -1,4 +1,4 @@
-"""CLI for ``aion vision`` subcommands."""
+"""CLI for ``pytekt vision`` subcommands."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ def _parse_size(value: Optional[str]) -> Optional[Tuple[int, int]]:
 
 
 def vision_main(args: argparse.Namespace) -> None:
-    """Dispatch ``aion vision`` actions."""
+    """Dispatch ``pytekt vision`` actions."""
     action = getattr(args, "vision_action", None)
     if action == "info":
         from .io import image_info
@@ -54,10 +54,10 @@ def vision_main(args: argparse.Namespace) -> None:
         print(f"wrote {out} shape={edges.shape}")
         return
 
-    print("Usage: aion vision {info,convert,edges} …")
-    print("  aion vision info <path>")
-    print("  aion vision convert <in> <out> [--mode RGB|L|none] [--size WxH]")
-    print("  aion vision edges <in> <out> [--t1 100] [--t2 200]")
+    print("Usage: pytekt vision {info,convert,edges} …")
+    print("  pytekt vision info <path>")
+    print("  pytekt vision convert <in> <out> [--mode RGB|L|none] [--size WxH]")
+    print("  pytekt vision edges <in> <out> [--t1 100] [--t2 200]")
 
 
 def build_vision_parser(parser: argparse.ArgumentParser) -> None:

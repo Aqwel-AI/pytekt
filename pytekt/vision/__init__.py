@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Computer vision utilities for Aion.
+Computer vision utilities for PyTekt.
 
-Image arrays (NumPy) — not plotting. For matplotlib charts see ``aion.visualization``.
+Image arrays (NumPy) — not plotting. For matplotlib charts see ``pytekt.visualization``.
 
 Install: ``pip install 'pytekt[vision]'``
 """

@@ -1,6 +1,6 @@
 # pytekt.io — Examples
 
-Small scripts showing **streaming reads**, **atomic writes**, and **SHA-256** checks. No extra dependencies beyond **`aion`**.
+Small scripts showing **streaming reads**, **atomic writes**, and **SHA-256** checks. No extra dependencies beyond **`pytekt`**.
 
 ## Run
 

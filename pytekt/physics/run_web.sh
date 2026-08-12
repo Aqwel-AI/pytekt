@@ -7,4 +7,4 @@ if [[ ! -d node_modules ]]; then
 fi
 npm run build
 cd "$ROOT"
-exec python3 -m aion.physics.server "$@"
+exec python3 -m pytekt.physics.server "$@"

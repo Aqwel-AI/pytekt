@@ -1,5 +1,5 @@
 """
-User interface layer for Aion — **React-style frontend in Python**.
+User interface layer for PyTekt — **React-style frontend in Python**.
 
 Build declarative UIs with components, props, and ``html.*`` tags (like JSX),
 then render to static HTML or serve locally. No Node.js or React install required.

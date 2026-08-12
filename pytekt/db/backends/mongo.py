@@ -128,7 +128,7 @@ class MongoConnection(Connection):
                 uri = f"mongodb://{user}:{password}@{host}:{port}"
             else:
                 uri = f"mongodb://{host}:{port}"
-        db_name = cfg.get("database") or cfg.get("db") or "aion"
+        db_name = cfg.get("database") or cfg.get("db") or "pytekt"
 
         def factory():
             client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=5000)

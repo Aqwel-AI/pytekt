@@ -26,7 +26,7 @@ def fetch_exoplanet_table(
 
     Requires network. Caches to *cache_path* when provided.
     """
-    cache_path = cache_path or os.path.expanduser("~/.aion/universe/exoplanets.csv")
+    cache_path = cache_path or os.path.expanduser("~/.pytekt/universe/exoplanets.csv")
     if os.path.isfile(cache_path):
         with open(cache_path, encoding="utf-8") as f:
             return list(csv.DictReader(f))

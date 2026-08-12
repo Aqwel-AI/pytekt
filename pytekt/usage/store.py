@@ -1,4 +1,4 @@
-"""Persistent usage log at ``~/.aion/usage/events.jsonl``."""
+"""Persistent usage log at ``~/.pytekt/usage/events.jsonl``."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import Any, Dict, Iterator, List, Optional
 
 
 def default_store_path() -> str:
-    return os.path.expanduser("~/.aion/usage/events.jsonl")
+    return os.path.expanduser("~/.pytekt/usage/events.jsonl")
 
 
 class UsageStore:

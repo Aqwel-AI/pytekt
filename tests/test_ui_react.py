@@ -1,4 +1,4 @@
-"""Tests for React-style aion.ui components."""
+"""Tests for React-style pytekt.ui components."""
 
 from pytekt.ui import (
     AppShell,
@@ -26,7 +26,7 @@ class SimpleApp(Component):
         return html.div(
             {"className": "app"},
             html.h1({}, "Test"),
-            Greeting(name="Aion"),
+            Greeting(name="PyTekt"),
         )
 
 
@@ -45,7 +45,7 @@ def test_fragment():
 
 def test_class_component():
     out = render_component(SimpleApp())
-    assert "Hello, Aion" in out
+    assert "Hello, PyTekt" in out
 
 
 def test_app_shell_and_metrics():

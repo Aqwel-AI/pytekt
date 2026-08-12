@@ -44,7 +44,7 @@ def load_planets() -> List[Dict[str, Any]]:
 
 
 def catalog_to_dataset(catalog: List[Dict[str, Any]], *, name: str = "universe"):
-    """Export catalog rows as :class:`aion.datasets.Dataset`."""
+    """Export catalog rows as :class:`pytekt.datasets.Dataset`."""
     import numpy as np
     from ..datasets import Dataset
 

@@ -3,7 +3,7 @@ Remote LLM providers (OpenAI, Gemini, Anthropic, OpenAI-compatible servers).
 
 Use these classes to call vendor chat APIs from your own scripts or services.
 API keys are read from arguments or standard environment variables.
-See ``aion/providers/README.md`` for a full layout and API summary.
+See ``pytekt/providers/README.md`` for a full layout and API summary.
 
 Examples
 --------

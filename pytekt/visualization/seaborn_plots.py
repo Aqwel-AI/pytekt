@@ -1,4 +1,4 @@
-"""Seaborn plot wrappers with Aion conventions."""
+"""Seaborn plot wrappers with PyTekt conventions."""
 
 from __future__ import annotations
 

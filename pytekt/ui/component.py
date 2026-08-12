@@ -24,7 +24,7 @@ class Component:
     >>> class Hello(Component):
     ...     def render(self):
     ...         return html.div({}, html.h1({}, self.props.get("name", "World")))
-    >>> Hello(name="Aion").render().tag
+    >>> Hello(name="PyTekt").render().tag
     'div'
     """
 

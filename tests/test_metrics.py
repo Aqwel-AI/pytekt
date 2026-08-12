@@ -1,4 +1,4 @@
-"""Tests for aion.metrics."""
+"""Tests for pytekt.metrics."""
 
 import numpy as np
 

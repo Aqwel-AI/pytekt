@@ -1,1 +1,1 @@
-"""Demos for :mod:`aion.db`."""
+"""Demos for :mod:`pytekt.db`."""

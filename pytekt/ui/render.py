@@ -18,7 +18,7 @@ PathLike = Union[str, Path]
 def render(
     root: Any,
     *,
-    title: str = "Aion App",
+    title: str = "PyTekt App",
     extra_css: str = "",
     include_theme: bool = True,
 ) -> str:
@@ -34,7 +34,7 @@ def render(
 def render_app(
     root: Any,
     *,
-    title: str = "Aion App",
+    title: str = "PyTekt App",
     output: Optional[PathLike] = None,
     extra_css: str = "",
     include_theme: bool = True,
@@ -49,7 +49,7 @@ def render_app(
     root : Component, VNode, or callable
         Root component (class instance, function component, or VNode tree).
     title : str
-        Document ``<title>`` and default header when using :class:`~aion.ui.AppShell`.
+        Document ``<title>`` and default header when using :class:`~pytekt.ui.AppShell`.
     output : path, optional
         If set, write HTML to this path.
     open_browser : bool
@@ -68,7 +68,7 @@ def render_app(
         f"<title>{escape_html(title)}</title>"
         f"<style>{css}</style></head><body>"
         f"{body}"
-        + (f'<footer class="aion-footer">{escape_html(footer)}</footer>' if footer else "")
+        + (f'<footer class="pytekt-footer">{escape_html(footer)}</footer>' if footer else "")
         + "</body></html>"
     )
     if output is not None:
@@ -86,7 +86,7 @@ def serve_app(
     *,
     host: str = "127.0.0.1",
     port: int = 8765,
-    title: str = "Aion App",
+    title: str = "PyTekt App",
 ) -> None:
     """Serve a rendered app over HTTP (stdlib only, for local dev)."""
     html_doc = render_app(root, title=title, include_theme=True)
@@ -103,7 +103,7 @@ def serve_app(
 
     server = HTTPServer((host, port), Handler)
     url = f"http://{host}:{port}/"
-    print(f"Aion UI dev server: {url}")
+    print(f"PyTekt UI dev server: {url}")
     webbrowser.open(url)
     try:
         server.serve_forever()

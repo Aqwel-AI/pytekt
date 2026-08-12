@@ -48,7 +48,7 @@ class ProviderError(Exception):
             return (
                 "Your API key was rejected.\n\n"
                 "Check that the key is correct and active, then set it again "
-                "(environment variable or `aion api add <provider> <key>`)."
+                "(environment variable or `pytekt api add <provider> <key>`)."
             )
         if self.status == 403:
             return (
@@ -103,7 +103,7 @@ class ProviderError(Exception):
                 "  • Wait, then send your message again",
                 "  • Check usage: https://ai.dev/rate-limit",
                 "  • Enable billing on your Google AI / provider account",
-                "  • Switch provider in Aion: /connect ollama or /connect deepseek",
+                "  • Switch provider in PyTekt: /connect ollama or /connect deepseek",
             ]
         )
         return "\n".join(lines)

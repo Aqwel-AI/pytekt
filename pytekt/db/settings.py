@@ -9,7 +9,7 @@ from ..config.core import get_nested
 from .base import Connection
 from .factory import connect
 
-DEFAULT_SQLITE_PATH = os.path.expanduser("~/.aion/agent.db")
+DEFAULT_SQLITE_PATH = os.path.expanduser("~/.pytekt/agent.db")
 
 
 def default_db_url() -> str:
@@ -28,7 +28,7 @@ def db_url_from_config(cfg: Dict[str, Any]) -> str:
 
 
 def get_db_connection(cfg: Optional[Dict[str, Any]] = None, *, url: Optional[str] = None) -> Connection:
-    """Open a configured :mod:`aion.db` connection."""
+    """Open a configured :mod:`pytekt.db` connection."""
     if url:
         target = url.replace("~", os.path.expanduser("~"))
     elif cfg is not None:

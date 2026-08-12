@@ -55,8 +55,8 @@ def launch_gradio_playground(
         fn=run_code,
         inputs=gr.Code(label="Python", language="python", lines=12),
         outputs=gr.Textbox(label="Output", lines=14),
-        title="Aion Gradio Playground",
-        description="Run Aion snippets interactively.",
+        title="PyTekt Gradio Playground",
+        description="Run PyTekt snippets interactively.",
         examples=[
             ["import pytekt\nprint(pytekt.__version__)"],
             ["from pytekt.datasets import load_iris\nprint(load_iris())"],
@@ -69,7 +69,7 @@ def launch_streamlit_dataset_explorer(
     *,
     server_port: int = 8501,
 ) -> None:
-    """Launch a Streamlit app to browse built-in :mod:`aion.datasets`.
+    """Launch a Streamlit app to browse built-in :mod:`pytekt.datasets`.
 
     Requires: ``pip install 'pytekt[ui]'``
     """
@@ -96,8 +96,8 @@ _STREAMLIT_APP_TEMPLATE = '''"""Streamlit dataset explorer."""
 import streamlit as st
 from pytekt.datasets import fetch, list_datasets
 
-st.set_page_config(page_title="Aion datasets", layout="wide")
-st.title("Aion dataset explorer")
+st.set_page_config(page_title="PyTekt datasets", layout="wide")
+st.title("PyTekt dataset explorer")
 names = [d["name"] for d in list_datasets()]
 choice = st.sidebar.selectbox("Dataset", names, index=0)
 ds = fetch(choice)

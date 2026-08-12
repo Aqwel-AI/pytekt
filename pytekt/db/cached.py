@@ -17,7 +17,7 @@ def cached(
     cache_path: str = ".aion_db_cache.db",
 ) -> Any:
     """
-    Cache function results using :mod:`aion.cache` disk cache.
+    Cache function results using :mod:`pytekt.cache` disk cache.
 
     Cache key is derived from function name + arguments.
     """

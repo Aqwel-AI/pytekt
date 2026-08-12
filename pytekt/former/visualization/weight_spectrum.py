@@ -2,7 +2,7 @@
 Weight spectrum: eigenvalue or singular-value distribution of weight matrices.
 
 Useful for inspecting initialization and training dynamics (e.g. random
-matrix theory). Accepts 2D NumPy arrays or aion.former.core.Tensor.
+matrix theory). Accepts 2D NumPy arrays or pytekt.former.core.Tensor.
 """
 
 import numpy as np

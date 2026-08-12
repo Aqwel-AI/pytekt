@@ -1,4 +1,4 @@
-"""Setuptools install hooks — show animated Aion splash after install/upgrade."""
+"""Setuptools install hooks — show animated PyTekt splash after install/upgrade."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover
 
 
 def _run_splash() -> None:
-    """Show the Aion install animation without breaking installation."""
+    """Show the PyTekt install animation without breaking installation."""
     if os.environ.get("PYTEKT_NO_SPLASH"):
         return
     try:
@@ -40,7 +40,7 @@ def _run_splash() -> None:
 
 
 class InstallCommand(install):
-    """Custom install that prints the Aion install animation."""
+    """Custom install that prints the PyTekt install animation."""
 
     def run(self) -> None:
         super().run()

@@ -1,5 +1,5 @@
 """
-Array visualization utilities for AION.
+Array visualization utilities for PYTEKT.
 
 This module provides research-friendly plotting helpers for
 one-dimensional numerical data. The functions are designed to be:

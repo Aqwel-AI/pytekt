@@ -2,7 +2,7 @@
 LLM output evaluation: similarity, faithfulness, toxicity, cost tracking.
 
 Tools for assessing the quality, safety, and cost of LLM outputs. Works
-with :mod:`aion.embed` for semantic similarity and :mod:`aion.providers`
+with :mod:`pytekt.embed` for semantic similarity and :mod:`pytekt.providers`
 for cost estimation.
 
 Examples

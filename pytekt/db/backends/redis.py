@@ -34,7 +34,7 @@ class RedisCollection(DocumentCollection):
         super().__init__(connection, _safe_name(name))
 
     def _prefix(self) -> str:
-        return f"aion:{self.name}:"
+        return f"pytekt:{self.name}:"
 
     def _load(self, key: str) -> Optional[Dict[str, Any]]:
         raw = self._conn._client.get(key)

@@ -32,7 +32,7 @@ def export_results_table(
     Parameters
     ----------
     runs : list of dict
-        Output of :meth:`aion.tracker.Tracker.list_runs` or compare_runs.
+        Output of :meth:`pytekt.tracker.Tracker.list_runs` or compare_runs.
     metric_columns : sequence, optional
         Metric names to include; default = union of all metrics in runs.
     format : str

@@ -1,7 +1,7 @@
 """
 Animated install success screen for PyTekt.
 
-Shown after ``pip install pytekt`` (setuptools hook) and via ``aion welcome``.
+Shown after ``pip install pytekt`` (setuptools hook) and via ``pytekt welcome``.
 Uses ANSI colors when stdout is a TTY; falls back to plain text in CI.
 """
 
@@ -31,7 +31,7 @@ def _package_version() -> str:
 
 
 def _state_dir() -> Path:
-    return Path.home() / ".aion"
+    return Path.home() / ".pytekt"
 
 
 def _splash_marker(version: str) -> Path:
@@ -63,9 +63,9 @@ def should_show_install_splash() -> bool:
 
 def maybe_show_install_splash() -> None:
     """
-    Show the Aion install animation once after install or upgrade.
+    Show the PyTekt install animation once after install or upgrade.
 
-    Called from setuptools install hooks and from the ``aion`` CLI on first use
+    Called from setuptools install hooks and from the ``pytekt`` CLI on first use
     of a new version (modern pip wheel installs skip setuptools ``install``).
     """
     if not should_show_install_splash():
@@ -115,16 +115,16 @@ def accent(t: str, *, on: bool) -> str:
 
 
 # ---------------------------------------------------------------------------
-# AION wordmark
+# PYTEKT wordmark
 # ---------------------------------------------------------------------------
 
 LOGO = r"""
-     █████╗ ██╗ ██████╗ ███╗   ██╗
-    ██╔══██╗██║██╔═══██╗████╗  ██║
-    ███████║██║██║   ██║██╔██╗ ██║
-    ██╔══██║██║██║   ██║██║╚██╗██║
-    ██║  ██║██║╚██████╔╝██║ ╚████║
-    ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+██████╗  ██╗   ██╗████████╗███████╗██╗  ██╗████████╗
+██╔══██╗ ╚██╗ ██╔╝╚══██╔══╝██╔════╝██║ ██╔╝╚══██╔══╝
+██████╔╝  ╚████╔╝    ██║   █████╗  █████═╝    ██║   
+██╔═══╝    ╚██╔╝     ██║   ██╔══╝  ██╔═██╗    ██║   
+██║         ██║      ██║   ███████╗██║  ██╗   ██║   
+╚═╝         ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝   
 """
 
 INFO_ROWS: Sequence[Tuple[str, str]] = (
@@ -139,7 +139,7 @@ INFO_ROWS: Sequence[Tuple[str, str]] = (
 )
 
 _GLITCH_CHARS = "░▒▓█▀▄▌▐─│"
-AION_LOGO_LINES: Sequence[str] = tuple(
+PYTEKT_LOGO_LINES: Sequence[str] = tuple(
     line for line in LOGO.strip("\n").split("\n") if line.strip() or line
 )
 
@@ -162,7 +162,7 @@ def _progress_line(step: int, total: int, *, color_on: bool, width: int = 26) ->
         status = "syncing runtime assets"
     elif step < 85:
         phase = "install"
-        status = "writing Aion components"
+        status = "writing PyTekt components"
     elif step < 100:
         phase = "finalize"
         status = "validating install state"
@@ -191,9 +191,9 @@ def _corrupt_line(line: str, intensity: float) -> str:
 
 
 def _show_pytekt_glitch_intro(*, color_on: bool, duration: float = 1.6) -> None:
-    """Corrupt AION logo flicker, then lock in the clean wordmark."""
+    """Corrupt PYTEKT logo flicker, then lock in the clean wordmark."""
     indent = "  "
-    logo = list(AION_LOGO_LINES)
+    logo = list(PYTEKT_LOGO_LINES)
     height = len(logo)
 
     if not color_on:
@@ -314,5 +314,5 @@ def show_install_splash(
 
 
 def show_install_splash_if_requested() -> None:
-    """Called from CLI when user runs ``aion welcome``."""
+    """Called from CLI when user runs ``pytekt welcome``."""
     show_install_splash(animated=True)

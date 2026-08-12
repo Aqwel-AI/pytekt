@@ -1,4 +1,4 @@
-"""Tests for aion.preprocessing."""
+"""Tests for pytekt.preprocessing."""
 
 import numpy as np
 import pytest

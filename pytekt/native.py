@@ -1,6 +1,6 @@
 """Library-wide introspection for optional native C++ backends.
 
-This module centralizes information about Aion's optional compiled
+This module centralizes information about PyTekt's optional compiled
 extensions so the rest of the library can reason about C++ acceleration
 without duplicating import logic in multiple places.
 """

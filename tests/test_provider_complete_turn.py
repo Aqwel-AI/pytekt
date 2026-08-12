@@ -88,7 +88,7 @@ def test_anthropic_complete_turn_mocked():
             {"type": "tool_use", "id": "t1", "name": "grep", "input": {"pattern": "foo"}},
         ]
     }
-    with patch("aion.providers.anthropic_provider.post_json", return_value=fake):
+    with patch("pytekt.providers.anthropic_provider.post_json", return_value=fake):
         turn = provider.complete_turn(
             [{"role": "user", "content": "find foo"}],
             tools=[

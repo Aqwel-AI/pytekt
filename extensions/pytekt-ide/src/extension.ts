@@ -53,7 +53,7 @@ function collectOpenFiles(root: string): { path: string; cursor_line?: number }[
 }
 
 function writeSidecar(root: string, files: { path: string; cursor_line?: number }[]): void {
-  const dir = path.join(root, ".aion");
+  const dir = path.join(root, ".pytekt");
   fs.mkdirSync(dir, { recursive: true });
   const payload = {
     updated_at: Date.now() / 1000,
@@ -93,7 +93,7 @@ function syncOpenFiles(showMessage = false): void {
   const root = workspaceRoot();
   if (!root) {
     if (showMessage) {
-      vscode.window.showWarningMessage("Aion: open a workspace folder first.");
+      vscode.window.showWarningMessage("PyTekt: open a workspace folder first.");
     }
     return;
   }
@@ -102,13 +102,13 @@ function syncOpenFiles(showMessage = false): void {
   postWebOpenFiles(files.map((f) => f.path));
   if (showMessage) {
     vscode.window.showInformationMessage(
-      `Aion: synced ${files.length} open file(s) to .aion/open_files.json`
+      `PyTekt: synced ${files.length} open file(s) to .pytekt/open_files.json`
     );
   }
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-  const syncCmd = vscode.commands.registerCommand("aion.syncOpenFiles", () => {
+  const syncCmd = vscode.commands.registerCommand("pytekt.syncOpenFiles", () => {
     syncOpenFiles(true);
   });
 

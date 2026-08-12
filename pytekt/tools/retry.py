@@ -24,7 +24,7 @@ def post_json_with_retry(
     """
     Call ``post_json`` with exponential backoff on 429 and some 5xx errors.
 
-    Pass ``aion.providers.http_utils.post_json`` as the first argument.
+    Pass ``pytekt.providers.http_utils.post_json`` as the first argument.
     """
     last: Optional[BaseException] = None
     for attempt in range(max_retries + 1):

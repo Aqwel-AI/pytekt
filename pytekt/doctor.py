@@ -1,7 +1,7 @@
 """
-Environment diagnostics for Aion research workflows.
+Environment diagnostics for PyTekt research workflows.
 
-Run via CLI: ``python -m pytekt doctor`` or ``aion doctor`` (after install).
+Run via CLI: ``python -m pytekt doctor`` or ``pytekt doctor`` (after install).
 """
 
 from __future__ import annotations
@@ -37,18 +37,18 @@ def run_doctor(*, verbose: bool = True) -> bool:
     try:
         from pytekt import __version__
 
-        lines.append(_check("aion", True, __version__))
+        lines.append(_check("pytekt", True, __version__))
     except ImportError as e:
-        lines.append(_check("aion", False, str(e)))
+        lines.append(_check("pytekt", False, str(e)))
 
     optional = [
-        ("matplotlib", "viz", "aion[viz]"),
-        ("pandas", "ai", "aion[ai]"),
-        ("fastapi", "serve", "aion[serve]"),
-        ("sentence_transformers", "rag", "aion[rag]"),
-        ("gradio", "ui", "aion[ui]"),
-        ("PIL", "vision", "aion[vision]"),
-        ("cv2", "vision", "aion[vision]"),
+        ("matplotlib", "viz", "pytekt[viz]"),
+        ("pandas", "ai", "pytekt[ai]"),
+        ("fastapi", "serve", "pytekt[serve]"),
+        ("sentence_transformers", "rag", "pytekt[rag]"),
+        ("gradio", "ui", "pytekt[ui]"),
+        ("PIL", "vision", "pytekt[vision]"),
+        ("cv2", "vision", "pytekt[vision]"),
     ]
     for mod, extra, hint in optional:
         try:
@@ -58,7 +58,7 @@ def run_doctor(*, verbose: bool = True) -> bool:
         except ImportError:
             lines.append(_check(f"{mod} [{extra}]", False, f"optional: pip install 'pytekt[{extra}]'"))
 
-    tracker_dir = ".aion_experiments"
+    tracker_dir = ".pytekt_experiments"
     writable = True
     try:
         os.makedirs(tracker_dir, exist_ok=True)
@@ -89,7 +89,7 @@ def run_doctor(*, verbose: bool = True) -> bool:
         lines.append(_check("cmake", False, "optional: install cmake for C++ workspaces"))
 
     all_required_ok = all(ok for name, ok, _ in lines if "optional" not in _.lower() and name in (
-        "Python >= 3.8", "numpy", "aion", "tracker directory writable"
+        "Python >= 3.8", "numpy", "pytekt", "tracker directory writable"
     ))
 
     if verbose:
@@ -100,7 +100,7 @@ def run_doctor(*, verbose: bool = True) -> bool:
 def _print_report(lines: List[Tuple[str, bool, str]], all_ok: bool) -> None:
     use_color = hasattr(sys.stdout, "isatty") and sys.stdout.isatty() and not os.environ.get("NO_COLOR")
     print()
-    print("  Aion Doctor — research environment")
+    print("  PyTekt Doctor — research environment")
     print("  " + "─" * 40)
     for name, ok, detail in lines:
         mark = "\033[32m✓\033[0m" if ok and use_color else ("✓" if ok else "✗")

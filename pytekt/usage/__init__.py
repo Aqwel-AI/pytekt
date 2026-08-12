@@ -1,4 +1,4 @@
-"""LLM usage tracking and browser dashboard (``aion usage``)."""
+"""LLM usage tracking and browser dashboard (``pytekt usage``)."""
 
 from __future__ import annotations
 

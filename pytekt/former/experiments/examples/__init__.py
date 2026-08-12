@@ -1,1 +1,1 @@
-"""Notes and small helpers next to ``aion.former.experiments`` scripts."""
+"""Notes and small helpers next to ``pytekt.former.experiments`` scripts."""

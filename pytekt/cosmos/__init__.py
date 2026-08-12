@@ -5,7 +5,7 @@ from __future__ import annotations
 import warnings
 
 warnings.warn(
-    "aion.cosmos is renamed to pytekt.universe; update imports and CLI (aion universe).",
+    "pytekt.cosmos is renamed to pytekt.universe; update imports and CLI (pytekt universe).",
     DeprecationWarning,
     stacklevel=2,
 )

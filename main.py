@@ -15,7 +15,7 @@ Copyright: 2025 Aqwel AI
 # Import the sys module for system-specific parameters and functions
 import sys
 
-# Import the CLI module from the aion package for command-line interface functionality
+# Import the CLI module from the pytekt package for command-line interface functionality
 from pytekt import cli
 
 def main():

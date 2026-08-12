@@ -60,7 +60,7 @@ class OpenAIProvider:
         """
         Chat completion with optional ``tools`` / ``tool_choice`` (OpenAI format).
 
-        Returns parsed ``content`` and/or ``tool_calls``. Use with ``aion.tools``
+        Returns parsed ``content`` and/or ``tool_calls``. Use with ``pytekt.tools``
         for multi-step tool loops.
         """
         url = f"{self._base}/chat/completions"

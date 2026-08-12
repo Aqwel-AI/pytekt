@@ -20,12 +20,12 @@ def save_config(cfg: Dict[str, Any]) -> None:
 
 
 def config_command(key: Optional[str] = None, value: Optional[str] = None) -> None:
-    """``aion config`` — show, get, or set dotted keys."""
+    """``pytekt config`` — show, get, or set dotted keys."""
     cfg = get_config()
 
     if key is None:
         if not cfg:
-            print(f"No config at {CONFIG_PATH}. Set keys with: aion config <key> <value>")
+            print(f"No config at {CONFIG_PATH}. Set keys with: pytekt config <key> <value>")
             return
         print(f"Config file: {CONFIG_PATH}")
         for section, data in sorted(cfg.items()):

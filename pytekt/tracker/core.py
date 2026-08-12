@@ -137,7 +137,7 @@ class Tracker:
         Root directory for storing experiment data.
     """
 
-    def __init__(self, base_dir: str = ".aion_experiments") -> None:
+    def __init__(self, base_dir: str = ".pytekt_experiments") -> None:
         self._base_dir = base_dir
         os.makedirs(base_dir, exist_ok=True)
 

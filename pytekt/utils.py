@@ -5,7 +5,7 @@ PyTekt - Utilities
 
 General helpers: data formatting and conversion, string manipulation and
 validation, random data and UUIDs, hashing, number processing, and
-sanitization. Shared across Aion modules and user code.
+sanitization. Shared across PyTekt modules and user code.
 
 Author: Aksel Aghajanyan
 Developed by: Aqwel AI Team

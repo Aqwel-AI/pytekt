@@ -16,7 +16,7 @@ def sync_usage(
     path: Optional[str] = None,
     table: str = "usage_events",
 ) -> int:
-    """Import ``~/.aion/usage/events.jsonl`` into a collection/table."""
+    """Import ``~/.pytekt/usage/events.jsonl`` into a collection/table."""
     from ...usage.store import UsageStore, default_store_path
 
     store = UsageStore(path or default_store_path())

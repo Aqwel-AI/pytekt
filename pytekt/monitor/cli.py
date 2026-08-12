@@ -3,7 +3,7 @@ Run the monitor HTTP server from the command line::
 
     python -m pytekt.monitor.cli
 
-Same dependencies as ``aion monitor`` (``pytekt[monitor]``).
+Same dependencies as ``pytekt monitor`` (``pytekt[monitor]``).
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from typing import List, Optional
 def main(argv: Optional[List[str]] = None) -> None:
     from .launch import run_monitor_command
 
-    p = argparse.ArgumentParser(description="Aion monitor — hardware/runtime HTTP API")
+    p = argparse.ArgumentParser(description="PyTekt monitor — hardware/runtime HTTP API")
     p.add_argument("--host", default="127.0.0.1", help="Bind address")
     p.add_argument("--port", "-p", type=int, default=8000, help="Port (default 8000)")
     p.add_argument(

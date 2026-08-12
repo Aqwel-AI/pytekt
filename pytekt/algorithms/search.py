@@ -26,7 +26,7 @@ Intended usage
 These search utilities are provided to reduce boilerplate in research code
 while keeping standard search logic explicit and easy to reason about.
 
-See also: aion/algorithms/README.md for full package documentation.
+See also: pytekt/algorithms/README.md for full package documentation.
 """
 
 from typing import List, Optional, TypeVar, Union, Tuple, Dict, Callable

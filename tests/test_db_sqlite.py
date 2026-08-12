@@ -1,4 +1,4 @@
-"""Tests for aion.db SQLite backend."""
+"""Tests for pytekt.db SQLite backend."""
 
 import os
 import tempfile

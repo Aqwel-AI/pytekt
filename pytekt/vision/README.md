@@ -1,4 +1,4 @@
-# Aion Vision
+# PyTekt Vision
 
 Computer vision helpers for **image arrays** (NumPy) — I/O, transforms, color, filters, drawing, metrics, and classic OpenCV ops.
 

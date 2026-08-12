@@ -16,7 +16,7 @@ class Experiment:
     """
     High-level experiment wrapper for ML research workflows.
 
-    Combines fixed random seeds, :class:`~aion.tracker.Run` logging, and a
+    Combines fixed random seeds, :class:`~pytekt.tracker.Run` logging, and a
     reproducibility manifest (``manifest.json``) in the run directory.
 
     Examples
@@ -38,7 +38,7 @@ class Experiment:
         name: str,
         *,
         seed: int = 42,
-        tracker_dir: str = ".aion_experiments",
+        tracker_dir: str = ".pytekt_experiments",
         tags: Optional[Dict[str, str]] = None,
     ) -> None:
         self.name = name
@@ -128,7 +128,7 @@ def experiment(
     name: str,
     *,
     seed: int = 42,
-    tracker_dir: str = ".aion_experiments",
+    tracker_dir: str = ".pytekt_experiments",
     tags: Optional[Dict[str, str]] = None,
 ) -> Iterator[Experiment]:
     """Context manager alias for :class:`Experiment`."""

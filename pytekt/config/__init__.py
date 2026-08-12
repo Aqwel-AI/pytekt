@@ -2,7 +2,7 @@
 Load and merge application configuration from TOML/YAML files and environment.
 
 Install optional parsers: ``pip install pytekt[config]`` (tomli on Python
-<3.11, PyYAML). See ``aion/config/README.md`` and the ``examples/`` notebooks.
+<3.11, PyYAML). See ``pytekt/config/README.md`` and the ``examples/`` notebooks.
 
 Quick start
 -----------

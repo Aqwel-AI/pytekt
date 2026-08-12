@@ -1,4 +1,4 @@
-"""Stdlib HTTP server for the Aion usage dashboard."""
+"""Stdlib HTTP server for the PyTekt usage dashboard."""
 
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ def _agent_session() -> Dict[str, Any]:
             "trust": bool(agent.get("trust")),
             "idle_disconnect_minutes": agent.get("idle_disconnect_minutes"),
             "config_path": os.path.expanduser("~/.pytekt.yaml"),
-            "note": "aion agent was moved to archived/aion_agent/",
+            "note": "pytekt agent was moved to archived/aion_agent/",
         }
     except Exception as e:
         return {"error": str(e)}
@@ -121,7 +121,7 @@ class UsageHandler(SimpleHTTPRequestHandler):
             except Exception as e:
                 self._json({"error": str(e)}, status=200)
         elif path == "/api/context":
-            self._json({"note": "aion agent was moved to archived/aion_agent/"})
+            self._json({"note": "pytekt agent was moved to archived/aion_agent/"})
         elif path.startswith("/api/"):
             self.send_error(404)
         elif path in ("/", "", "/dashboard", "/dashboard/"):
@@ -167,7 +167,7 @@ def run_server(host: str = "127.0.0.1", port: int = 3847) -> None:
             return
         raise
     start_hardware_sampling()
-    print(f"Aion Usage Dashboard: http://{host}:{port}/")
+    print(f"PyTekt Usage Dashboard: http://{host}:{port}/")
     print(f"Log file: {store.path}")
     print("Press Ctrl+C to stop.")
     try:

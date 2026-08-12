@@ -40,7 +40,7 @@ conn.users.update({"name": "Alice"}, {"score": 99})
 conn.users.delete(name="Bob")
 ```
 
-## Aion-only features
+## PyTekt-only features
 
 - `conn.docs.hybrid_search(text="...", vector=[...], top_k=10)`
 - `db.agent_memory(conn, thread_id="t1")`
@@ -56,10 +56,10 @@ conn.users.delete(name="Bob")
 ## CLI and agent
 
 ```bash
-aion db status
-aion db sync-usage
-aion db sync-tracker
-aion db demo
+pytekt db status
+pytekt db sync-usage
+pytekt db sync-tracker
+pytekt db demo
 ```
 
 Agent slash commands (**not available** — no `pytekt agent` in 0.2.0):
@@ -70,12 +70,12 @@ Agent slash commands (**not available** — no `pytekt agent` in 0.2.0):
 /db memory
 ```
 
-Agent chat persistence to `~/.aion/agent.db` is planned for the restored agent. Use `aion db …` CLI today.
+Agent chat persistence to `~/.pytekt/agent.db` is planned for the restored agent. Use `pytekt db …` CLI today.
 
 Configure a remote DB:
 
 ```bash
-aion config db.url "mysql://user:pass@localhost/mydb"
+pytekt config db.url "mysql://user:pass@localhost/mydb"
 ```
 
 ## Pandas export
@@ -94,5 +94,5 @@ python -m pytekt.db.examples.demo_hybrid_search
 
 ## See also
 
-- [`aion/store/README.md`](../store/README.md) — legacy SQLite stores
-- [`aion/pipeline`](../pipeline/) — pipeline steps
+- [`pytekt/store/README.md`](../store/README.md) — legacy SQLite stores
+- [`pytekt/pipeline`](../pipeline/) — pipeline steps

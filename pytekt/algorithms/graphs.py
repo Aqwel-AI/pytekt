@@ -4,7 +4,7 @@ Graph Algorithms
 
 This module provides graph traversal and ordering algorithms for directed and
 undirected graphs represented as adjacency lists. Implementations use only the
-standard library and follow the same conventions as the rest of aion.algorithms:
+standard library and follow the same conventions as the rest of pytekt.algorithms:
 correctness, clarity, and predictable behavior.
 
 Scope
@@ -20,7 +20,7 @@ Graphs are represented as adjacency lists: a mapping from node to list of neighb
 - For toposort: graph is directed; graph[node] = list of successors.
 - Nodes must be hashable (e.g. int, str).
 
-See also: aion/algorithms/README.md for full package documentation.
+See also: pytekt/algorithms/README.md for full package documentation.
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple

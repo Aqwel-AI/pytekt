@@ -14,7 +14,7 @@ MetricDict = Dict[str, Union[int, float, str]]
 @function_component
 def Text(props: Dict[str, Any]) -> VNode:
     tag = props.get("as", "p")
-    class_name = props.get("className", "aion-text")
+    class_name = props.get("className", "pytekt-text")
     children = props.get("children", props.get("text", ""))
     return h(tag, {"className": class_name}, children)
 
@@ -22,7 +22,7 @@ def Text(props: Dict[str, Any]) -> VNode:
 @function_component
 def Button(props: Dict[str, Any]) -> VNode:
     variant = props.get("variant", "primary")
-    cls = "aion-btn" if variant == "primary" else "aion-btn aion-btn-secondary"
+    cls = "pytekt-btn" if variant == "primary" else "pytekt-btn pytekt-btn-secondary"
     attrs = {"className": cls, "type": props.get("type", "button")}
     if props.get("href"):
         return html.a({**attrs, "href": props["href"]}, *props.get("children", []))
@@ -39,17 +39,17 @@ def Card(props: Dict[str, Any]) -> VNode:
     if title:
         inner.append(html.h3({}, title))
     inner.extend(children)
-    return html.div({"className": "aion-card"}, *inner)
+    return html.div({"className": "pytekt-card"}, *inner)
 
 
 @function_component
 def Stack(props: Dict[str, Any]) -> VNode:
-    return html.div({"className": "aion-stack"}, *props.get("children", []))
+    return html.div({"className": "pytekt-stack"}, *props.get("children", []))
 
 
 @function_component
 def Row(props: Dict[str, Any]) -> VNode:
-    return html.div({"className": "aion-row"}, *props.get("children", []))
+    return html.div({"className": "pytekt-row"}, *props.get("children", []))
 
 
 @function_component
@@ -58,7 +58,7 @@ def Metric(props: Dict[str, Any]) -> VNode:
     label = props.get("label", "")
     display = f"{value:.4g}" if isinstance(value, float) else str(value)
     return html.div(
-        {"className": "aion-metric"},
+        {"className": "pytekt-metric"},
         html.div({"className": "val"}, display),
         html.div({"className": "lbl"}, label),
     )
@@ -68,32 +68,32 @@ def Metric(props: Dict[str, Any]) -> VNode:
 def MetricGrid(props: Dict[str, Any]) -> VNode:
     metrics: MetricDict = props.get("metrics", {})
     items = [Metric(value=v, label=k) for k, v in metrics.items()]
-    return html.div({"className": "aion-metrics"}, *items)
+    return html.div({"className": "pytekt-metrics"}, *items)
 
 
 class AppShell(Component):
     """Page layout with header, main content, and footer (like a root ``<App>``)."""
 
     def render(self):
-        title = self.props.get("title", "Aion App")
+        title = self.props.get("title", "PyTekt App")
         subtitle = self.props.get("subtitle", "")
-        footer = self.props.get("footer", "Built with aion.ui")
+        footer = self.props.get("footer", "Built with pytekt.ui")
         children = self.props.get("children", [])
         if callable(children):
             children = [children]
         elif not isinstance(children, (list, tuple)):
             children = [children]
 
-        sub = html.p({"className": "aion-subtitle"}, subtitle) if subtitle else None
+        sub = html.p({"className": "pytekt-subtitle"}, subtitle) if subtitle else None
         return html.div(
-            {"className": "aion-app"},
+            {"className": "pytekt-app"},
             html.header(
-                {"className": "aion-header"},
+                {"className": "pytekt-header"},
                 html.h1({}, title),
                 sub,
             ),
             html.main({}, *children),
-            html.footer({"className": "aion-footer"}, footer),
+            html.footer({"className": "pytekt-footer"}, footer),
         )
 
 

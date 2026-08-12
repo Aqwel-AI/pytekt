@@ -1,4 +1,4 @@
-"""Aion-specific database features."""
+"""PyTekt-specific database features."""
 
 from .agent import AgentMemoryStore, agent_memory
 from .bulk import bulk_insert, bulk_upsert

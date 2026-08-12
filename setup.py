@@ -188,7 +188,7 @@ setup(
             "numpy>=1.20.0",
         ],
 
-        # Transformer training (Aion Former: decoder-only, NumPy autograd)
+        # Transformer training (PyTekt Former: decoder-only, NumPy autograd)
         "former": [
             "matplotlib>=3.5.0",
             "pyyaml>=6.0",

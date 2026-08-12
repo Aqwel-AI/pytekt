@@ -1,7 +1,7 @@
 """
 Generate text with a transformer (greedy, sampling, top-k / top-p, beam).
 
-Aligns with ``aion.former.experiments.train_small_model`` (same config/corpus
+Aligns with ``pytekt.former.experiments.train_small_model`` (same config/corpus
 when using ``--config``). Optional weights from training: ``weights.npz``.
 
 Run: python -m pytekt.former.examples.text_generation --help

@@ -1,4 +1,4 @@
-"""Launch browser UIs shipped with Aion."""
+"""Launch browser UIs shipped with PyTekt."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def launch_hub(
     *,
     open_browser: bool = True,
 ) -> None:
-    """Start Aion Hub (module explorer + playground). Same as ``aion start``."""
+    """Start PyTekt Hub (module explorer + playground). Same as ``pytekt start``."""
     from ..hub.launch import run_hub
 
     run_hub(host=host, port=port, open_browser=open_browser)
@@ -52,8 +52,8 @@ def list_ui_interfaces() -> List[Dict[str, Any]]:
     return [
         {
             "id": "hub",
-            "name": "Aion Hub",
-            "command": "aion start",
+            "name": "PyTekt Hub",
+            "command": "pytekt start",
             "api": "launch_hub()",
             "url": "http://127.0.0.1:3000",
             "deps": "stdlib only",
@@ -62,7 +62,7 @@ def list_ui_interfaces() -> List[Dict[str, Any]]:
         {
             "id": "monitor",
             "name": "Hardware dashboard",
-            "command": "aion monitor",
+            "command": "pytekt monitor",
             "api": "launch_monitor()",
             "url": "http://127.0.0.1:8000/dashboard/",
             "deps": "[monitor]",
@@ -71,7 +71,7 @@ def list_ui_interfaces() -> List[Dict[str, Any]]:
         {
             "id": "universe",
             "name": "Universe dashboard",
-            "command": "aion universe web",
+            "command": "pytekt universe web",
             "api": "ensure_universe_dashboard()",
             "url": "http://127.0.0.1:3857",
             "deps": "stdlib; C++ optional; [viz] for matplotlib sky PNG",
@@ -80,7 +80,7 @@ def list_ui_interfaces() -> List[Dict[str, Any]]:
         {
             "id": "usage",
             "name": "Usage dashboard",
-            "command": "aion usage",
+            "command": "pytekt usage",
             "api": "ensure_usage_dashboard()",
             "url": "http://127.0.0.1:3847",
             "deps": "stdlib only",
@@ -89,8 +89,8 @@ def list_ui_interfaces() -> List[Dict[str, Any]]:
         {
             "id": "serve",
             "name": "API server",
-            "command": "aion serve (via Python)",
-            "api": "aion.serve.create_app()",
+            "command": "pytekt serve (via Python)",
+            "api": "pytekt.serve.create_app()",
             "url": "http://127.0.0.1:8080/docs",
             "deps": "[serve]",
             "description": "FastAPI /chat, /rag, /health for LLM apps.",
@@ -98,7 +98,7 @@ def list_ui_interfaces() -> List[Dict[str, Any]]:
         {
             "id": "report",
             "name": "HTML reports",
-            "command": "aion.ui.build_experiment_dashboard(...)",
+            "command": "pytekt.ui.build_experiment_dashboard(...)",
             "api": "PageBuilder.save()",
             "url": "file:// (static HTML)",
             "deps": "stdlib; matplotlib for figures",

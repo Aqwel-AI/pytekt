@@ -1,1 +1,1 @@
-"""Demos for ``aion.former.models``."""
+"""Demos for ``pytekt.former.models``."""

@@ -12,34 +12,34 @@ body {
   background: var(--bg); color: var(--text);
   line-height: 1.6; min-height: 100vh;
 }
-.aion-app { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
-.aion-header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-.aion-header h1 { font-size: 1.75rem; font-weight: 700; }
-.aion-subtitle { color: var(--muted); margin-top: 0.35rem; }
-.aion-stack { display: flex; flex-direction: column; gap: 1rem; }
-.aion-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
-.aion-card {
+.pytekt-app { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+.pytekt-header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.pytekt-header h1 { font-size: 1.75rem; font-weight: 700; }
+.pytekt-subtitle { color: var(--muted); margin-top: 0.35rem; }
+.pytekt-stack { display: flex; flex-direction: column; gap: 1rem; }
+.pytekt-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
+.pytekt-card {
   background: var(--card); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 1rem; flex: 1; min-width: 200px;
 }
-.aion-card h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 0.5rem; }
-.aion-metrics {
+.pytekt-card h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 0.5rem; }
+.pytekt-metrics {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 0.75rem;
 }
-.aion-metric {
+.pytekt-metric {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 0.75rem; text-align: center;
 }
-.aion-metric .val { font-size: 1.35rem; font-weight: 700; color: var(--accent2); }
-.aion-metric .lbl { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; }
-.aion-btn {
+.pytekt-metric .val { font-size: 1.35rem; font-weight: 700; color: var(--accent2); }
+.pytekt-metric .lbl { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; }
+.pytekt-btn {
   display: inline-block; padding: 0.5rem 1rem; border-radius: var(--radius);
   border: 1px solid var(--accent); background: var(--accent); color: #fff;
   font-size: 0.875rem; cursor: pointer; text-decoration: none;
 }
-.aion-btn:hover { filter: brightness(1.1); }
-.aion-btn-secondary {
+.pytekt-btn:hover { filter: brightness(1.1); }
+.pytekt-btn-secondary {
   background: transparent; color: var(--accent);
 }
 table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
@@ -50,7 +50,7 @@ pre, code {
   background: rgba(0,0,0,0.35); border-radius: var(--radius);
 }
 pre { padding: 0.85rem; overflow-x: auto; }
-.aion-footer {
+.pytekt-footer {
   margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);
   font-size: 0.8rem; color: var(--muted);
 }

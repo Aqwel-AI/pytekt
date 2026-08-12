@@ -44,7 +44,7 @@ def save_model(
     Parameters
     ----------
     estimator : object
-        Fitted model (e.g. :class:`~aion.models.GaussianNB`).
+        Fitted model (e.g. :class:`~pytekt.models.GaussianNB`).
     path : path
         Directory to create (e.g. ``runs/model_nb``).
     metadata : dict, optional

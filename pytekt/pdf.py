@@ -3,7 +3,7 @@
 PyTekt - Professional Documentation Generation Module
 =================================================================
 
-This module provides automated documentation generation for the Aion library:
+This module provides automated documentation generation for the PyTekt library:
 publication-ready API references, user guides, and changelogs derived from
 source code and metadata.
 
@@ -23,7 +23,7 @@ Module contents
 - create_function_documentation: Focused documentation for a single function or class.
 - create_changelog_pdf / create_changelog_text: Changelog from structured data or
   Keep a Changelog-style Markdown.
-- create_module_dependency_doc: Report of inter-module imports (aion-only) in PDF or TXT.
+- create_module_dependency_doc: Report of inter-module imports (pytekt-only) in PDF or TXT.
 - export_api_index: Machine-readable index (JSON, CSV, or Markdown) of public functions.
 - search_public_api: Find functions (and optionally classes) whose names contain a query string.
 - create_api_documentation_html: Full API reference as a static HTML page (no extra deps).
@@ -40,7 +40,7 @@ Technical notes
 ---------------
 - PDF output requires the optional dependency ReportLab; all PDF entry points
   fall back to text (or Markdown where applicable) when ReportLab is not installed.
-- Module discovery uses pkgutil over the aion package path; test and private
+- Module discovery uses pkgutil over the pytekt package path; test and private
   modules are excluded. The pdf module is always included so it can document itself.
 - Styling (title, headings, code, function signatures) is centralized in
   PDFDocumentGenerator._setup_custom_styles and can be overridden via branding options.
@@ -102,28 +102,28 @@ except ImportError:
 
 def get_documentable_modules() -> List[str]:
     """
-    Return the list of aion submodule names that should be included in generated docs.
-    Uses pkgutil.walk_packages on the aion package path. Skips modules whose name
+    Return the list of pytekt submodule names that should be included in generated docs.
+    Uses pkgutil.walk_packages on the pytekt package path. Skips modules whose name
     contains 'test_files' or whose last path component starts with an underscore.
     The 'pdf' module is always included so this module can document itself.
     On failure or when __path__ is missing, returns a fixed fallback list.
     """
     try:
         import pytekt
-        path = getattr(aion, "__path__", None)
+        path = getattr(pytekt, "__path__", None)
         if not path:
             return sorted([
                 "text", "files", "parser", "utils", "maths", "code",
                 "snippets", "prompt", "embed", "evaluate", "git", "watcher", "pdf"
             ])
         seen = set()
-        for _importer, modname, _ispkg in pkgutil.walk_packages(path, prefix="aion."):
+        for _importer, modname, _ispkg in pkgutil.walk_packages(path, prefix="pytekt."):
             if "test_files" in modname:
                 continue
             parts = modname.split(".")
             if parts[-1].startswith("_"):
                 continue
-            short = modname.replace("aion.", "", 1)
+            short = modname.replace("pytekt.", "", 1)
             if short:
                 seen.add(short)
         result = sorted(seen)
@@ -147,7 +147,7 @@ class PDFDocumentGenerator:
 
     def __init__(
         self,
-        title: str = "Aion Documentation",
+        title: str = "PyTekt Documentation",
         author: str = "Aqwel AI Team",
         logo_path: Optional[str] = None,
         primary_color: Optional[str] = None,
@@ -274,10 +274,10 @@ def generate_module_documentation(
     include_classes: bool = False,
 ) -> List[Dict[str, Any]]:
     """
-    Introspect a single aion submodule and return a structure with its docstring
+    Introspect a single pytekt submodule and return a structure with its docstring
     and all public function names, signatures, docstrings, and source file paths.
     Args:
-        module_name: Either "name" (resolved as aion.name) or "aion.name".
+        module_name: Either "name" (resolved as pytekt.name) or "pytekt.name".
         include_classes: When True, the module dict also has a ``classes`` list of
             public classes defined in that module (name, signature, docstring,
             source_file, and public methods with signatures).
@@ -287,10 +287,10 @@ def generate_module_documentation(
         "error" and key "error" with the message.
     """
     try:
-        if module_name.startswith("aion."):
+        if module_name.startswith("pytekt."):
             module = importlib.import_module(module_name)
         else:
-            module = importlib.import_module(f"aion.{module_name}")
+            module = importlib.import_module(f"pytekt.{module_name}")
         docs = []
         module_doc = inspect.getdoc(module) or f"Documentation for {module_name} module"
         entry: Dict[str, Any] = {
@@ -369,7 +369,7 @@ def generate_module_documentation(
 
 def create_api_documentation(output_file: str = "aion_api_documentation.pdf") -> str:
     """
-    Produce API documentation for all documentable aion modules as a single PDF.
+    Produce API documentation for all documentable pytekt modules as a single PDF.
     Includes a table of contents (module, short description, function count) and
     per-module sections with description and function signatures plus docstrings.
     If ReportLab is not installed, delegates to create_text_documentation and
@@ -378,7 +378,7 @@ def create_api_documentation(output_file: str = "aion_api_documentation.pdf") ->
     if not _HAS_REPORTLAB:
         print("reportlab not available; generating text documentation instead.")
         return create_text_documentation(output_file.replace(".pdf", ".txt"))
-    generator = PDFDocumentGenerator("Aion AI/ML Library - API Documentation", "LinkAI Team")
+    generator = PDFDocumentGenerator("PyTekt AI/ML Library - API Documentation", "LinkAI Team")
     modules = get_documentable_modules()
     content = []
     content.append(Paragraph("Table of Contents", generator.styles["Heading1"]))
@@ -441,7 +441,7 @@ def create_text_documentation(output_file: str = "aion_documentation.txt") -> st
     """
     modules = get_documentable_modules()
     with open(output_file, "w", encoding="utf-8") as f:
-        f.write("AION AI/ML LIBRARY - COMPREHENSIVE DOCUMENTATION\n")
+        f.write("PYTEKT AI/ML LIBRARY - COMPREHENSIVE DOCUMENTATION\n")
         f.write("=" * 60 + "\n\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write("Author: Aksel Aghajanyan | Developed by: Aqwel AI Team\n\n")
@@ -487,7 +487,7 @@ def create_api_documentation_md(output_file: str = "aion_api_documentation.md") 
     """
     modules = get_documentable_modules()
     with open(output_file, "w", encoding="utf-8") as f:
-        f.write("# Aion AI/ML Library - API Documentation\n\n")
+        f.write("# PyTekt AI/ML Library - API Documentation\n\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
         f.write("## Table of Contents\n\n")
         for mod in modules:
@@ -525,7 +525,7 @@ def create_api_documentation_html(output_file: str = "aion_api_documentation.htm
         '<html lang="en">',
         "<head>",
         '<meta charset="utf-8"/>',
-        "<title>Aion API Documentation</title>",
+        "<title>PyTekt API Documentation</title>",
         "<style>",
         "body{font-family:system-ui,Segoe UI,Helvetica,Arial,sans-serif;max-width:52rem;margin:2rem auto;line-height:1.45;}",
         "h1,h2,h3{color:#1a1a2e;}",
@@ -537,7 +537,7 @@ def create_api_documentation_html(output_file: str = "aion_api_documentation.htm
         "</style>",
         "</head>",
         "<body>",
-        "<h1>Aion AI/ML Library &mdash; API Documentation</h1>",
+        "<h1>PyTekt AI/ML Library &mdash; API Documentation</h1>",
         f"<p><em>Generated {html.escape(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}</em></p>",
         "<nav><h2>Contents</h2><ul>",
     ]
@@ -614,7 +614,7 @@ def create_module_reference_doc(
     include_classes: bool = True,
 ) -> str:
     """
-    Write reference documentation for a single ``aion`` submodule as Markdown,
+    Write reference documentation for a single ``pytekt`` submodule as Markdown,
     plain text, or PDF. Default output is ``{module}_reference.md`` (or .txt / .pdf).
     PDF requires ReportLab; if unavailable, text is written instead.
     """
@@ -662,7 +662,7 @@ def create_module_reference_doc(
 
     if format == "pdf" and _HAS_REPORTLAB:
         generator = PDFDocumentGenerator(
-            f"Aion — {module_name} reference",
+            f"PyTekt — {module_name} reference",
             "Aqwel AI Team",
         )
         content: List[Any] = []
@@ -721,7 +721,7 @@ def create_module_reference_doc(
 
 def _get_pytekt_imports_from_source(filepath: str) -> List[str]:
     """
-    Parse the Python source at filepath with ast and collect the top-level aion
+    Parse the Python source at filepath with ast and collect the top-level pytekt
     submodule names used in "import pytekt.xxx" and "from pytekt.xxx import ...".
     Returns a sorted list of unique names (e.g. ["files", "text"]).
     """
@@ -734,16 +734,16 @@ def _get_pytekt_imports_from_source(filepath: str) -> List[str]:
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                if alias.name == "aion":
+                if alias.name == "pytekt":
                     continue
-                if alias.name.startswith("aion."):
-                    sub = alias.name.replace("aion.", "", 1).split(".")[0]
+                if alias.name.startswith("pytekt."):
+                    sub = alias.name.replace("pytekt.", "", 1).split(".")[0]
                     imported.add(sub)
         elif isinstance(node, ast.ImportFrom):
-            if node.module and node.module == "aion":
-                imported.add("aion")
-            elif node.module and node.module.startswith("aion."):
-                top = node.module.replace("aion.", "", 1).split(".")[0]
+            if node.module and node.module == "pytekt":
+                imported.add("pytekt")
+            elif node.module and node.module.startswith("pytekt."):
+                top = node.module.replace("pytekt.", "", 1).split(".")[0]
                 imported.add(top)
     return sorted(imported)
 
@@ -754,7 +754,7 @@ def create_module_dependency_doc(
 ) -> str:
     """
     Build a report of intra-package imports: for each documentable module, list
-    which other aion submodules it imports. Output is PDF (with ReportLab) or
+    which other pytekt submodules it imports. Output is PDF (with ReportLab) or
     TXT; the text version includes a Mermaid flowchart snippet.
     """
     modules = get_documentable_modules()
@@ -762,10 +762,10 @@ def create_module_dependency_doc(
     mermaid_lines = []
     for mod in modules:
         try:
-            if mod.startswith("aion."):
+            if mod.startswith("pytekt."):
                 m = importlib.import_module(mod)
             else:
-                m = importlib.import_module(f"aion.{mod}")
+                m = importlib.import_module(f"pytekt.{mod}")
             path = inspect.getfile(m)
         except Exception:
             dep_map[mod] = []
@@ -781,7 +781,7 @@ def create_module_dependency_doc(
         if not out.endswith(".txt"):
             out = out + ".txt"
         with open(out, "w", encoding="utf-8") as f:
-            f.write("Aion Module Dependencies (aion-only imports)\n")
+            f.write("PyTekt Module Dependencies (pytekt-only imports)\n")
             f.write("=" * 50 + "\n\n")
             for mod in sorted(dep_map.keys()):
                 deps = dep_map[mod]
@@ -795,9 +795,9 @@ def create_module_dependency_doc(
         print(f"Module dependency doc generated: {out}")
         return out
 
-    generator = PDFDocumentGenerator("Aion Module Dependencies", "LinkAI Team")
+    generator = PDFDocumentGenerator("PyTekt Module Dependencies", "LinkAI Team")
     content = []
-    content.append(Paragraph("Module | Imports (aion only)", generator.styles["Heading1"]))
+    content.append(Paragraph("Module | Imports (pytekt only)", generator.styles["Heading1"]))
     table_data = [["Module", "Imports"]]
     for mod in sorted(dep_map.keys()):
         deps = dep_map[mod]
@@ -878,7 +878,7 @@ def export_api_index(
             return t
 
         with open(output_file, "w", encoding="utf-8") as f:
-            f.write("# Aion API index\n\n")
+            f.write("# PyTekt API index\n\n")
             f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             f.write("| Module | Symbol | Signature | Summary |\n")
             f.write("|--------|--------|-----------|--------|\n")
@@ -949,7 +949,7 @@ def create_changelog_text(
     """
     if isinstance(version_history, str):
         version_history = _parse_changelog_md(version_history)
-    title = title or "Aion Changelog"
+    title = title or "PyTekt Changelog"
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(f"{title}\n")
         f.write("=" * len(title) + "\n\n")
@@ -980,7 +980,7 @@ def create_changelog_pdf(
     """
     if isinstance(version_history, str):
         version_history = _parse_changelog_md(version_history)
-    title = title or "Aion Changelog"
+    title = title or "PyTekt Changelog"
     if not _HAS_REPORTLAB:
         txt_file = output_file.replace(".pdf", ".txt")
         return create_changelog_text(version_history, txt_file, title)
@@ -1017,10 +1017,10 @@ def create_function_documentation(
     {module_name}_{function_name}_doc.pdf or .txt.
     """
     try:
-        if module_name.startswith("aion."):
+        if module_name.startswith("pytekt."):
             module = importlib.import_module(module_name)
         else:
-            module = importlib.import_module(f"aion.{module_name}")
+            module = importlib.import_module(f"pytekt.{module_name}")
         obj = getattr(module, function_name, None)
         if obj is None:
             raise ValueError(f"'{function_name}' not found in module {module_name}")
@@ -1110,26 +1110,26 @@ def create_user_guide_pdf(output_file: str = "aion_user_guide.pdf") -> str:
     if not _HAS_REPORTLAB:
         return create_user_guide_text(output_file.replace('.pdf', '.txt'))
     
-    generator = PDFDocumentGenerator("Aion AI/ML Library - User Guide", "LinkAI Team")
+    generator = PDFDocumentGenerator("PyTekt AI/ML Library - User Guide", "LinkAI Team")
     content = []
     content.append(Paragraph("Introduction", generator.styles["Heading1"]))
     intro_text = """
-    Welcome to the Aion AI/ML Library! This comprehensive toolkit provides everything you need for 
+    Welcome to the PyTekt AI/ML Library! This comprehensive toolkit provides everything you need for 
     AI research, machine learning development, and data science projects. With over 175 functions 
-    across 12 modules, Aion offers a complete solution for modern AI development.
+    across 12 modules, PyTekt offers a complete solution for modern AI development.
     """
     content.append(Paragraph(intro_text, generator.styles["Normal"]))
     content.append(Spacer(1, 20))
     content.append(Paragraph("Quick Start", generator.styles["Heading1"]))
     content.append(Paragraph("Installation", generator.styles["Heading2"]))
     install_text = """
-    Install Aion using pip:
+    Install PyTekt using pip:
     
-    pip install linkai-aion
+    pip install linkai-pytekt
     
     For full AI/ML capabilities, install with optional dependencies:
     
-    pip install linkai-aion[ai]
+    pip install linkai-pytekt[ai]
     """
     content.append(Paragraph(install_text, generator.styles["Code"]))
     content.append(Spacer(1, 12))
@@ -1156,7 +1156,7 @@ loss = math.mse_loss([1, 2, 3], [1.1, 2.1, 2.9])  # 0.01
 import pytekt.text as text
 
 # Text analysis
-word_count = text.count_words("Hello world from Aion")  # 4
+word_count = text.count_words("Hello world from PyTekt")  # 4
 emails = text.extract_emails("Contact us at support@linkaiapps.com")
 urls = text.extract_urls("Visit https://linkaiapps.com for more info")
 
@@ -1294,7 +1294,7 @@ def create_user_guide_text(output_file: str = "aion_user_guide.txt") -> str:
     examples, and advanced features. Used when ReportLab is not available.
     """
     with open(output_file, "w", encoding="utf-8") as f:
-        f.write("AION AI/ML LIBRARY - USER GUIDE\n")
+        f.write("PYTEKT AI/ML LIBRARY - USER GUIDE\n")
         f.write("=" * 35 + "\n\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write("Author: Aksel Aghajanyan | Developed by: Aqwel AI Team\n\n")
@@ -1302,17 +1302,17 @@ def create_user_guide_text(output_file: str = "aion_user_guide.txt") -> str:
         f.write("INTRODUCTION\n")
         f.write("-" * 12 + "\n")
         f.write("""
-Welcome to the Aion AI/ML Library! This comprehensive toolkit provides everything 
+Welcome to the PyTekt AI/ML Library! This comprehensive toolkit provides everything 
 you need for AI research, machine learning development, and data science projects. 
-With over 175 functions across 12 modules, Aion offers a complete solution for 
+With over 175 functions across 12 modules, PyTekt offers a complete solution for 
 modern AI development.
 
 INSTALLATION
 ------------
-pip install linkai-aion
+pip install linkai-pytekt
 
 For full AI/ML capabilities:
-pip install linkai-aion[ai]
+pip install linkai-pytekt[ai]
 
 QUICK START EXAMPLES
 -------------------
@@ -1384,7 +1384,7 @@ def generate_complete_documentation(output_dir: str = "docs") -> Dict[str, str]:
     """
     os.makedirs(output_dir, exist_ok=True)
     generated_files = {}
-    print("Generating complete Aion documentation package...")
+    print("Generating complete PyTekt documentation package...")
     api_pdf = os.path.join(output_dir, "aion_api_documentation.pdf")
     api_txt = os.path.join(output_dir, "aion_api_documentation.txt")
     
@@ -1405,10 +1405,10 @@ def generate_complete_documentation(output_dir: str = "docs") -> Dict[str, str]:
         print(f"Error generating user guide: {e}")
     summary_file = os.path.join(output_dir, "README.md")
     with open(summary_file, 'w', encoding='utf-8') as f:
-        f.write("""# Aion AI/ML Library Documentation
+        f.write("""# PyTekt AI/ML Library Documentation
 
 ## Overview
-Complete documentation package for the Aion AI/ML Library - a comprehensive toolkit for AI research and development.
+Complete documentation package for the PyTekt AI/ML Library - a comprehensive toolkit for AI research and development.
 
 ## Files Generated
 - `aion_api_documentation.pdf` - Complete API reference (PDF format)
@@ -1428,7 +1428,7 @@ Complete documentation package for the Aion AI/ML Library - a comprehensive tool
 - [Examples](aion_user_guide.pdf#examples)
 
 ## Support
-For questions and support, visit: https://linkaiapps.com/#linkai-aion
+For questions and support, visit: https://linkaiapps.com/#linkai-pytekt
 
 Generated: {}
 """.format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
@@ -1489,7 +1489,7 @@ def export_function_list(module_name: str, output_file: Optional[str] = None) ->
 
 def get_documentation_statistics() -> Dict[str, Any]:
     """
-    Compute documentation statistics for all documentable aion modules.
+    Compute documentation statistics for all documentable pytekt modules.
     Returns a dict with: module_count, total_functions, modules (list of
     {name, function_count}), and modules_with_errors (list of module names that failed).
     """
@@ -1518,12 +1518,12 @@ def create_installation_guide(
     format: str = "txt",
 ) -> str:
     """
-    Generate an installation and setup guide for the Aion library. Covers pip
+    Generate an installation and setup guide for the PyTekt library. Covers pip
     install, optional dependencies (ai, full, dev, docs), and a quick verification
     snippet. format may be "txt" or "pdf" (PDF requires ReportLab).
     """
     content_lines = [
-        "Aion AI/ML Library - Installation Guide",
+        "PyTekt AI/ML Library - Installation Guide",
         "=" * 45,
         "",
         f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
@@ -1556,7 +1556,7 @@ def create_installation_guide(
     ]
     text_content = "\n".join(content_lines)
     if format == "pdf" and _HAS_REPORTLAB:
-        generator = PDFDocumentGenerator("Aion Installation Guide", "Aqwel AI Team")
+        generator = PDFDocumentGenerator("PyTekt Installation Guide", "Aqwel AI Team")
         story = []
         for line in content_lines:
             if not line or line.startswith("=") or line.startswith("-"):
@@ -1592,7 +1592,7 @@ def create_quick_reference(
             names = [f["name"] for f in docs[0].get("functions", [])]
             ref_data.append((mod, names))
     if format == "pdf" and _HAS_REPORTLAB:
-        generator = PDFDocumentGenerator("Aion Quick Reference", "Aqwel AI Team")
+        generator = PDFDocumentGenerator("PyTekt Quick Reference", "Aqwel AI Team")
         content = []
         content.append(Paragraph("Quick Reference - Functions by Module", generator.styles["Heading1"]))
         for mod, names in ref_data:
@@ -1604,7 +1604,7 @@ def create_quick_reference(
         print(f"Quick reference generated: {out}")
         return out
     with open(output_file, "w", encoding="utf-8") as f:
-        f.write("AION QUICK REFERENCE - FUNCTIONS BY MODULE\n")
+        f.write("PYTEKT QUICK REFERENCE - FUNCTIONS BY MODULE\n")
         f.write("=" * 50 + "\n\n")
         for mod, names in ref_data:
             f.write(f"{mod}\n")
@@ -1675,7 +1675,7 @@ def create_documentation_index(
         ("aion_module_dependencies.txt", "Module dependency report (plain text)."),
     ]
     lines = [
-        "# Aion Documentation Index",
+        "# PyTekt Documentation Index",
         "",
         f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         "",

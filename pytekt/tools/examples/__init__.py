@@ -1,1 +1,1 @@
-"""Demos for ``aion.tools`` (schemas, registry, tool loop with a fake provider)."""
+"""Demos for ``pytekt.tools`` (schemas, registry, tool loop with a fake provider)."""

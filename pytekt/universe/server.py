@@ -1,4 +1,4 @@
-"""Stdlib HTTP server for the Aion Cosmos dashboard."""
+"""Stdlib HTTP server for the PyTekt Cosmos dashboard."""
 
 from __future__ import annotations
 
@@ -199,7 +199,7 @@ def run_server(host: str = "127.0.0.1", port: int = 3857) -> None:
     if not os.path.isdir(STATIC_DIR):
         print(
             f"Universe static assets missing at {STATIC_DIR}. "
-            "Run: cd aion/universe/web && npm install && npm run build",
+            "Run: cd pytekt/universe/web && npm install && npm run build",
             file=sys.stderr,
         )
 
@@ -211,7 +211,7 @@ def run_server(host: str = "127.0.0.1", port: int = 3857) -> None:
             return
         raise
 
-    print(f"Aion Universe Dashboard: http://{host}:{port}/")
+    print(f"PyTekt Universe Dashboard: http://{host}:{port}/")
     print("Press Ctrl+C to stop.")
     try:
         server.serve_forever()

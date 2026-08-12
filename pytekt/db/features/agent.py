@@ -1,4 +1,4 @@
-"""Agent conversation memory backed by any aion.db connection."""
+"""Agent conversation memory backed by any pytekt.db connection."""
 
 from __future__ import annotations
 

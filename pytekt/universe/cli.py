@@ -1,4 +1,4 @@
-"""``aion universe`` subcommands."""
+"""``pytekt universe`` subcommands."""
 
 from __future__ import annotations
 
@@ -65,7 +65,7 @@ def universe_main(args: argparse.Namespace) -> None:
         )
         return
 
-    print("  Usage: aion universe moon | sky | coords | separation | web | demo")
+    print("  Usage: pytekt universe moon | sky | coords | separation | web | demo")
 
 
 # Backward-compatible alias

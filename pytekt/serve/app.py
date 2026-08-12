@@ -17,7 +17,7 @@ except ImportError:
 def _require_fastapi() -> None:
     if not _HAS_FASTAPI:
         raise ImportError(
-            "aion.serve requires FastAPI. Install with: pip install pytekt[monitor]"
+            "pytekt.serve requires FastAPI. Install with: pip install pytekt[monitor]"
         )
 
 
@@ -48,7 +48,7 @@ if _HAS_FASTAPI:
         version: str = ""
 
 
-class AionServer:
+class PyTektServer:
     """
     Configurable server that wraps providers, RAG indexes, and custom
     endpoints into a single FastAPI application.
@@ -56,9 +56,9 @@ class AionServer:
     Parameters
     ----------
     provider : optional
-        An ``aion.providers`` chat provider for the ``/chat`` endpoint.
+        An ``pytekt.providers`` chat provider for the ``/chat`` endpoint.
     rag_index : optional
-        An ``aion.rag.SimpleRAGIndex`` for the ``/rag`` endpoint.
+        An ``pytekt.rag.SimpleRAGIndex`` for the ``/rag`` endpoint.
     title : str
         API title shown in the OpenAPI docs.
     """
@@ -68,7 +68,7 @@ class AionServer:
         *,
         provider: Any = None,
         rag_index: Any = None,
-        title: str = "Aion API",
+        title: str = "PyTekt API",
         version: str = "",
     ) -> None:
         _require_fastapi()
@@ -172,7 +172,7 @@ def create_app(
     *,
     provider: Any = None,
     rag_index: Any = None,
-    title: str = "Aion API",
+    title: str = "PyTekt API",
 ) -> Any:
     """
     Convenience function to build a ready-to-run FastAPI app.
@@ -182,5 +182,5 @@ def create_app(
         app = create_app(provider=OpenAIProvider())
         # uvicorn module:app --port 8000
     """
-    server = AionServer(provider=provider, rag_index=rag_index, title=title)
+    server = PyTektServer(provider=provider, rag_index=rag_index, title=title)
     return server.build_app()

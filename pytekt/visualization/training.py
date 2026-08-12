@@ -1,5 +1,5 @@
 """
-Training and experiment visualization utilities for AION.
+Training and experiment visualization utilities for PYTEKT.
 
 This module provides helpers for visualizing machine learning
 training metrics over time, such as loss, accuracy, or any

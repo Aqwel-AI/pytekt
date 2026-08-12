@@ -31,4 +31,4 @@ jobs:
 
       - name: DB demo smoke
         run: |
-          python -m aion.db.examples.demo_connect
+          python -m pytekt.db.examples.demo_connect

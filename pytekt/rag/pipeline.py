@@ -16,7 +16,7 @@ class SimpleRAGIndex:
     Reference RAG index: chunk plain texts, embed with a callable, add to a
     :class:`VectorStore`, query by embedding the question.
 
-    ``embed_fn`` defaults to :func:`aion.embed.embed_text` when omitted.
+    ``embed_fn`` defaults to :func:`pytekt.embed.embed_text` when omitted.
     """
 
     def __init__(

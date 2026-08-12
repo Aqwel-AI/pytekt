@@ -1,1 +1,1 @@
-"""Database backends for :mod:`aion.db`."""
+"""Database backends for :mod:`pytekt.db`."""

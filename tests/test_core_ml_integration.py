@@ -10,10 +10,10 @@ from pytekt.models import KNNClassifier
 
 
 def test_package_exports():
-    assert hasattr(aion, "preprocessing")
-    assert hasattr(aion, "models")
-    assert hasattr(aion, "metrics")
-    assert hasattr(aion, "hyperopt")
+    assert hasattr(pytekt, "preprocessing")
+    assert hasattr(pytekt, "models")
+    assert hasattr(pytekt, "metrics")
+    assert hasattr(pytekt, "hyperopt")
 
 
 def test_full_pipeline():

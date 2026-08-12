@@ -1,1 +1,1 @@
-"""Example configs and Jupyter notebooks for ``aion.config``."""
+"""Example configs and Jupyter notebooks for ``pytekt.config``."""

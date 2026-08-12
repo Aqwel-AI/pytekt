@@ -1,1 +1,1 @@
-"""Demos for ``aion.former.visualization``."""
+"""Demos for ``pytekt.former.visualization``."""
