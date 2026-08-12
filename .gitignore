@@ -18,6 +18,8 @@
 # -----------------------------------------
 aion/_aion_core*.so
 aion/_aion_core*.pyd
+pytekt/_pytekt_core*.so
+pytekt/_pytekt_core*.pyd
 
 # Build & packaging
 # -----------------
@@ -52,12 +54,16 @@ id_rsa
 id_rsa.*
 *.secret
 
-# User Aion config (API keys, agent prefs — lives on your machine only)
-# ---------------------------------------------------------------------
+# User config (API keys, agent prefs — lives on your machine only)
+# -----------------------------------------------------------------
 .aion.yaml
 .aion.yml
 .aion/
+.pytekt.yaml
+.pytekt.yml
+.pytekt/
 **/.aion.yaml
+**/.pytekt.yaml
 *.local.yaml
 *.local.yml
 *.local.toml
@@ -132,15 +138,20 @@ experiments/local/
 *.sqlite3
 .aion_cache/
 .aion_store/
+.pytekt_cache/
+.pytekt_store/
 **/.aion/usage/events.jsonl
+**/.pytekt/usage/events.jsonl
 **/node_modules/
 aion/usage/web/dist/
+pytekt/usage/web/dist/
 .agent/
 
 # Generated output (regenerate locally; do not push)
 # --------------------------------------------------
 example_output/
 aion/former/examples_results/*.png
+pytekt/former/examples_results/*.png
 
 # Legacy empty package dirs (use aion/cli_agent/ and code.py only)
 # ---------------------------------------------------------------
