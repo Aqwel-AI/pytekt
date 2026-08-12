@@ -1,6 +1,6 @@
 """Tests for React-style aion.ui components."""
 
-from aion.ui import (
+from pytekt.ui import (
     AppShell,
     Component,
     MetricGrid,

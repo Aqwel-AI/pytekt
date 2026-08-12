@@ -1,4 +1,4 @@
-import aion.physics.integrators as ig
+import pytekt.physics.integrators as ig
 
 
 def test_integrate_trajectory_euler():

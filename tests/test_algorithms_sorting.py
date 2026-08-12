@@ -2,7 +2,7 @@
 
 import pytest
 
-from aion.algorithms import get_algorithm
+from pytekt.algorithms import get_algorithm
 
 
 @pytest.mark.parametrize("name", ["bubble_sort", "merge_sort", "quick_sort", "heap_sort"])

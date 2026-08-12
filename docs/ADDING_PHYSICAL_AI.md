@@ -1,6 +1,6 @@
 # Adding Physical AI to Aion
 
-Step-by-step guide for contributors who want to add a **Physical AI** capability to Aqwel-Aion.
+Step-by-step guide for contributors who want to add a **Physical AI** capability to PyTekt.
 
 This document is **documentation only**. It does not add code to the repository. Follow it when you are ready to implement.
 
@@ -11,9 +11,9 @@ This document is **documentation only**. It does not add code to the repository.
 In this library, **Physical AI** means:
 
 1. **Deterministic physics kernels** — equations, integrators, unit conversions, constraints (fast C++ where it matters).
-2. **Python API** — simple imports like `from aion.physics import simulate_pendulum`.
+2. **Python API** — simple imports like `from pytekt.physics import simulate_pendulum`.
 3. **Optional AI layer** — agents and tools that call physics functions instead of guessing numbers.
-4. **Same patterns as `aion.universe`** — native extension + Python fallbacks, CLI, tests, optional dashboard.
+4. **Same patterns as `pytekt.universe`** — native extension + Python fallbacks, CLI, tests, optional dashboard.
 
 Physical AI is **not** “replace physics with an LLM.” The LLM plans and explains; the physics code computes.
 
@@ -23,7 +23,7 @@ Physical AI is **not** “replace physics with an LLM.” The LLM plans and expl
 |--------|----------------|---------|
 | Mechanics | ODE integrator, collisions | “Simulate this setup and explain the result” |
 | Thermodynamics | ideal gas, heat transfer | Parameter sweeps, natural-language queries |
-| Astronomy | already in `aion.universe` | `/sky`, cosmology, orbits |
+| Astronomy | already in `pytekt.universe` | `/sky`, cosmology, orbits |
 | Control | PID, state-space step | Tune gains, interpret stability |
 | Materials | stress/strain approximations | Compare scenarios |
 
@@ -52,7 +52,7 @@ Start with **one domain** (e.g. classical mechanics). Expand later.
 
 Answer on one page:
 
-1. **Module name** — e.g. `aion.physics` or `aion.physical` (pick one import path and keep it).
+1. **Module name** — e.g. `pytekt.physics` or `aion.physical` (pick one import path and keep it).
 2. **v1 equations** — list exactly which formulas/simulations ship in v1.
 3. **Inputs/outputs** — SI units, arrays, time steps, JSON schema for results.
 4. **Precision level** — educational vs engineering (document limitations).
@@ -69,12 +69,12 @@ Create a new directory under `aion/`:
 aion/physics/          # example name; adjust if you choose another
 ├── __init__.py        # public exports
 ├── constants.py       # c, G, k_B, standard units
-├── units.py           # conversions (keep aligned with aion.universe.units where possible)
+├── units.py           # conversions (keep aligned with pytekt.universe.units where possible)
 ├── _native.py         # try C++ import, fall back to Python
 ├── mechanics.py       # e.g. pendulum, projectile, spring
 ├── thermo.py          # optional v1 subdomain
 ├── integrators.py     # Euler, RK4 — Python fallbacks live here
-├── cli.py             # `aion physics ...` subcommands
+├── cli.py             # `pytekt physics ...` subcommands
 ├── pipeline.py        # optional Pipeline steps
 ├── examples/
 │   └── demo_pendulum.py
@@ -85,7 +85,7 @@ aion/physics/          # example name; adjust if you choose another
 
 - One concept per file (same style as `aion/universe/coordinates.py`, `orbits.py`).
 - Keep pure math in small functions; avoid giant “god” modules.
-- Reuse `aion.maths` / NumPy where it already fits; do not duplicate linear algebra.
+- Reuse `pytekt.maths` / NumPy where it already fits; do not duplicate linear algebra.
 
 ---
 
@@ -152,7 +152,7 @@ if os.path.isfile(physics_src):
 ```bash
 pip install pybind11
 pip install -e .
-python -c "from aion.physics._native import using_native_extension; print(using_native_extension())"
+python -c "from pytekt.physics._native import using_native_extension; print(using_native_extension())"
 ```
 
 Requires **C++14** and a compiler (clang++/g++ on macOS/Linux).
@@ -174,7 +174,7 @@ Copy the pattern from `aion/universe/_native.py`:
 
 ```text
 try:
-    from aion._aion_physics import rk4_step as _rk4_step_native
+    from pytekt._aion_physics import rk4_step as _rk4_step_native
     _NATIVE_AVAILABLE = True
 except ImportError:
     _NATIVE_AVAILABLE = False
@@ -244,7 +244,7 @@ Add the new tests to `.github/workflows/ci.yml` (same line as universe tests).
 
 ---
 
-## Step 7 — CLI (`aion physics`)
+## Step 7 — CLI (`pytekt physics`)
 
 ### 7.1 Module CLI
 
@@ -253,9 +253,9 @@ Create `aion/physics/cli.py` with `physics_main(args)` — copy structure from `
 Example subcommands:
 
 ```bash
-aion physics pendulum --length 1.0 --angle 30 --steps 1000
-aion physics projectile --v0 20 --angle 45
-aion physics units --convert 100 km_to_m
+pytekt physics pendulum --length 1.0 --angle 30 --steps 1000
+pytekt physics projectile --v0 20 --angle 45
+pytekt physics units --convert 100 km_to_m
 ```
 
 ### 7.2 Register in `aion/cli.py`
@@ -285,7 +285,7 @@ physics = [
 
 ## Step 8 — Agent integration (not available in 0.2.0)
 
-Physical AI agent slash commands / tools land when the **terminal agent** returns. In **0.2.0**, `aion agent` is **not available** — ship the library CLI (`aion physics …`) first.
+Physical AI agent slash commands / tools land when the **terminal agent** returns. In **0.2.0**, `pytekt agent` is **not available** — ship the library CLI (`pytekt physics …`) first.
 
 ### 8.1 Slash commands (future)
 
@@ -335,7 +335,7 @@ Read it the same way as `universe.latitude` in `universe_cmds.py`.
 If simulations feed ML pipelines, add steps in `aion/physics/pipeline.py`:
 
 ```python
-from aion.pipeline import Step
+from pytekt.pipeline import Step
 
 class PhysicsSimStep(Step):
     def run(self, data):
@@ -361,15 +361,15 @@ aion/physics/launch.py  # port detection, browser open
 Commands:
 
 ```bash
-aion physics web
-aion physics-dashboard   # alias
+pytekt physics web
+pytekt physics-dashboard   # alias
 ```
 
 Add package data in `pyproject.toml`:
 
 ```toml
 [tool.setuptools.package-data]
-"aion.physics" = ["static/**/*", "data/*.json"]
+"pytekt.physics" = ["static/**/*", "data/*.json"]
 ```
 
 This step is **optional** for v1. Ship CLI + Python API first.
@@ -393,7 +393,7 @@ This step is **optional** for v1. Ship CLI + Python API first.
 Write `aion/physics/README.md` with:
 
 1. One-paragraph purpose and precision disclaimer.
-2. Install: `pip install aqwel-aion[physics]` and C++ build note.
+2. Install: `pip install pytekt[physics]` and C++ build note.
 3. Minimal Python example.
 4. CLI examples.
 5. Agent `/physics` commands.
@@ -404,9 +404,9 @@ Do **not** duplicate the whole README in `docs/` — link to the module README.
 
 ---
 
-## Step 13 — Relationship to `aion.universe`
+## Step 13 — Relationship to `pytekt.universe`
 
-| Layer | `aion.universe` | New `aion.physics` |
+| Layer | `pytekt.universe` | New `pytekt.physics` |
 |-------|-----------------|---------------------|
 | Scope | Astronomy, cosmology, orbits | General classical / engineering physics |
 | C++ module | `aion._aion_universe` | `aion._aion_physics` |
@@ -472,7 +472,7 @@ Ship this first before fluids, FEM, or ML surrogates:
 2. `integrators.py` — Euler + RK4 (Python + C++ `rk4_step`)
 3. `mechanics.py` — pendulum + projectile
 4. `tests/test_physics_*.py`
-5. `aion physics pendulum` CLI
+5. `pytekt physics pendulum` CLI
 6. One agent tool: `physics_simulate_pendulum`
 7. `aion/physics/README.md`
 
@@ -507,7 +507,7 @@ Add dashboard, thermodynamics, and control in v2.
 
 ## Questions to resolve before coding
 
-1. **Import path:** `aion.physics` vs `aion.physical` vs `aion.physical_ai`?
+1. **Import path:** `pytekt.physics` vs `aion.physical` vs `aion.physical_ai`?
 2. **License for third-party numerics:** if you vendor solvers, note licenses in README.
 3. **GPU:** out of scope for v1 unless you add a separate extra `[physics-cuda]`.
 4. **Uncertainty:** v1 deterministic only; stochastic physics is a later doc.

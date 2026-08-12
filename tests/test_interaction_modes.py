@@ -1,10 +1,10 @@
 """Tests for interaction modes."""
 
-from aion.cli_agent.connect import AgentConnector
-from aion.cli_agent.constants import normalize_interaction_mode
-from aion.cli_agent.session_prefs import save_interaction_mode, saved_interaction_mode
-from aion.cli_agent.ui.status import AgentSession
-from aion.tools.registry import ToolRegistry
+from pytekt.cli_agent.connect import AgentConnector
+from pytekt.cli_agent.constants import normalize_interaction_mode
+from pytekt.cli_agent.session_prefs import save_interaction_mode, saved_interaction_mode
+from pytekt.cli_agent.ui.status import AgentSession
+from pytekt.tools.registry import ToolRegistry
 
 
 def test_normalize_interaction_mode():

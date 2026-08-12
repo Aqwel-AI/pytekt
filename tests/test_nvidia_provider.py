@@ -4,10 +4,10 @@ import ssl
 
 import pytest
 
-from aion.providers import create_provider, supported_providers
-from aion.providers.http_utils import get_json, ssl_context
-from aion.providers.keys import resolve_api_key
-from aion.providers.nvidia_provider import (
+from pytekt.providers import create_provider, supported_providers
+from pytekt.providers.http_utils import get_json, ssl_context
+from pytekt.providers.keys import resolve_api_key
+from pytekt.providers.nvidia_provider import (
     DEFAULT_MODEL,
     NVIDIA_BASE_URL,
     POPULAR_MODELS,

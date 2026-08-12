@@ -1,4 +1,4 @@
-"""Tests for aion.vision OpenCV-backed ops."""
+"""Tests for pytekt.vision OpenCV-backed ops."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ import pytest
 
 cv2 = pytest.importorskip("cv2")
 
-from aion.vision.filters import canny, gaussian_blur
-from aion.vision.opencv_ops import find_contours, morph_open, threshold
+from pytekt.vision.filters import canny, gaussian_blur
+from pytekt.vision.opencv_ops import find_contours, morph_open, threshold
 
 
 def test_blur_and_canny():

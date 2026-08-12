@@ -4,15 +4,15 @@ import json
 import os
 import tempfile
 
-from aion.experiments import (
+from pytekt.experiments import (
     Experiment,
     BenchmarkSuite,
     export_results_table,
     build_manifest,
 )
-from aion.datasets import load_iris
-from aion.models import GaussianNB
-from aion.metrics import accuracy_score
+from pytekt.datasets import load_iris
+from pytekt.models import GaussianNB
+from pytekt.metrics import accuracy_score
 
 
 def test_experiment_context():

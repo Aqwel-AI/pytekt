@@ -1,6 +1,6 @@
 """Tests for streaming helper on OpenAI-compatible provider."""
 
-from aion.providers.generic_openai import OpenAICompatibleProvider
+from pytekt.providers.generic_openai import OpenAICompatibleProvider
 
 
 def test_complete_stream_exists():

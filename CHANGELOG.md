@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Aqwel-Aion project will be documented in this file.
+All notable changes to the PyTekt project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-07-22
 
 ### Added — Research library expansion
-- **`aion.physics`** — Classical physics toolkit (mechanics, kinematics, thermo, EM, optics, relativity, integrators, NL query); CLI `aion physics`; optional C++ path; web dashboard.
-- **`aion.universe`** — Astronomy (coordinates, observing, orbits, cosmology, catalogs); CLI `aion universe`; C++ path; web dashboard.
-- **`aion.vision`** — Classic computer vision on NumPy arrays (I/O, transforms, color, filters, draw, metrics, OpenCV ops); CLI `aion vision`; extra `[vision]` (Pillow + opencv-python-headless).
+- **`pytekt.physics`** — Classical physics toolkit (mechanics, kinematics, thermo, EM, optics, relativity, integrators, NL query); CLI `pytekt physics`; optional C++ path; web dashboard.
+- **`pytekt.universe`** — Astronomy (coordinates, observing, orbits, cosmology, catalogs); CLI `pytekt universe`; C++ path; web dashboard.
+- **`pytekt.vision`** — Classic computer vision on NumPy arrays (I/O, transforms, color, filters, draw, metrics, OpenCV ops); CLI `pytekt vision`; extra `[vision]` (Pillow + opencv-python-headless).
 - **`aion.cache`** — Caching with TTL: `MemoryCache`, `DiskCache`, `LLMCache`, `@cached`.
 - **`aion.data`** — CSV/JSON/JSONL loaders, splits, text augmentation, schema validation (restored after 0.1.9 remove).
 - **`aion.datasets`** — Built-in benchmarks + generators + file I/O (restored).
@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `[serve]`, `[db]`, `[universe]`, `[physics]`, `[vision]`, `[ui]`, `[monitor]`, and related groups; `[full]` includes vision OpenCV stack.
 
 ### Not available in 0.2.0
-- **Terminal coding agent** (`aion agent`, browser UI, IDE bridge) — **not available**; source under `archived/aion_agent/` (local only).
+- **Terminal coding agent** (`pytekt agent`, browser UI, IDE bridge) — **not available**; source under `archived/aion_agent/` (local only).
 - **`aion.agents`** ReAct / Planning / MultiAgent framework — not imported in this package version.
 - **`aion api` / `aion auth`** — **not available**.
 
@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.9] - 2026-03-29
 
 ### Added
-- **`aion.tools`** — OpenAI-style tool schemas, `ToolRegistry`, `run_tool_loop`, HTTP retry helper, token bucket, optional `tiktoken` estimates (`pip install aqwel-aion[tools]`).
+- **`aion.tools`** — OpenAI-style tool schemas, `ToolRegistry`, `run_tool_loop`, HTTP retry helper, token bucket, optional `tiktoken` estimates (`pip install pytekt[tools]`).
 - **`aion.rag`** — Text chunking, `MemoryVectorStore`, optional `FaissVectorStore`, `SimpleRAGIndex` pipeline (`[rag]` extra).
 - **Providers** — `complete_turn` / `AssistantTurn` / `NormalizedToolCall` for OpenAI and OpenAI-compatible APIs; `complete_turn` stubs on Anthropic/Gemini with clear `NotImplementedError`.
 - **`aion.config`**, **`aion.env`** — TOML/YAML config merge with env overrides, `.env` parsing.
@@ -95,7 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Changed
 - **Branding Update**: LinkAI → Aqwel AI
-- **Package Name**: linkai-aion → aqwel-aion
+- **Package Name**: linkai-aion → pytekt
 - **Focus**: General utilities → AI research library
 - **Target Audience**: Developers → AI researchers and developers
 - **URLs**: linkaiapps.com → aqwelai.com
@@ -167,7 +167,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming Features
 
-The Aqwel-Aion library continues to evolve based on user feedback and research community needs. We're committed to maintaining the highest standards of code quality, documentation, and user experience.
+The PyTekt library continues to evolve based on user feedback and research community needs. We're committed to maintaining the highest standards of code quality, documentation, and user experience.
 
 ### Contributing
 
@@ -177,7 +177,7 @@ We welcome contributions from the AI research community! Please see our [Contrib
 
 For questions, issues, or feature requests:
 - Visit: https://aqwelai.xyz/
-- Issues: https://github.com/Aqwel-AI/Aion/issues
+- Issues: https://github.com/Aqwel-AI/pytekt/issues
 - Company Gmail: aqwelai.company@gmail.com
 
 ---

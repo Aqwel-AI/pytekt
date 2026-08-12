@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Aqwel-Aion v0.2.0 - AI Research Library
+PyTekt v0.2.0 - AI Research Library
 ======================================================
 
-Main entry point for the Aqwel-Aion utility library.
+Main entry point for the PyTekt utility library.
 Provides command-line interface and core functionality access.
 
 Author: Aksel Aghajanyan
@@ -16,11 +16,11 @@ Copyright: 2025 Aqwel AI
 import sys
 
 # Import the CLI module from the aion package for command-line interface functionality
-from aion import cli
+from pytekt import cli
 
 def main():
     """
-    Main entry point for the Aqwel-Aion CLI application.
+    Main entry point for the PyTekt CLI application.
     
     This function serves as the primary entry point for the application,
     handling command-line argument parsing and delegating to appropriate

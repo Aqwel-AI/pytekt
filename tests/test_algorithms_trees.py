@@ -1,7 +1,7 @@
 """Smoke tests for tree algorithms."""
 
-from aion.algorithms import get_algorithm
-from aion.algorithms.trees import TrieNode
+from pytekt.algorithms import get_algorithm
+from pytekt.algorithms.trees import TrieNode
 
 
 def test_bst_search():

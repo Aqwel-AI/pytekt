@@ -1,12 +1,12 @@
 """End-to-end Core ML stack integration tests."""
 
-import aion
-from aion.datasets import load_iris
-from aion.preprocessing import StandardScaler, PreprocessingPipeline, SimpleImputer
-from aion.models import GaussianNB
-from aion.metrics import accuracy_score
-from aion.hyperopt import GridSearch
-from aion.models import KNNClassifier
+import pytekt
+from pytekt.datasets import load_iris
+from pytekt.preprocessing import StandardScaler, PreprocessingPipeline, SimpleImputer
+from pytekt.models import GaussianNB
+from pytekt.metrics import accuracy_score
+from pytekt.hyperopt import GridSearch
+from pytekt.models import KNNClassifier
 
 
 def test_package_exports():

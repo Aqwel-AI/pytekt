@@ -1,6 +1,6 @@
 """Smoke tests for dynamic programming algorithms."""
 
-from aion.algorithms import get_algorithm
+from pytekt.algorithms import get_algorithm
 
 
 def test_lcs_length():

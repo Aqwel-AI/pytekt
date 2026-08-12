@@ -1,10 +1,10 @@
-"""Tests for aion.universe.units."""
+"""Tests for pytekt.universe.units."""
 
 import math
 
 import pytest
 
-from aion.universe.units import (
+from pytekt.universe.units import (
     flux_to_magnitude,
     format_dec,
     format_ra,

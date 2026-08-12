@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from aion.datasets import load_iris
-from aion.hyperopt import (
+from pytekt.datasets import load_iris
+from pytekt.hyperopt import (
     GridSearch,
     RandomSearch,
     BayesianSearch,
@@ -11,7 +11,7 @@ from aion.hyperopt import (
     cross_val_score,
     kfold_indices,
 )
-from aion.models import KNNClassifier, GaussianNB
+from pytekt.models import KNNClassifier, GaussianNB
 
 
 def test_kfold_indices():

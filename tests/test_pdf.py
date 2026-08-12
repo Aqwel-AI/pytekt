@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import aion
+import pytekt
 
 
 def test_create_pdf_report_fallback(tmp_path):

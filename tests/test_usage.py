@@ -7,11 +7,11 @@ import tempfile
 
 import pytest
 
-from aion.usage.aggregate import build_summary, build_timeseries, filter_events
-from aion.usage.extract import extract_usage_from_response, estimate_tokens
-from aion.usage.record import record_llm_call
-from aion.usage.launch import is_aion_usage_server, resolve_usage_port
-from aion.usage.store import UsageStore
+from pytekt.usage.aggregate import build_summary, build_timeseries, filter_events
+from pytekt.usage.extract import extract_usage_from_response, estimate_tokens
+from pytekt.usage.record import record_llm_call
+from pytekt.usage.launch import is_pytekt_usage_server, resolve_usage_port
+from pytekt.usage.store import UsageStore
 
 
 def test_extract_openai_usage():
@@ -53,18 +53,18 @@ def test_resolve_port_when_3333_not_aion():
     """Port 3333 may be another app; Aion should not treat it as our dashboard."""
     port, running = resolve_usage_port("127.0.0.1", 3847)
     assert port >= 3847
-    if is_aion_usage_server("127.0.0.1", 3333):
+    if is_pytekt_usage_server("127.0.0.1", 3333):
         pytest.skip("3333 happens to be Aion in this environment")
     else:
         p, already = resolve_usage_port("127.0.0.1", 3333)
-        assert not already or is_aion_usage_server("127.0.0.1", p)
+        assert not already or is_pytekt_usage_server("127.0.0.1", p)
 
 
 def test_get_system_info_survives_cpu_freq_failure(monkeypatch):
     """macOS Apple Silicon: psutil.cpu_freq() can raise FileNotFoundError."""
     import sys
 
-    from aion.usage import hardware_api
+    from pytekt.usage import hardware_api
 
     class FakePsutil:
         @staticmethod

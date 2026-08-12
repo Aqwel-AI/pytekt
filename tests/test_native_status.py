@@ -1,6 +1,6 @@
 """Tests for library-wide native backend reporting."""
 
-from aion.native import (
+from pytekt.native import (
     native_backends,
     native_build_info,
     native_status,
@@ -14,9 +14,9 @@ def test_native_backends_contains_core_and_universe():
     assert "core" in backends
     assert "universe" in backends
     assert "bigdata" in backends
-    assert backends["core"].module_name == "aion._aion_core"
-    assert backends["universe"].module_name == "aion._aion_universe"
-    assert backends["bigdata"].module_name == "aion._aion_bigdata"
+    assert backends["core"].module_name == "pytekt._pytekt_core"
+    assert backends["universe"].module_name == "pytekt._pytekt_universe"
+    assert backends["bigdata"].module_name == "pytekt._pytekt_bigdata"
 
 
 def test_native_status_is_dict_shaped():

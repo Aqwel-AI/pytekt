@@ -5,7 +5,7 @@ import pytest
 
 plotly = pytest.importorskip("plotly")
 
-from aion.visualization.plotly_viz import (
+from pytekt.visualization.plotly_viz import (
     plotly_3d_isosurface,
     plotly_3d_scatter,
     plotly_3d_surface,

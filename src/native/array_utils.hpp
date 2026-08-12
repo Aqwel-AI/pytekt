@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace aion_native {
+namespace pytekt_native {
 
 namespace py = pybind11;
 
@@ -34,4 +34,4 @@ inline py::array_t<std::int64_t> make_int64_array(std::size_t size) {
     return py::array_t<std::int64_t>(static_cast<py::ssize_t>(size));
 }
 
-}  // namespace aion_native
+}  // namespace pytekt_native

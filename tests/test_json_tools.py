@@ -2,10 +2,10 @@
 
 import json
 
-from aion.agents.json_tools import extract_json_object
-from aion.tools.registry import ToolRegistry
-from aion.tools.workspace import Workspace
-from aion.tools.code_agent import write_file
+from pytekt.agents.json_tools import extract_json_object
+from pytekt.tools.registry import ToolRegistry
+from pytekt.tools.workspace import Workspace
+from pytekt.tools.code_agent import write_file
 
 
 def test_extract_json_plain():

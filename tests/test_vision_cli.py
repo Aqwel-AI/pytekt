@@ -10,8 +10,8 @@ import pytest
 
 pytest.importorskip("PIL")
 
-from aion.vision.cli import build_vision_parser, vision_main
-from aion.vision.io import write_image
+from pytekt.vision.cli import build_vision_parser, vision_main
+from pytekt.vision.io import write_image
 
 
 def _parser() -> argparse.ArgumentParser:

@@ -21,7 +21,7 @@ def _skip_unless_env(var: str) -> str:
     reason="Set AION_TEST_MYSQL_URL for MySQL integration test",
 )
 def test_mysql_connect():
-    import aion.db as db
+    import pytekt.db as db
 
     conn = db.connect(os.environ["AION_TEST_MYSQL_URL"])
     conn.probe.insert({"ping": 1})
@@ -34,7 +34,7 @@ def test_mysql_connect():
     reason="Set AION_TEST_MONGO_URL for MongoDB integration test",
 )
 def test_mongo_connect():
-    import aion.db as db
+    import pytekt.db as db
 
     conn = db.connect(os.environ["AION_TEST_MONGO_URL"])
     conn.probe.insert({"ping": 1})

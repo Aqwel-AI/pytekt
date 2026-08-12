@@ -1,6 +1,6 @@
 """Tests for user-friendly provider error messages."""
 
-from aion.providers.errors import ProviderError
+from pytekt.providers.errors import ProviderError
 
 
 def test_friendly_429_quota():

@@ -6,20 +6,20 @@
 
 **Official open-source product from [Aqwel AI](https://aqwelai.xyz/) · v0.2.0**
 
-[![PyPI](https://img.shields.io/pypi/v/aqwel-aion?label=PyPI)](https://pypi.org/project/aqwel-aion/)
-[![Python](https://img.shields.io/pypi/pyversions/aqwel-aion?label=Python)](https://pypi.org/project/aqwel-aion/)
+[![PyPI](https://img.shields.io/pypi/v/pytekt?label=PyPI)](https://pypi.org/project/pytekt/)
+[![Python](https://img.shields.io/pypi/pyversions/pytekt?label=Python)](https://pypi.org/project/pytekt/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Aqwel AI](https://img.shields.io/badge/Product-Aqwel%20AI-0066cc)](https://aqwelai.xyz/)
 
-**Aion** is the flagship Python research library from **Aqwel AI**: one install for **research-grade ML** in notebooks, optional **C++ acceleration** for hot paths, plus **physics**, **astronomy**, and **computer vision** modules. Apache-2.0, published on [PyPI](https://pypi.org/project/aqwel-aion/) as `aqwel-aion`.
+**Aion** is the flagship Python research library from **Aqwel AI**: one install for **research-grade ML** in notebooks, optional **C++ acceleration** for hot paths, plus **physics**, **astronomy**, and **computer vision** modules. Apache-2.0, published on [PyPI](https://pypi.org/project/pytekt/) as `pytekt`.
 
 | Focus | Audience | Entry point |
 |-------|----------|-------------|
-| **Research library** (ships in 0.2.0) | AI researchers, data scientists, ML engineers | `import aion` |
+| **Research library** (ships in 0.2.0) | AI researchers, data scientists, ML engineers | `import pytekt` |
 
 Shared stack: **`aion.providers`**, **`aion.tools`**, **`aion.rag`**, Core ML, physics, universe, vision. Install only what you need: `[ai]`, `[viz]`, `[vision]`, `[physics]`, `[universe]`, `[full]`.
 
-**Official links:** [Aqwel AI website](https://aqwelai.xyz/) · [Product docs](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/aqwel-aion/) · [This repo — structure](docs/PROJECT_STRUCTURE.md) · [Security](SECURITY.md) · [`.env.example`](.env.example)
+**Official links:** [Aqwel AI website](https://aqwelai.xyz/) · [Product docs](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/pytekt/) · [This repo — structure](docs/PROJECT_STRUCTURE.md) · [Security](SECURITY.md) · [`.env.example`](.env.example)
 
 ---
 
@@ -30,27 +30,27 @@ Install, import, and run a first example.
 **1. Install**
 
 ```bash
-pip install aqwel-aion
+pip install pytekt
 # optional stacks:
-pip install "aqwel-aion[ai,viz]"           # ML + plots
-pip install "aqwel-aion[vision,physics]"   # CV + physics
+pip install "pytekt[ai,viz]"           # ML + plots
+pip install "pytekt[vision,physics]"   # CV + physics
 ```
 
 **2. Check it works**
 
 ```bash
-python -c "import aion; print(aion.__version__)"
+python -c "import pytekt; print(aion.__version__)"
 aion doctor
 ```
 
 **3. Use the library**
 
 ```python
-import aion
-from aion.datasets import load_iris
-from aion.preprocessing import StandardScaler
-from aion.models import GaussianNB
-from aion.metrics import accuracy_score
+import pytekt
+from pytekt.datasets import load_iris
+from pytekt.preprocessing import StandardScaler
+from pytekt.models import GaussianNB
+from pytekt.metrics import accuracy_score
 
 ds = load_iris()
 X = StandardScaler().fit_transform(ds.data)
@@ -62,8 +62,8 @@ print("Aion", aion.__version__, "→ accuracy", accuracy_score(ds.target, clf.pr
 
 ```bash
 aion welcome          # install animation
-aion physics tasks    # physics toolkit (needs [physics] / matplotlib)
-aion vision --help    # computer vision CLI (needs [vision])
+pytekt physics tasks    # physics toolkit (needs [physics] / matplotlib)
+pytekt vision --help    # computer vision CLI (needs [vision])
 ```
 
 More paths: [Quick start](#quick-start-choose-your-path) · [Installation](#installation) · [Getting Started](#getting-started)
@@ -75,7 +75,7 @@ More paths: [Quick start](#quick-start-choose-your-path) · [Installation](#inst
 **Aqwel AI** builds practical AI tools for researchers and developers. **Aion** is our primary open-source product: a single Python package for numerics, classical ML, LLM workflows, experiment tracking, physics, astronomy, and vision.
 
 - **Company:** [aqwelai.xyz](https://aqwelai.xyz/)
-- **Product:** Aqwel-Aion (`pip install aqwel-aion`)
+- **Product:** PyTekt (`pip install pytekt`)
 - **Created by:** [Aqwel AI](https://aqwelai.xyz/) · **Main developer:** Aksel Aghajanyan
 - **License:** Apache-2.0 · **Support:** [CONTRIBUTING.md](CONTRIBUTING.md) · security: [SECURITY.md](SECURITY.md)
 
@@ -104,20 +104,20 @@ This README is the **main documentation** for the GitHub repository. Deeper maps
 | [aion/visualization/README.md](aion/visualization/README.md) | Plotting and reports |
 | [aqwelai.xyz/#/docs](https://aqwelai.xyz/#/docs) | Official web documentation (Aqwel AI) |
 
-### Research library (`import aion`)
+### Research library (`import pytekt`)
 
 For **notebooks, papers, and pipelines**: NumPy-first classical ML, built-in datasets (no downloads), algorithms, RAG, tokenizers, `former` transformer training, trackers, LLM eval, Hub UI (`aion start`), physics, universe, vision.
 
 ```bash
-pip install "aqwel-aion[ai,viz]"    # or pip install -e ".[ai,viz]" from this repo
+pip install "pytekt[ai,viz]"    # or pip install -e ".[ai,viz]" from this repo
 ```
 
 ```python
-import aion
-from aion.datasets import load_iris
-from aion.preprocessing import StandardScaler
-from aion.models import GaussianNB
-from aion.metrics import accuracy_score
+import pytekt
+from pytekt.datasets import load_iris
+from pytekt.preprocessing import StandardScaler
+from pytekt.models import GaussianNB
+from pytekt.metrics import accuracy_score
 
 ds = load_iris()
 X = StandardScaler().fit_transform(ds.data)
@@ -127,34 +127,34 @@ print(accuracy_score(ds.target, clf.predict(X)))
 
 | Module area | Capabilities |
 |-------------|--------------|
-| `aion.maths`, `aion.algorithms` | Sectioned mathematics and linear algebra; **572+** algorithms across 21 categories |
+| `pytekt.maths`, `aion.algorithms` | Linear algebra; **572+** algorithms across 21 categories |
 | `aion.preprocessing`, `aion.models`, `aion.metrics`, `aion.hyperopt` | Core ML stack (sklearn-style, NumPy-first) |
 | `aion.datasets`, `aion.data` | 24+ built-in benchmarks, loaders, splits |
 | `aion.providers`, `aion.tools`, `aion.rag` | LLM clients, tool loops, RAG |
-| `aion.physics`, `aion.universe`, `aion.vision` | Physics toolkit, astronomy, classic CV (`[vision]`) |
+| `pytekt.physics`, `pytekt.universe`, `pytekt.vision` | Physics toolkit, astronomy, classic CV (`[vision]`) |
 | `aion.tracker`, `aion.llm_eval`, `aion.cache`, `aion.store` | Experiments, eval metrics, caching, SQLite stores |
 | `aion.former`, `aion.visualization`, `aion.ui` | Transformer training, plots/3D, Aion Hub |
 
-CLI helpers: `aion start`, `aion usage`, `aion physics`, `aion universe`, `aion vision`, `aion embed`, `aion eval`, `aion benchmark`, `aion doctor` — see [Getting Started](#getting-started) and [Features](#features).
+CLI helpers: `aion start`, `aion usage`, `pytekt physics`, `pytekt universe`, `pytekt vision`, `pytekt embed`, `pytekt eval`, `aion benchmark`, `aion doctor` — see [Getting Started](#getting-started) and [Features](#features).
 
 ### Not in 0.2.0
 
-The terminal coding agent (`aion agent`) and in-package ReAct framework (`aion.agents`) are **not shipped**. CLI stubs for `aion agent` / `api` / `auth` print a notice. For LLM workflows, use **`aion.providers`** and **`aion.tools`** from Python.
+The terminal coding agent (`pytekt agent`) and in-package ReAct framework (`aion.agents`) are **not shipped**. CLI stubs for `pytekt agent` / `api` / `auth` print a notice. For LLM workflows, use **`aion.providers`** and **`aion.tools`** from Python.
 
 ### Quick start — choose your path
 
 | I am a… | Do this |
 |---------|---------|
-| **Data scientist / researcher** | `pip install "aqwel-aion[ai]"` → `import aion` → see [Getting Started](#getting-started) |
-| **Physics / astronomy** | `pip install "aqwel-aion[physics,universe]"` → `aion physics` / `aion universe` |
-| **Computer vision** | `pip install "aqwel-aion[vision]"` → see [`aion/vision/README.md`](aion/vision/README.md) |
+| **Data scientist / researcher** | `pip install "pytekt[ai]"` → `import pytekt` → see [Getting Started](#getting-started) |
+| **Physics / astronomy** | `pip install "pytekt[physics,universe]"` → `pytekt physics` / `pytekt universe` |
+| **Computer vision** | `pip install "pytekt[vision]"` → see [`aion/vision/README.md`](aion/vision/README.md) |
 | **Full local install** | `pip install -e ".[full]"` from this repo |
 
 ---
 
 ## Author
 
-**Aqwel-Aion** is an open-source product from **[Aqwel AI](https://aqwelai.xyz/)**.
+**PyTekt** is an open-source product from **[Aqwel AI](https://aqwelai.xyz/)**.
 
 | Name | Role | GitHub | LinkedIn |
 |------|------|--------|----------|
@@ -198,7 +198,7 @@ The terminal coding agent (`aion agent`) and in-package ReAct framework (`aion.a
 
 ## Overview
 
-**Aqwel-Aion** is an **Aqwel AI research library**: one coherent **import surface** for work that usually spans half a dozen ad-hoc utilities — **linear algebra and stats**, **classical algorithms**, a **Core ML stack**, **plotting**, **embeddings and evaluation**, **physics / astronomy / vision**, plus **LLM-era** helpers (`providers`, `tools`, `rag`).
+**PyTekt** is an **Aqwel AI research library**: one coherent **import surface** for work that usually spans half a dozen ad-hoc utilities — **linear algebra and stats**, **classical algorithms**, a **Core ML stack**, **plotting**, **embeddings and evaluation**, **physics / astronomy / vision**, plus **LLM-era** helpers (`providers`, `tools`, `rag`).
 
 **New in 0.2.0 (ships now):** Core ML modules, datasets/data restore, tokenizer, pipeline, store, tracker, llm_eval, structures, serve, ui/hub, db, **universe**, **physics**, **vision** (`[vision]`), usage dashboard, install splash (`aion welcome`), experiments/doctor/benchmark.
 
@@ -220,9 +220,9 @@ v0.1.9 already included `aion.tools`, `aion.rag`, `aion.config`, `aion.env`, `ai
 
 | # | Area | Package / entry | Key capabilities |
 |---|------|-----------------|------------------|
-| 1 | **Physics** | `aion.physics` · `aion physics` | Classical mechanics, NL query, C++ path, web dashboard |
-| 2 | **Universe** | `aion.universe` · `aion universe` | Coordinates, observing, orbits, cosmology, web dashboard |
-| 3 | **Vision** | `aion.vision` · `[vision]` | Image I/O, transforms, filters, draw, metrics, OpenCV ops |
+| 1 | **Physics** | `pytekt.physics` · `pytekt physics` | Classical mechanics, NL query, C++ path, web dashboard |
+| 2 | **Universe** | `pytekt.universe` · `pytekt universe` | Coordinates, observing, orbits, cosmology, web dashboard |
+| 3 | **Vision** | `pytekt.vision` · `[vision]` | Image I/O, transforms, filters, draw, metrics, OpenCV ops |
 | 4 | **Caching** | `aion.cache` | MemoryCache, DiskCache, LLMCache, `@cached` |
 | 5 | **Data (restored)** | `aion.data` | CSV/JSON/JSONL, splits, augmentation, schema validation |
 | 6 | **Datasets (restored)** | `aion.datasets` | 24 benchmarks, generators, `fetch`/`list_datasets`, file I/O |
@@ -248,11 +248,11 @@ See [Not in 0.2.0](#not-in-020) near the top of this README.
 
 > **Note:** `aion.data` and `aion.datasets` were removed in v0.1.9 and **brought back in v0.2.0**.
 
-### Physics (`aion.physics`)
+### Physics (`pytekt.physics`)
 - Classical mechanics, kinematics, thermo, EM, optics, relativity, integrators, NL query router.
-- CLI: `aion physics …` / `aion physics-dashboard`. See [`aion/physics/README.md`](aion/physics/README.md).
+- CLI: `pytekt physics …` / `pytekt physics-dashboard`. See [`aion/physics/README.md`](aion/physics/README.md).
 
-### Vision (`aion.vision`)
+### Vision (`pytekt.vision`)
 - Classic image-array helpers (Pillow + OpenCV): I/O, transforms, color, filters, draw, metrics.
 - Not detection/segmentation models (use `[ai]` for deep learning). See [`aion/vision/README.md`](aion/vision/README.md).
 
@@ -285,7 +285,7 @@ See [Not in 0.2.0](#not-in-020) near the top of this README.
 - **Legacy reports** — `PageBuilder`, `build_experiment_dashboard()`, `build_dataset_report()`.
 - **Hub & monitor** — `launch_hub()` / `aion start`, `launch_monitor()` (`[monitor]`).
 - **Optional apps (`[ui]` extra)** — Gradio/Streamlit launchers.
-- **CLI:** `aion ui --list`, `aion ui --report`, `aion ui --gradio`, `aion ui --streamlit`.
+- **CLI:** `pytekt ui --list`, `pytekt ui --report`, `pytekt ui --gradio`, `pytekt ui --streamlit`.
 - **Install animation:** `aion welcome` — replay the animated module install screen ([see README](#aion-install-animation)).
 
 ### Tokenization (`aion.tokenizer`)
@@ -303,28 +303,28 @@ See [Not in 0.2.0](#not-in-020) near the top of this README.
 - **`ChatHistoryStore`** — Persistent conversation threads with message history, listing, and full-text search.
 
 ### Unified database (`aion.db`)
-- **`connect(url)`** — One API for SQLite (core), MySQL, PostgreSQL, MongoDB, Redis (`pip install aqwel-aion[db]`).
+- **`connect(url)`** — One API for SQLite (core), MySQL, PostgreSQL, MongoDB, Redis (`pip install pytekt[db]`).
 - **Dict API** — `conn.users.insert({...})`, `conn.users.find(name="Alice")`, `find(score__gte=5)`.
 - **Query builder** — `conn.table("users").where(conn.col.age > 25).select("name").all()`.
 - **Aion-only** — `hybrid_search`, `agent_memory`, `bulk_upsert`, `sync_usage`, pipeline `DbReadStep` / `DbWriteStep`.
 - See [`aion/db/README.md`](aion/db/README.md).
 
-### Astronomy (`aion.universe`)
+### Astronomy (`pytekt.universe`)
 - **Coordinates** — RA/Dec ↔ Alt/Az, galactic transform, angular separation.
 - **Time** — Julian date, GMST/LST for observing.
 - **Observing** — Moon phase, air mass, `whats_up()` with builtin bright-star catalog.
 - **Orbits & cosmology** — Kepler elements, Hohmann transfer, flat ΛCDM distances.
-- **CLI** — `aion universe moon|sky|coords|web` (`aion cosmos` is deprecated).
-- **Web dashboard** — `aion universe web` (React sky map, moon, cosmology, observation log).
+- **CLI** — `pytekt universe moon|sky|coords|web` (`aion cosmos` is deprecated).
+- **Web dashboard** — `pytekt universe web` (React sky map, moon, cosmology, observation log).
 - **C++ fast path** — hot calculations in `aion._aion_universe` with Python fallbacks.
 - See [`aion/universe/README.md`](aion/universe/README.md).
 
-### Physics (`aion.physics`)
+### Physics (`pytekt.physics`)
 - **Mechanics & thermo** — force, energy, ideal gas, heat transfer formulas.
 - **Simulations** — pendulum, spring-mass, projectile (RK4 integrator).
 - **NL query router** — `solve_physics_query("kinetic energy mass=2 velocity=3")`.
-- **CLI** — `aion physics query|pendulum|projectile|web`.
-- **Web dashboard** — `aion physics web` (calculator, pendulum/projectile plots, port 3858).
+- **CLI** — `pytekt physics query|pendulum|projectile|web`.
+- **Web dashboard** — `pytekt physics web` (calculator, pendulum/projectile plots, port 3858).
 - **C++ fast path** — integrators in `aion._aion_physics` with Python fallbacks.
 - See [`aion/physics/README.md`](aion/physics/README.md).
 
@@ -456,7 +456,7 @@ flowchart TB
 ```mermaid
 flowchart LR
   subgraph importSurface [Typical import paths]
-    A["import aion"]
+    A["import pytekt"]
     B["aion.algorithms"]
     C["aion.visualization"]
     D["aion.providers"]
@@ -539,7 +539,7 @@ flowchart LR
 
 ### High-level design
 
-- **Single package:** Public APIs live under `aion`. Prefer `import aion` and attribute access, or explicit `from aion.X import …` for subpackages.
+- **Single package:** Public APIs live under `aion`. Prefer `import pytekt` and attribute access, or explicit `from pytekt.X import …` for subpackages.
 - **Core single-file modules:** `maths`, `code`, `embed`, `evaluate`, `files`, `git`, `parser`, `pdf`, `prompt`, `snippets`, `text`, `utils`, `watcher`, `cli`, plus **`_core`** (`fast_*` bridge to optional native code).
 - **Data and control plane:** `io` (streaming, atomic writes, checksums), `config` (implementation in `config/core.py`), `env`.
 - **Data processing:** `data` (CSV/JSON/JSONL loaders as row dicts, splitting, augmentation, schema validation), `datasets` (built-in benchmarks, synthetic generators, `Dataset` + pandas-style file I/O), `tokenizer` (BPE, WordPiece, vocabulary management).
@@ -604,13 +604,13 @@ Layout below matches the repository as shipped (file names only; omit your local
 └── aion/                      # Python package
 ```
 
-**Repo check:** The layout above is the **documented** shipping shape. The repository includes a **`tests/`** directory (run `pytest tests/` after `pip install -e ".[dev,ai]"`). If `import aion` fails after a partial checkout, restore package stubs with  
+**Repo check:** The layout above is the **documented** shipping shape. The repository includes a **`tests/`** directory (run `pytest tests/` after `pip install -e ".[dev,ai]"`). If `import pytekt` fails after a partial checkout, restore package stubs with  
 `git checkout HEAD -- aion/benchmarks/__init__.py`.  
 The library surface is **`aion.code`** (`code.py` module only—not a `aion/code/` package). For the package map, see [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md).
 
 ### Design principles
 
-- **Explicit imports:** Subpackages re-export stable symbols from `__init__.py` (e.g. `from aion.algorithms import binary_search` or `from aion.algorithms.search import binary_search`).
+- **Explicit imports:** Subpackages re-export stable symbols from `__init__.py` (e.g. `from pytekt.algorithms import binary_search` or `from pytekt.algorithms.search import binary_search`).
 - **Backend-safe visualization:** Plotting APIs return matplotlib `Figure` objects and support `show=False` for servers and CI; 3D uses `mpl_toolkits.mplot3d` (still `[viz]` / matplotlib).
 - **Layered dependencies:** Core + algorithms target NumPy and the standard library where possible. `io` avoids heavy deps. `providers`, `tools`, and `rag` may require network keys or optional FAISS / sentence-transformers. Never install `[full]` unless you need the whole research stack.
 - **Safety:** Tool execution uses **JSON object** arguments mapped to registered callables—no arbitrary code execution from model output.
@@ -633,13 +633,13 @@ The library surface is **`aion.code`** (`code.py` module only—not a `aion/code
 | `[config]` | TOML on older Python + YAML | `tomli` (3.8–3.10), `pyyaml` |
 | `[serve]` | REST API serving | `fastapi`, `uvicorn` |
 | `[db]` | MySQL, Postgres, Mongo, Redis backends for `aion.db` | `pymysql`, `psycopg`, `pymongo`, `redis` |
-| `[universe]` | Astronomy plots for `aion.universe` | `matplotlib` |
+| `[universe]` | Astronomy plots for `pytekt.universe` | `matplotlib` |
 | `[viz3d]` | Plotly 3D + enhanced viz (post-0.2.0) | `plotly`, `matplotlib`, `seaborn` |
 | `[monitor]` | Hardware dashboard | `psutil`, `fastapi`, `uvicorn`, `nvidia-ml-py` |
 | `[ui]` | Gradio / Streamlit app launchers | `gradio`, `streamlit` |
 | `[full]` | Convenience “everything” set | Combines most stacks above (+ OpenAI client, tiktoken, etc.) |
 
-Combine extras as needed, e.g. `pip install "aqwel-aion[viz,tools,serve]"` or editable `pip install -e ".[dev,full]"` from a clone.
+Combine extras as needed, e.g. `pip install "pytekt[viz,tools,serve]"` or editable `pip install -e ".[dev,full]"` from a clone.
 
 ---
 
@@ -661,7 +661,7 @@ A virtual environment (e.g. `venv` or `conda`) is recommended to isolate depende
 ### Base install (required dependencies only)
 
 ```bash
-pip install aqwel-aion
+pip install pytekt
 ```
 
 This installs the core package with numpy, watchdog, and gitpython. Enough for maths, algorithms, parser, files, utils, text, and most of the code and evaluate modules.
@@ -669,21 +669,21 @@ This installs the core package with numpy, watchdog, and gitpython. Enough for m
 ### Optional dependency groups
 
 ```bash
-pip install aqwel-aion[viz]   # Visualization (matplotlib, seaborn)
-pip install aqwel-aion[former] # Transformer training (Aion Former: matplotlib, pyyaml)
-pip install aqwel-aion[ai]     # ML stack: scipy, scikit-learn, pandas, matplotlib, transformers, torch, sentence-transformers, openai
-pip install aqwel-aion[docs]   # PDF/docs: reportlab, pillow
-pip install aqwel-aion[vision] # Computer vision: pillow, opencv-python-headless
-pip install aqwel-aion[full]   # All optional dependencies including seaborn, faiss-cpu
-pip install aqwel-aion[dev]    # Development: pytest, black, flake8
-pip install aqwel-aion[tools]  # tiktoken for token estimates
-pip install aqwel-aion[rag]    # sentence-transformers + faiss-cpu
-pip install aqwel-aion[config] # tomli on Python 3.8–3.10 + PyYAML
-pip install aqwel-aion[serve]  # FastAPI + uvicorn for aion.serve
-pip install aqwel-aion[db]     # MySQL, Postgres, Mongo, Redis for aion.db
-pip install aqwel-aion[universe]  # Astronomy matplotlib plots
-pip install aqwel-aion[viz3d]  # Plotly 3D visualization
-pip install aqwel-aion[ui]     # Gradio + Streamlit for aion.ui apps
+pip install pytekt[viz]   # Visualization (matplotlib, seaborn)
+pip install pytekt[former] # Transformer training (Aion Former: matplotlib, pyyaml)
+pip install pytekt[ai]     # ML stack: scipy, scikit-learn, pandas, matplotlib, transformers, torch, sentence-transformers, openai
+pip install pytekt[docs]   # PDF/docs: reportlab, pillow
+pip install pytekt[vision] # Computer vision: pillow, opencv-python-headless
+pip install pytekt[full]   # All optional dependencies including seaborn, faiss-cpu
+pip install pytekt[dev]    # Development: pytest, black, flake8
+pip install pytekt[tools]  # tiktoken for token estimates
+pip install pytekt[rag]    # sentence-transformers + faiss-cpu
+pip install pytekt[config] # tomli on Python 3.8–3.10 + PyYAML
+pip install pytekt[serve]  # FastAPI + uvicorn for aion.serve
+pip install pytekt[db]     # MySQL, Postgres, Mongo, Redis for aion.db
+pip install pytekt[universe]  # Astronomy matplotlib plots
+pip install pytekt[viz3d]  # Plotly 3D visualization
+pip install pytekt[ui]     # Gradio + Streamlit for aion.ui apps
 ```
 
 ### Editable install (for development)
@@ -707,23 +707,23 @@ pip install -e .[dev,full]
 
    ```bash
    pip install --upgrade pip
-   pip install aqwel-aion
+   pip install pytekt
    ```
 
 3. For visualization and full ML/docs, use extras:
 
    ```bash
-   pip install aqwel-aion[full]
+   pip install pytekt[full]
    ```
 
 4. Verify the install (you should see an **animated install screen** with large module names and ✓ INSTALLED lines):
 
    ```bash
-   python -c "import aion; print(aion.__version__)"
+   python -c "import pytekt; print(aion.__version__)"
    aion welcome    # replay the install animation anytime
    ```
 
-   Disable the animation: `AION_NO_SPLASH=1 pip install aqwel-aion` or `aion welcome --no-animation`.
+   Disable the animation: `AION_NO_SPLASH=1 pip install pytekt` or `aion welcome --no-animation`.
 
    See [Aion install animation](#aion-install-animation) for the logo and a full preview of the welcome screen.
 
@@ -742,19 +742,19 @@ pip install -e .[dev,full]
   <strong>Replay the install celebration in your terminal</strong>
 </p>
 
-After `pip install aqwel-aion` (or `pip install -e .` from a clone), Aion prints an animated screen: the **AION** banner, a large **INSTALLED** label, a progress bar, and each module name in **big spaced letters** with **✓ INSTALLED** (Core ML, datasets, UI, and more).
+After `pip install pytekt` (or `pip install -e .` from a clone), Aion prints an animated screen: the **AION** banner, a large **INSTALLED** label, a progress bar, and each module name in **big spaced letters** with **✓ INSTALLED** (Core ML, datasets, UI, and more).
 
 ### Command
 
 ```bash
-# After pip install -e .  (or pip install aqwel-aion)
+# After pip install -e .  (or pip install pytekt)
 aion welcome
 ```
 
 If `aion` is not on your `PATH` (common with conda / python.org installs):
 
 ```bash
-python -m aion welcome
+python -m pytekt welcome
 ```
 
 Static list (no animation delays, useful in CI or logs):
@@ -762,7 +762,7 @@ Static list (no animation delays, useful in CI or logs):
 ```bash
 aion welcome --no-animation
 # or
-python -m aion welcome --no-animation
+python -m pytekt welcome --no-animation
 ```
 
 The AION logo animation runs automatically:
@@ -773,7 +773,7 @@ The AION logo animation runs automatically:
 To skip it:
 
 ```bash
-AION_NO_SPLASH=1 pip install aqwel-aion
+AION_NO_SPLASH=1 pip install pytekt
 # or
 AION_NO_SPLASH=1 aion …
 ```
@@ -785,7 +785,7 @@ AION_NO_SPLASH=1 aion …
 ### Verify installation
 
 ```python
-import aion
+import pytekt
 print(aion.__version__)     # 0.2.0
 print(aion.__author__)      # Aksel Aghajanyan
 print(aion.__developer__)   # Aqwel AI Team (package metadata; main developer: Aksel Aghajanyan)
@@ -794,14 +794,14 @@ print(aion.__developer__)   # Aqwel AI Team (package metadata; main developer: A
 ### Minimal example (no optional deps)
 
 ```python
-import aion
+import pytekt
 
 # Mathematics (uses numpy; no optional deps)
-r = aion.maths.addition(2, 3)           # 5
-r = aion.maths.mean([1.0, 2.0, 3.0])    # 2.0
-r = aion.maths.determinant([[1, 2], [3, 4]])  # -2.0
+r = pytekt.maths.addition(2, 3)           # 5
+r = pytekt.maths.mean([1.0, 2.0, 3.0])    # 2.0
+r = pytekt.maths.determinant([[1, 2], [3, 4]])  # -2.0
 
-# Algorithms (stdlib only from aion.algorithms)
+# Algorithms (stdlib only from pytekt.algorithms)
 idx = aion.algorithms.binary_search([1, 3, 5, 7, 9], 7)  # 4
 flat = aion.algorithms.flatten_array([[1, 2], [3, 4]])   # [1, 2, 3, 4]
 ```
@@ -809,10 +809,10 @@ flat = aion.algorithms.flatten_array([[1, 2], [3, 4]])   # [1, 2, 3, 4]
 ### Minimal Core ML example (no scikit-learn)
 
 ```python
-from aion.datasets import load_iris
-from aion.preprocessing import StandardScaler
-from aion.models import GaussianNB
-from aion.metrics import accuracy_score
+from pytekt.datasets import load_iris
+from pytekt.preprocessing import StandardScaler
+from pytekt.models import GaussianNB
+from pytekt.metrics import accuracy_score
 
 ds = load_iris()
 X = StandardScaler().fit_transform(ds.data)
@@ -823,100 +823,37 @@ print(accuracy_score(ds.target, clf.predict(X)))
 ### Run the CLI (if installed)
 
 ```bash
-python -m aion.cli
+python -m pytekt.cli
 # or, if entry point is installed:
 aion --help
 ```
 
 **High-value commands:**
 
-For the complete command reference, see [docs/CLI.md](docs/CLI.md).
-
 | Command | Description |
 |---------|-------------|
 | `aion benchmark` | Run standard ML benchmark suite on built-in datasets |
 | `aion doctor` | Environment check (Python, numpy, optional extras, tracker dir, C++ extension) |
-| `aion vision` | Computer vision CLI — `info`, `convert`, `edges` (`[vision]` extra) |
-| `aion physics` / `aion universe` | Physics toolkit / astronomy toolkit + dashboards |
+| `pytekt vision` | Computer vision CLI — `info`, `convert`, `edges` (`[vision]` extra) |
+| `pytekt physics` / `pytekt universe` | Physics toolkit / astronomy toolkit + dashboards |
 | `aion usage` / `aion stats` | **Usage dashboard** (React) — tokens, cost, animated charts · [http://127.0.0.1:3847](http://127.0.0.1:3847) |
-| `aion universe web` | Astronomy web dashboard (sky map, moon, cosmology) |
+| `pytekt universe web` | Astronomy web dashboard (sky map, moon, cosmology) |
 | `aion config` | CLI / library settings (`~/.aion.yaml`) |
-| `aion start` / `aion ui` | Open **Aion Hub** (module explorer, playground, quick reference) |
-| `aion install` / `aion setup` | Green installer wizard for core, AI, science, vision, LLM, or full profiles |
-| `aion ui --report DIR` | Build experiment HTML dashboard from tracker directory |
-| `aion ui --list` | List all available UIs (hub, monitor, reports, Gradio, Streamlit) |
-| `aion info` | Environment and optional dependency status |
-| `aion monitor` / `aion dashboard` | Hardware metrics dashboard (`[monitor]` extra) |
-| `aion embed <file>` | Embed a file or `--text` |
-| `aion eval <preds> <answers>` | Evaluate predictions |
-| `aion chat` | Interactive prompt REPL |
+| `aion start` / `pytekt ui` | Open **Aion Hub** (module explorer, playground, quick reference) |
+| `pytekt ui --report DIR` | Build experiment HTML dashboard from tracker directory |
+| `pytekt ui --list` | List all available UIs (hub, monitor, reports, Gradio, Streamlit) |
+| `pytekt info` | Environment and optional dependency status |
+| `pytekt monitor` / `aion dashboard` | Hardware metrics dashboard (`[monitor]` extra) |
+| `pytekt embed <file>` | Embed a file or `--text` |
+| `pytekt eval <preds> <answers>` | Evaluate predictions |
+| `pytekt chat` | Interactive prompt REPL |
 | `aion git status` | Git repository tools (needs GitPython) |
-| `aion ask "..."` | One-shot LLM question through a configured provider |
-| `aion project init` | Create an Aion project skeleton |
-| `aion run script.py` | Run a script, optionally tracked as an experiment |
-| `aion experiment list|compare|export` | Manage tracked experiment runs |
-| `aion data inspect file` | Inspect CSV, JSON, and JSONL datasets |
-| `aion model list|test|info` | Provider and saved-model utilities |
-| `aion pipeline run file.json` | Run a simple command pipeline |
-| `aion test` | Run the project test suite |
-| `aion cache status|clear` | Inspect or clear the local cache |
-| `aion serve` | Start the local FastAPI service |
-| `aion security` | Scan for likely exposed secrets |
-| `aion auth` | Check provider API-key configuration |
-| `aion upgrade` | Upgrade Aion from PyPI |
-| `aion notebook`, `explain`, `summarize` | Notebook and code/document utilities |
-| `aion rag index|query` | Local document indexing and search |
-| `aion visualize` | Create charts from CSV/JSON |
-| `aion model benchmark|evaluate` | Model timing and dataset evaluation |
-| `aion experiment report` | Generate an HTML experiment report |
-| `aion physics fit` | Fit a linear model to measurements |
-| `aion universe observe` | List visible astronomical objects |
-| `aion hardware info` | Show machine resource information |
-| `aion performance profile` | Profile a Python script |
-| `aion lint` | Run Ruff, Black, and tests |
-| `aion dependency audit` | Check package health or updates |
-| `aion snapshot create|restore` | Archive or restore a project |
-| `aion session list|open|export` | Manage local session files |
-| `aion release check` | Validate release files |
-| `aion changelog generate` | Generate Git-based changelog text |
 
 ```bash
 aion start                    # http://127.0.0.1:3000
 aion start --port 8080        # custom port
 aion start --no-browser      # server only
-aion install                  # interactive installer wizard
-aion install --no-animation   # installer with static AION logo
-aion install --profile ai    # non-interactive profile
-aion install --profile ai --full --yes  # full install without prompts
-aion config theme cyberpunk   # cyberpunk (default), minimal, or monochrome
-aion help install            # detailed help for one command
-aion help --search physics   # search the command catalog
-aion --help --json           # export command metadata for tools
-aion completion zsh          # print shell completion script
 ```
-
-The help screen includes categorized commands, requirements, status, and examples.
-Shell completion is available for `bash`, `zsh`, `fish`, and `powershell`; add the
-output of `aion completion <shell>` to that shell's startup configuration.
-
-The interactive installer runs a preflight check for Python, pip, permissions,
-disk space, network access, and an existing Aion install. Failed installs offer
-`Retry`, `Skip`, or `Cancel`. Installer activity is saved to
-`~/.aion/logs/install.log`. The first successful installation shows an
-`AION ONLINE` welcome screen with suggested commands.
-
-Available terminal themes:
-
-```bash
-aion config theme cyberpunk    # green/cyan animated terminal
-aion config theme minimal      # reduced color palette
-aion config theme monochrome   # no ANSI colors
-```
-
-`aion setup` always includes the core runtime dependencies (`numpy`,
-`watchdog`, `gitpython`, and `certifi`). It then asks whether to install only
-the selected profile or the complete optional dependency set. Use
-`--dry-run` to inspect the pip command before installation.
 
 The repository includes root **`example.py`**: algorithms and visualization (sections 1–3), plus v0.1.9 areas ( **`aion.io`**, providers, tools, RAG, config, env, benchmarks, graphs, 3D/PDF, **`aion.pdf`** ). Run **`python example.py`** after installing dependencies for the sections you need (e.g. matplotlib for plots; **`[config]`** for the TOML sample in section 4).
 
@@ -967,10 +904,10 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 ### Development and Infrastructure
 
 - **File management:** Create, move, copy, delete; directory listing and organization helpers.
-- **Safe I/O (`aion.io`):** `iter_lines`, `read_chunks`, atomic writes, SHA-256 `file_sha256` / `verify_sha256`. Runnable demo: `python -m aion.io.examples.demo_atomic_checksum`.
-- **LLM providers (`aion.providers`):** `OpenAIProvider`, `GeminiProvider`, `AnthropicProvider`, `OpenAICompatibleProvider`, `create_provider`, `supported_providers`. OpenAI-shaped APIs also expose **`complete_turn`** → `AssistantTurn` with optional **`tool_calls`**; see `aion.providers.structured`. Offline demo: `python -m aion.providers.examples.demo_factory_parse`.
-- **Tool calling (`aion.tools`, extra `[tools]` for tiktoken):** `function_tool`, `ToolRegistry`, `run_tool_loop`, `FakeToolProvider`, `make_tool_turn`, `post_json_with_retry`, `TokenBucket`, token estimation helpers. Offline demo: `python -m aion.tools.examples.demo_tool_loop`.
-- **RAG (`aion.rag`, extra `[rag]`):** `chunk_text`, `MemoryVectorStore`, `FaissVectorStore`, `SimpleRAGIndex` over `aion.embed`. Local demo: `python -m aion.rag.examples.demo_simple_index`.
+- **Safe I/O (`aion.io`):** `iter_lines`, `read_chunks`, atomic writes, SHA-256 `file_sha256` / `verify_sha256`. Runnable demo: `python -m pytekt.io.examples.demo_atomic_checksum`.
+- **LLM providers (`aion.providers`):** `OpenAIProvider`, `GeminiProvider`, `AnthropicProvider`, `OpenAICompatibleProvider`, `create_provider`, `supported_providers`. OpenAI-shaped APIs also expose **`complete_turn`** → `AssistantTurn` with optional **`tool_calls`**; see `aion.providers.structured`. Offline demo: `python -m pytekt.providers.examples.demo_factory_parse`.
+- **Tool calling (`aion.tools`, extra `[tools]` for tiktoken):** `function_tool`, `ToolRegistry`, `run_tool_loop`, `FakeToolProvider`, `make_tool_turn`, `post_json_with_retry`, `TokenBucket`, token estimation helpers. Offline demo: `python -m pytekt.tools.examples.demo_tool_loop`.
+- **RAG (`aion.rag`, extra `[rag]`):** `chunk_text`, `MemoryVectorStore`, `FaissVectorStore`, `SimpleRAGIndex` over `aion.embed`. Local demo: `python -m pytekt.rag.examples.demo_simple_index`.
 - **Config & runtime:** `aion.config` (TOML/YAML + env merge), `aion.env` (`.env` parsing). Use **`logging.basicConfig`** (stdlib) for log levels.
 - **Benchmarks:** `aion.benchmarks` (timings, NumPy vs `fast_*` comparison).
 - **Analytics:** Use **`aion.metrics`** for classification, regression, clustering, NLP, and ranking metrics; **`aion.evaluate`** remains for legacy/file-based workflows. Tabular ML prototyping uses **`aion.datasets`** (built-in sets + file I/O) with **`aion.models`** and **`aion.hyperopt`**; row-based ETL uses **`aion.data`**; full pandas/scikit-learn workflows are available via **`[ai]`** extras.
@@ -996,10 +933,10 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 ### User interfaces (new in 0.2.0)
 
 - **`aion.ui` (React-style):** Build frontends in Python with `Component`, `html.*` tags, `AppShell`, `MetricGrid`, and `render_app()` — no React/Node install required; renders to static HTML.
-- **Aion Hub:** `aion start` or `aion ui` — browse modules, check deps, run playground code (stdlib server; serves `aion/hub/static/`).
+- **Aion Hub:** `aion start` or `pytekt ui` — browse modules, check deps, run playground code (stdlib server; serves `aion/hub/static/`).
 - **HTML reports:** `PageBuilder`, `build_experiment_dashboard()`, `build_dataset_report()`.
 - **Dev server:** `serve_app(MyApp(), port=8765)` for quick local preview.
-- **Optional:** `pip install 'aqwel-aion[ui]'` for Gradio and Streamlit app launchers.
+- **Optional:** `pip install 'pytekt[ui]'` for Gradio and Streamlit app launchers.
 
 ### Data Structures (new in 0.2.0)
 
@@ -1033,9 +970,9 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 
 ### Astronomy / universe (new in 0.2.0)
 
-- **`aion.universe`:** RA/Dec ↔ Alt/Az, moon phase, air mass, orbits, flat ΛCDM cosmology.
-- **CLI:** `aion universe moon|sky|coords|web`.
-- **Web dashboard:** `aion universe web` (React sky map, observation log).
+- **`pytekt.universe`:** RA/Dec ↔ Alt/Az, moon phase, air mass, orbits, flat ΛCDM cosmology.
+- **CLI:** `pytekt universe moon|sky|coords|web`.
+- **Web dashboard:** `pytekt universe web` (React sky map, observation log).
 - **C++ fast path** in `aion._aion_universe` with Python fallbacks. See [`aion/universe/README.md`](aion/universe/README.md).
 
 ### Big data kernels
@@ -1062,7 +999,7 @@ The repository includes root **`example.py`**: algorithms and visualization (sec
 - **Training:** Cross-entropy loss, Adam optimizer, `Trainer` with `train_step` / `train_epoch`.
 - **Data:** Character- or word-level tokenizer, sliding-window text dataset, batch loader.
 - **Visualization:** Attention heatmaps (per head/layer), training loss over epochs, weight eigenvalue/singular-value spectrum.
-- **Install:** `pip install aqwel-aion[former]`. Run: `python -m aion.former.experiments.train_small_model`, `python -m aion.former.examples.attention_demo`, `python -m aion.former.examples.text_generation`. Per-subpackage demos: `python -m aion.former.core.examples.demo_tensor`, `aion.former.datasets.examples.demo_tokenizer`, `aion.former.experiments.examples.demo_config`, `aion.former.models.examples.demo_forward`, `aion.former.training.examples.demo_loss`, `aion.former.visualization.examples.demo_attention_plot`.
+- **Install:** `pip install pytekt[former]`. Run: `python -m pytekt.former.experiments.train_small_model`, `python -m pytekt.former.examples.attention_demo`, `python -m pytekt.former.examples.text_generation`. Per-subpackage demos: `python -m pytekt.former.core.examples.demo_tensor`, `aion.former.datasets.examples.demo_tokenizer`, `aion.former.experiments.examples.demo_config`, `aion.former.models.examples.demo_forward`, `aion.former.training.examples.demo_loss`, `aion.former.visualization.examples.demo_attention_plot`.
 
 ---
 
@@ -1073,37 +1010,37 @@ The following examples are drawn from the library and the project’s `example.p
 ### Mathematics and statistics
 
 ```python
-import aion
+import pytekt
 
 # Basic arithmetic and statistics
-aion.maths.addition(10, 5)
-aion.maths.mean([1, 2, 3, 4, 5])
-aion.maths.variance([1, 2, 3, 4, 5])
-aion.maths.std_dev([1, 2, 3, 4, 5])
-aion.maths.correlation([1, 2, 3, 4], [2, 4, 6, 8])
-aion.maths.min_max_scale([1, 2, 3, 4, 5])
-aion.maths.z_score([1.0, 2.0, 3.0, 4.0, 5.0])
+pytekt.maths.addition(10, 5)
+pytekt.maths.mean([1, 2, 3, 4, 5])
+pytekt.maths.variance([1, 2, 3, 4, 5])
+pytekt.maths.std_dev([1, 2, 3, 4, 5])
+pytekt.maths.correlation([1, 2, 3, 4], [2, 4, 6, 8])
+pytekt.maths.min_max_scale([1, 2, 3, 4, 5])
+pytekt.maths.z_score([1.0, 2.0, 3.0, 4.0, 5.0])
 
 # Linear algebra
-aion.maths.determinant([[1, 2], [3, 4]])
-aion.maths.dot_product([1, 2, 3], [4, 5, 6])
-aion.maths.transpose([[1, 2], [3, 4], [5, 6]])
-aion.maths.matrix_multiply([[1, 2], [3, 4]], [[5, 6], [7, 8]])
-aion.maths.normalize_vector([3, 4], norm="l2")
+pytekt.maths.determinant([[1, 2], [3, 4]])
+pytekt.maths.dot_product([1, 2, 3], [4, 5, 6])
+pytekt.maths.transpose([[1, 2], [3, 4], [5, 6]])
+pytekt.maths.matrix_multiply([[1, 2], [3, 4]], [[5, 6], [7, 8]])
+pytekt.maths.normalize_vector([3, 4], norm="l2")
 
 # Activations and ML helpers
-aion.maths.sigmoid([0, 1, -1])
-aion.maths.relu([-1, 0, 1, 2])
-aion.maths.softmax([1.0, 2.0, 3.0])
+pytekt.maths.sigmoid([0, 1, -1])
+pytekt.maths.relu([-1, 0, 1, 2])
+pytekt.maths.softmax([1.0, 2.0, 3.0])
 ```
 
 ### Algorithms: search and arrays
 
 ```python
-import aion
-from aion.algorithms import binary_search, lower_bound, upper_bound, flatten_array, chunk_array
-from aion.algorithms.search import is_sorted, jump_search, find_peak_element, exponential_search
-from aion.algorithms.arrays import sliding_window, rolling_sum, remove_duplicates
+import pytekt
+from pytekt.algorithms import binary_search, lower_bound, upper_bound, flatten_array, chunk_array
+from pytekt.algorithms.search import is_sorted, jump_search, find_peak_element, exponential_search
+from pytekt.algorithms.arrays import sliding_window, rolling_sum, remove_duplicates
 
 # Search (sorted list required for binary_search, lower_bound, upper_bound)
 arr = [10, 20, 30, 40, 50, 60, 70]
@@ -1128,7 +1065,7 @@ remove_duplicates([3, 1, 2, 1, 4, 2, 3])
 ```python
 from pathlib import Path
 
-from aion.io import atomic_write, file_sha256, iter_lines, verify_sha256
+from pytekt.io import atomic_write, file_sha256, iter_lines, verify_sha256
 
 # Line iteration without loading the whole file
 for line in iter_lines(Path("large.log")):
@@ -1145,8 +1082,8 @@ assert verify_sha256(Path("dataset.bin"), digest)
 ### LLM providers (remote APIs)
 
 ```python
-from aion.providers import OpenAIProvider, create_provider, supported_providers
-from aion.providers.base import ChatMessage
+from pytekt.providers import OpenAIProvider, create_provider, supported_providers
+from pytekt.providers.base import ChatMessage
 
 # Explicit provider (set OPENAI_API_KEY in your environment)
 p = OpenAIProvider()
@@ -1162,16 +1099,16 @@ print(reply)
 Native C++ extensions (`aion._aion_core`, physics, universe, …) accelerate hot paths when built; Python fallbacks always work.
 
 ```python
-import aion
+import pytekt
 
 print("Native extension active:", aion.using_native_extension())
 print("Any native backend active:", aion.using_any_native_extension())
 print("Native backends:", aion.native_status())
 x = [1.0, 2.0, 3.0]
-print(aion.fast_sum(x), aion.fast_mean(x), aion.fast_softmax(x))
-print(aion.fast_norm1([-1.0, 2.0]), aion.fast_clip(x, 0.0, 2.5))
+print(pytekt.fast_sum(x), pytekt.fast_mean(x), pytekt.fast_softmax(x))
+print(pytekt.fast_norm1([-1.0, 2.0]), pytekt.fast_clip(x, 0.0, 2.5))
 sorted_keys = [0.0, 0.5, 1.0, 1.5]
-print(aion.fast_lower_bound(sorted_keys, 1.0), aion.fast_upper_bound(sorted_keys, 1.0))
+print(pytekt.fast_lower_bound(sorted_keys, 1.0), pytekt.fast_upper_bound(sorted_keys, 1.0))
 ```
 
 Library-wide C++ coverage is exposed through `aion.native_status()`, `aion.native_backends()`, and `aion.native_build_info()`. That covers the core numerics, astronomy, and physics backends.
@@ -1179,8 +1116,8 @@ Library-wide C++ coverage is exposed through `aion.native_status()`, `aion.nativ
 ### Visualization (requires matplotlib)
 
 ```python
-import aion
-from aion.visualization import (
+import pytekt
+from pytekt.visualization import (
     plot_array,
     plot_histogram,
     plot_scatter,
@@ -1191,7 +1128,7 @@ from aion.visualization import (
     plot_confusion_matrix,
     plot_training_history,
 )
-from aion.visualization.utils import save_plot
+from pytekt.visualization.utils import save_plot
 
 # 1D plots (use show=False in scripts to avoid blocking)
 fig = plot_array([1, 3, 2, 5, 4], title="Basic Array Plot", show=False)
@@ -1242,7 +1179,7 @@ save_plot(fig, "example_training_history.png")
 
 ```python
 import numpy as np
-from aion.visualization import plot_3d_scatter, plot_3d_surface, save_figures_pdf
+from pytekt.visualization import plot_3d_scatter, plot_3d_surface, save_figures_pdf
 
 fig1 = plot_3d_scatter([0, 1, 2], [0, 1, 0], [0, 0, 1], title="Embedding preview", show=False)
 x = np.linspace(-2, 2, 30)
@@ -1256,12 +1193,12 @@ save_figures_pdf([fig1, fig2], "report_figures.pdf")
 ### Core ML — preprocessing, models, metrics, hyperopt
 
 ```python
-from aion.datasets import load_iris
-from aion.preprocessing import StandardScaler, PreprocessingPipeline
-from aion.models import GaussianNB
-from aion.metrics import accuracy_score, classification_report
-from aion.hyperopt import GridSearch
-from aion.tracker import Tracker
+from pytekt.datasets import load_iris
+from pytekt.preprocessing import StandardScaler, PreprocessingPipeline
+from pytekt.models import GaussianNB
+from pytekt.metrics import accuracy_score, classification_report
+from pytekt.hyperopt import GridSearch
+from pytekt.tracker import Tracker
 
 ds = load_iris()
 X = StandardScaler().fit_transform(ds.data)
@@ -1272,7 +1209,7 @@ print(classification_report(ds.target, clf.predict(X)))
 
 # Hyperparameter search with experiment tracking
 tracker = Tracker(".aion_experiments")
-from aion.models import KNNClassifier
+from pytekt.models import KNNClassifier
 search = GridSearch(
     KNNClassifier(),
     {"n_neighbors": [3, 5, 7, 11]},
@@ -1287,13 +1224,13 @@ print(search.best_params_, search.best_score_)
 ### Research workflow — experiments, benchmarks, papers
 
 ```python
-from aion.experiments import Experiment, BenchmarkSuite, export_results_table
-from aion.experiments import export_results_file
-from aion.tracker import Tracker
-from aion.datasets import load_iris
-from aion.models import GaussianNB, MLPipeline, save_model
-from aion.preprocessing import StandardScaler
-from aion.metrics import accuracy_score
+from pytekt.experiments import Experiment, BenchmarkSuite, export_results_table
+from pytekt.experiments import export_results_file
+from pytekt.tracker import Tracker
+from pytekt.datasets import load_iris
+from pytekt.models import GaussianNB, MLPipeline, save_model
+from pytekt.preprocessing import StandardScaler
+from pytekt.metrics import accuracy_score
 
 # Reproducible run with manifest + tracker
 with Experiment("iris_nb_v1", seed=42) as exp:
@@ -1313,14 +1250,14 @@ print(suite.leaderboard_markdown(suite.run()))
 ```
 
 ```bash
-python -m aion doctor
-python -m aion benchmark --seeds 5 -o leaderboard.md
+python -m pytekt doctor
+python -m pytekt benchmark --seeds 5 -o leaderboard.md
 ```
 
 ### Model evaluation (legacy `aion.evaluate`)
 
 ```python
-import aion
+import pytekt
 
 # In-memory metrics (legacy API)
 y_true = [0, 1, 1, 0, 1]
@@ -1328,7 +1265,7 @@ y_pred = [0, 1, 0, 0, 1]
 metrics = aion.evaluate.calculate_classification_metrics(y_pred, y_true)
 
 # Prefer aion.metrics for new code:
-from aion.metrics import accuracy_score, f1_score, mean_squared_error, r2_score
+from pytekt.metrics import accuracy_score, f1_score, mean_squared_error, r2_score
 print(accuracy_score(y_true, y_pred), f1_score(y_true, y_pred))
 
 pred_vals = [1.2, 2.1, 3.0]
@@ -1342,7 +1279,7 @@ file_metrics = aion.evaluate.evaluate_predictions("preds.json", "answers.json")
 ### Code analysis
 
 ```python
-import aion
+import pytekt
 
 source = """
 def train_model(x, y):
@@ -1365,7 +1302,7 @@ aion.code.find_code_smells(source)
 ### File management and watcher
 
 ```python
-import aion
+import pytekt
 
 aion.files.create_empty_file("research.txt")
 # Other helpers: move, copy, delete, list files, etc.
@@ -1378,7 +1315,7 @@ aion.watcher.watch_file_for_changes("data.csv", on_change_callback=on_change)
 ### Documentation generation (optional: reportlab for PDF)
 
 ```python
-import aion
+import pytekt
 
 aion.pdf.generate_complete_documentation("my_docs")
 aion.pdf.create_api_documentation("api_ref.pdf")
@@ -1395,7 +1332,7 @@ hits = aion.pdf.search_public_api("embed")  # [{"module", "kind", "name"}, ...]
 ### Embeddings (optional: sentence-transformers)
 
 ```python
-import aion
+import pytekt
 
 vec = aion.embed.embed_text("Machine learning research")
 sim = aion.embed.cosine_similarity(vec1, vec2)
@@ -1404,7 +1341,7 @@ sim = aion.embed.cosine_similarity(vec1, vec2)
 ### Git (optional: gitpython)
 
 ```python
-import aion
+import pytekt
 
 manager = aion.git.GitManager(".")
 status = manager.status()
@@ -1414,8 +1351,8 @@ commits = manager.get_commit_history(limit=10)
 ### LLM tool loop (OpenAI or OpenAI-compatible, API keys required)
 
 ```python
-from aion.providers import OpenAIProvider
-from aion.tools import ToolRegistry, function_tool, run_tool_loop
+from pytekt.providers import OpenAIProvider
+from pytekt.tools import ToolRegistry, function_tool, run_tool_loop
 
 registry = ToolRegistry()
 registry.register("double", lambda n: n * 2, required_arg_keys=["n"])
@@ -1436,7 +1373,7 @@ text, history = run_tool_loop(provider, messages, tools, registry, max_rounds=6)
 
 ```python
 import numpy as np
-from aion.rag import MemoryVectorStore, SimpleRAGIndex
+from pytekt.rag import MemoryVectorStore, SimpleRAGIndex
 
 store = MemoryVectorStore()
 index = SimpleRAGIndex(
@@ -1450,7 +1387,7 @@ hits = index.query("alpha", k=2)
 ### Caching
 
 ```python
-from aion.cache import MemoryCache, DiskCache, LLMCache, cached
+from pytekt.cache import MemoryCache, DiskCache, LLMCache, cached
 
 # In-memory cache with 5-minute TTL
 cache = MemoryCache(default_ttl=300)
@@ -1474,8 +1411,8 @@ def expensive_computation(x):
 ### Data processing
 
 ```python
-from aion.data import load_csv, load_jsonl, train_val_test_split, augment_text
-from aion.data import Schema, Field, validate_dataset
+from pytekt.data import load_csv, load_jsonl, train_val_test_split, augment_text
+from pytekt.data import Schema, Field, validate_dataset
 
 # Load data
 rows = load_csv("dataset.csv")
@@ -1503,7 +1440,7 @@ result = validate_dataset(rows, schema)
 ### Benchmark datasets
 
 ```python
-from aion.datasets import (
+from pytekt.datasets import (
     load_iris, load_sentiment, make_classification,
     fetch, list_datasets, summary,
     read_csv, read_file, train_test_split_dataset,
@@ -1544,7 +1481,7 @@ print(f"Available: {len(list_datasets())} datasets")
 ### User interfaces — React-style frontend
 
 ```python
-from aion.ui import (
+from pytekt.ui import (
     Component,
     html,
     AppShell,
@@ -1554,10 +1491,10 @@ from aion.ui import (
     render_app,
     function_component,
 )
-from aion.datasets import load_iris
-from aion.models import GaussianNB
-from aion.metrics import accuracy_score
-from aion.preprocessing import StandardScaler
+from pytekt.datasets import load_iris
+from pytekt.models import GaussianNB
+from pytekt.metrics import accuracy_score
+from pytekt.preprocessing import StandardScaler
 
 # --- React-like component tree ---
 @function_component
@@ -1587,7 +1524,7 @@ render_app(ExperimentDashboard(), output="dashboard.html", open_browser=True)
 # serve_app(ExperimentDashboard(), port=8765)  # local dev server
 
 # --- Imperative HTML reports (legacy) ---
-from aion.ui import PageBuilder, build_experiment_dashboard, launch_hub
+from pytekt.ui import PageBuilder, build_experiment_dashboard, launch_hub
 
 page = PageBuilder("Training summary", subtitle="Run 42")
 page.add_metrics({"accuracy": 0.94, "loss": 0.08})
@@ -1597,16 +1534,16 @@ build_experiment_dashboard(".aion_experiments", output="runs.html")
 ```
 
 ```bash
-aion ui --list
-aion ui --report .aion_experiments -o experiments.html
-aion ui --gradio          # needs pip install 'aqwel-aion[ui]'
-aion ui --streamlit
+pytekt ui --list
+pytekt ui --report .aion_experiments -o experiments.html
+pytekt ui --gradio          # needs pip install 'pytekt[ui]'
+pytekt ui --streamlit
 ```
 
 ### Tokenization
 
 ```python
-from aion.tokenizer import BPETokenizer, WordPieceTokenizer
+from pytekt.tokenizer import BPETokenizer, WordPieceTokenizer
 
 # Train a BPE tokenizer on your corpus
 bpe = BPETokenizer(vocab_size=8000)
@@ -1624,7 +1561,7 @@ tokens = wp.tokenize("unbelievable")  # ["un", "##believ", "##able"]
 ### Data structures
 
 ```python
-from aion.structures import Trie, BloomFilter, LRUCache, UnionFind, PriorityQueue
+from pytekt.structures import Trie, BloomFilter, LRUCache, UnionFind, PriorityQueue
 
 # Trie for autocomplete
 trie = Trie()
@@ -1655,7 +1592,7 @@ pq.pop()  # (1, "urgent")
 ### Pipelines
 
 ```python
-from aion.pipeline import Pipeline, MapStep, FilterStep, FunctionStep
+from pytekt.pipeline import Pipeline, MapStep, FilterStep, FunctionStep
 
 pipe = Pipeline([
     MapStep("tokenize", lambda text: text.lower().split()),
@@ -1670,7 +1607,7 @@ print(detailed.total_ms)  # execution time
 ### Persistent storage
 
 ```python
-from aion.store import KeyValueStore, PersistentVectorStore, ChatHistoryStore
+from pytekt.store import KeyValueStore, PersistentVectorStore, ChatHistoryStore
 import numpy as np
 
 # Key-value store
@@ -1694,7 +1631,7 @@ thread = chat.get_thread(thread_id)
 ### Unified database (`aion.db`)
 
 ```python
-import aion.db as db
+import pytekt.db as db
 
 conn = db.connect("sqlite://./app.db")  # zero extra deps
 conn.users.insert({"name": "Alice", "score": 10})
@@ -1703,7 +1640,7 @@ print(conn.users.find(name="Alice"))
 # Query builder
 rows = conn.table("users").where(conn.col.score > 5).select("name", "score").all()
 
-# Remote DBs: pip install aqwel-aion[db]
+# Remote DBs: pip install pytekt[db]
 # conn = db.connect("mysql://user:pass@localhost/mydb")
 # conn = db.connect("mongodb://localhost:27017/mydb")
 
@@ -1713,7 +1650,7 @@ rows = conn.table("users").where(conn.col.score > 5).select("name", "score").all
 ### Experiment tracking
 
 ```python
-from aion.tracker import Tracker
+from pytekt.tracker import Tracker
 
 tracker = Tracker(".experiments")
 run = tracker.start_run("baseline_v1")
@@ -1732,7 +1669,7 @@ best = tracker.compare_runs(metric_name="loss")
 ### LLM evaluation
 
 ```python
-from aion.llm_eval import toxicity_check, contains_pii, estimate_cost, CostTracker
+from pytekt.llm_eval import toxicity_check, contains_pii, estimate_cost, CostTracker
 
 # Safety checks
 tox = toxicity_check("Your LLM output here")
@@ -1747,11 +1684,11 @@ print(tracker.summary())
 # {"total_cost_usd": 0.031, "total_tokens": 5300, "call_count": 2, ...}
 ```
 
-### API serving (requires pip install aqwel-aion[serve])
+### API serving (requires pip install pytekt[serve])
 
 ```python
-from aion.serve import create_app
-from aion.providers import OpenAIProvider
+from pytekt.serve import create_app
+from pytekt.providers import OpenAIProvider
 
 # Create a FastAPI app with /chat and /health endpoints
 app = create_app(provider=OpenAIProvider())
@@ -1760,13 +1697,13 @@ app = create_app(provider=OpenAIProvider())
 # GET  /health → {"status": "ok", "version": "0.2.0"}
 ```
 
-### Aion Former — transformer training (optional: pip install aqwel-aion[former])
+### Aion Former — transformer training (optional: pip install pytekt[former])
 
 ```python
-import aion
-from aion.former import Transformer, Trainer
-from aion.former.datasets import create_dataloader
-from aion.former.visualization import plot_attention_map, plot_training_metrics
+import pytekt
+from pytekt.former import Transformer, Trainer
+from pytekt.former.datasets import create_dataloader
+from pytekt.former.visualization import plot_attention_map, plot_training_metrics
 
 text = "Your training corpus here. " * 100
 dataset, get_batch = create_dataloader(text, seq_length=64, batch_size=32, level="char")
@@ -1784,7 +1721,7 @@ for epoch in range(10):
 plot_training_metrics(trainer.history)
 ```
 
-Run from command line: `python -m aion.former.experiments.train_small_model`, `python -m aion.former.examples.attention_demo`, `python -m aion.former.examples.text_generation`.
+Run from command line: `python -m pytekt.former.experiments.train_small_model`, `python -m pytekt.former.examples.attention_demo`, `python -m pytekt.former.examples.text_generation`.
 
 ---
 
@@ -1792,14 +1729,14 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 
 | Module | Description |
 |--------|-------------|
-| `aion.maths` | Mathematics, statistics, linear algebra, ML helpers, signal processing. |
+| `pytekt.maths` | Mathematics, statistics, linear algebra, ML helpers, signal processing. |
 | `aion.io` | Streaming reads, atomic writes, SHA-256 checksum helpers. [`aion/io/README.md`](aion/io/README.md), [`aion/io/examples/`](aion/io/examples/). |
 | `aion.providers` | Chat clients + `create_provider`; `complete` / **`complete_turn`**. [`aion/providers/README.md`](aion/providers/README.md), [`aion/providers/examples/`](aion/providers/examples/). |
 | `aion` (`fast_*`, `using_native_extension`) | 1D/2D numerics: sums, dot/norms, mean/variance, argmin/max, min/max, ReLU/softmax/sigmoid/tanh/clip, cumsum, matvec, sorted `lower_bound` / `upper_bound`; C++ when `_aion_core` is built else NumPy. |
 | `aion.bigdata` | Native big-data kernels: prefix sums, rolling windows, rolling means, histograms, and chunk statistics with Python fallbacks. |
 | `aion.algorithms` | **572+** functions across 21 categories; catalog API; search, arrays, graphs, sorting, DP, trees, strings, … [`CATALOG.md`](aion/algorithms/CATALOG.md). |
 | `aion.visualization` | 1D/2D/training plots; heatmaps, confusion matrices, attention maps; **3D** plots; seaborn (`[viz]`); Plotly 3D (`[viz3d]`); multi-page **PDF** / HTML figure reports. |
-| `aion.vision` | Computer vision on NumPy arrays: I/O, transforms, color, filters, draw, metrics, OpenCV ops. Install with `[vision]`. See [`aion/vision/README.md`](aion/vision/README.md) and [`aion/vision/examples/`](aion/vision/examples/). Not plotting — use `aion.visualization` for charts. |
+| `pytekt.vision` | Computer vision on NumPy arrays: I/O, transforms, color, filters, draw, metrics, OpenCV ops. Install with `[vision]`. See [`aion/vision/README.md`](aion/vision/README.md) and [`aion/vision/examples/`](aion/vision/examples/). Not plotting — use `aion.visualization` for charts. |
 | `aion.former` | Transformer training: Transformer, Trainer, TextDataset, tokenizer, attention/training/weight-spectrum plots. Install with `[former]`. See [`aion/former/README.md`](aion/former/README.md) and per-subpackage `examples/` (e.g. `aion/former/core/examples/`). |
 | `aion.embed` | Text embeddings and vector similarity (optional: sentence-transformers). |
 | `aion.evaluate` | Legacy classification/regression metrics; file-based evaluation. Prefer `aion.metrics` for new code. |
@@ -1817,7 +1754,7 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.watcher` | Real-time file change monitoring. |
 | `aion.git` | Git repository operations (optional: GitPython). |
 | `aion.utils` | General utilities. |
-| `aion.text` | Text processing. |
+| `pytekt.text` | Text processing. |
 | `aion.cli` | Command-line interface: `aion start` (Hub), `info`, `embed`, `eval`, `chat`, `monitor`, `git`, … |
 | `aion.ui` | **React-style:** `Component`, `html`, `render_app`, `AppShell`, `MetricGrid`, …; **legacy:** `PageBuilder`, `launch_hub`, dashboards; optional Gradio/Streamlit (`[ui]`). |
 | `aion.hub` | Aion Hub static server (used by `aion.ui.launch_hub` / `aion start`). |
@@ -1834,10 +1771,10 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 | `aion.pipeline` | `Pipeline`, `Step`, `FunctionStep`, `MapStep`, `FilterStep`, `BatchStep` — retry, fallback, timing. |
 | `aion.store` | `KeyValueStore` (SQLite), `PersistentVectorStore`, `ChatHistoryStore` (threads + search). |
 | `aion.db` | Unified DB: SQLite, MySQL, Postgres, Mongo, Redis — dict API + query builder. [`aion/db/README.md`](aion/db/README.md). |
-| `aion.universe` | Astronomy: coordinates, observing, orbits, cosmology, catalogs (C++ accelerated). [`aion/universe/README.md`](aion/universe/README.md). |
-| `aion.physics` | Classical physics toolkit + CLI/dashboard. [`aion/physics/README.md`](aion/physics/README.md). |
-| `aion.vision` | Computer vision on NumPy arrays (`[vision]`). [`aion/vision/README.md`](aion/vision/README.md). |
-| `aion.monitor` | Hardware metrics dashboard (`[monitor]`). |
+| `pytekt.universe` | Astronomy: coordinates, observing, orbits, cosmology, catalogs (C++ accelerated). [`aion/universe/README.md`](aion/universe/README.md). |
+| `pytekt.physics` | Classical physics toolkit + CLI/dashboard. [`aion/physics/README.md`](aion/physics/README.md). |
+| `pytekt.vision` | Computer vision on NumPy arrays (`[vision]`). [`aion/vision/README.md`](aion/vision/README.md). |
+| `pytekt.monitor` | Hardware metrics dashboard (`[monitor]`). |
 | `aion.tracker` | `Tracker`, `Run` — log params, metrics, artifacts; `compare_runs`, `best_run`. |
 | `aion.llm_eval` | `semantic_similarity`, `faithfulness_score`, `check_groundedness`, `toxicity_check`, `contains_pii`, `estimate_cost`, `CostTracker`. |
 | `aion.serve` | `AionServer`, `create_app` — FastAPI `/chat`, `/rag`, `/health` endpoints (`[serve]`). |
@@ -1846,7 +1783,7 @@ Run from command line: `python -m aion.former.experiments.train_small_model`, `p
 Package entry point and version:
 
 ```python
-import aion
+import pytekt
 print(aion.__version__)  # 0.2.0
 ```
 
@@ -1872,7 +1809,7 @@ See `aion.parser` and `aion.code` for language-specific behavior and APIs.
 |----------|-----|
 | **Aqwel AI (company & products)** | [https://aqwelai.xyz/](https://aqwelai.xyz/) |
 | **Aion product documentation (web)** | [https://aqwelai.xyz/#/docs](https://aqwelai.xyz/#/docs) |
-| **PyPI package** | [https://pypi.org/project/aqwel-aion/](https://pypi.org/project/aqwel-aion/) |
+| **PyPI package** | [https://pypi.org/project/pytekt/](https://pypi.org/project/pytekt/) |
 
 ### Repository documentation (this project)
 
@@ -1888,7 +1825,7 @@ See `aion.parser` and `aion.code` for language-specific behavior and APIs.
 | [SECURITY.md](SECURITY.md) | Secrets, `~/.aion.yaml`, publishing checklist |
 | [.env.example](.env.example) | Env var template (private `.env` is gitignored) |
 | [CHANGELOG.md](CHANGELOG.md) | Release notes |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute to Aqwel-Aion |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute to PyTekt |
 | [pyproject.toml](pyproject.toml) | Version, extras (`[ai]`, `[full]`, …), PyPI metadata |
 
 ### In-package and generated docs
@@ -1911,12 +1848,12 @@ See `aion.parser` and `aion.code` for language-specific behavior and APIs.
 
 | Command | Product area |
 |---------|----------------|
-| `aion start` / `aion ui` | Aion Hub browser UI |
-| `aion embed`, `aion eval`, `aion rag`, `aion prompt` | Research / LLM utilities |
+| `aion start` / `pytekt ui` | Aion Hub browser UI |
+| `pytekt embed`, `pytekt eval`, `aion rag`, `aion prompt` | Research / LLM utilities |
 | `aion benchmark`, `aion doctor` | ML benchmarks and environment check |
 | `aion welcome` | Install animation overview |
-| `aion --help` / `aion help` | Full command catalog |
-| `aion agent` / `api` / `auth` | Not shipped in 0.2.0 — see [Not in 0.2.0](#not-in-020) |
+| `aion --help` / `pytekt help` | Full command catalog |
+| `pytekt agent` / `api` / `auth` | Not shipped in 0.2.0 — see [Not in 0.2.0](#not-in-020) |
 
 ### Testing
 
@@ -1978,9 +1915,9 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ## Author and License
 
-**Aqwel-Aion** is an **Aqwel AI** open-source product.
+**PyTekt** is an **Aqwel AI** open-source product.
 
-- **Product:** Aqwel-Aion (Aion)  
+- **Product:** PyTekt (Aion)  
 - **Created by:** [Aqwel AI](https://aqwelai.xyz/)  
 - **Main developer:** Aksel Aghajanyan  
 - **Company:** [Aqwel AI](https://aqwelai.xyz/) · **Contact:** aqwelai.company@gmail.com  
@@ -2005,6 +1942,6 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ---
 
-**Aqwel-Aion** is built so you can move from **numeric and algorithmic baselines** through **classical ML** (preprocess → train → evaluate → tune) to **LLM-assisted workflows**, **retrieval**, **experiment tracking**, **physics / astronomy / vision**, and **production serving**—all in one **Aqwel AI** product with clear optional extras.
+**PyTekt** is built so you can move from **numeric and algorithmic baselines** through **classical ML** (preprocess → train → evaluate → tune) to **LLM-assisted workflows**, **retrieval**, **experiment tracking**, **physics / astronomy / vision**, and **production serving**—all in one **Aqwel AI** product with clear optional extras.
 
-*Aqwel AI product · Main developer: Aksel Aghajanyan · [Documentation](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/aqwel-aion/)*
+*Aqwel AI product · Main developer: Aksel Aghajanyan · [Documentation](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/pytekt/)*

@@ -1,5 +1,5 @@
-import aion.physics.kinematics as k
-import aion.physics.mechanics as m
+import pytekt.physics.kinematics as k
+import pytekt.physics.mechanics as m
 
 
 def test_force_and_kinetic_energy():

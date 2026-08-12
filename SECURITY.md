@@ -25,7 +25,7 @@ Cloning this repo **does not** give anyone access to your accounts or files.
 
 ## Terminal coding agent (not available)
 
-In **0.2.0**, `aion agent` is **not available**. When the agent returns in a future release and **workspace trust** is enabled, it may:
+In **0.2.0**, `pytekt agent` is **not available**. When the agent returns in a future release and **workspace trust** is enabled, it may:
 
 - Read and write files in your project
 - Run shell commands (if trusted mode allows)

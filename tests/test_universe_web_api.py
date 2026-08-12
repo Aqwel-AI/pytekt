@@ -1,8 +1,8 @@
-"""Tests for aion.universe.web_api."""
+"""Tests for pytekt.universe.web_api."""
 
-from aion.universe.constants import J2000
-from aion.universe.observing import build_sky_catalog, whats_up_all
-from aion.universe.web_api import (
+from pytekt.universe.constants import J2000
+from pytekt.universe.observing import build_sky_catalog, whats_up_all
+from pytekt.universe.web_api import (
     coords_payload,
     cosmology_payload,
     library_info,

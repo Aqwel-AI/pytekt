@@ -3,8 +3,8 @@
 import os
 import tempfile
 
-import aion.db as db
-from aion.store import KeyValueStore
+import pytekt.db as db
+from pytekt.store import KeyValueStore
 
 
 def test_connect_and_dict_api():

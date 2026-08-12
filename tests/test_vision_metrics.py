@@ -1,10 +1,10 @@
-"""Tests for aion.vision.metrics."""
+"""Tests for pytekt.vision.metrics."""
 
 from __future__ import annotations
 
 import numpy as np
 
-from aion.vision.metrics import mse, psnr, ssim
+from pytekt.vision.metrics import mse, psnr, ssim
 
 
 def test_mse_psnr_identical():

@@ -1,6 +1,6 @@
 # Aion IDE Bridge
 
-VS Code / Cursor extension that keeps `.aion/open_files.json` fresh so `aion agent` can auto-attach open editors (see [docs/AGENT_IDE_INTEGRATION.md](../../docs/AGENT_IDE_INTEGRATION.md)).
+VS Code / Cursor extension that keeps `.aion/open_files.json` fresh so `pytekt agent` can auto-attach open editors (see [docs/AGENT_IDE_INTEGRATION.md](../../docs/AGENT_IDE_INTEGRATION.md)).
 
 ## Install (development)
 

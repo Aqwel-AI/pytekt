@@ -1,12 +1,12 @@
 import pytest
 
-from aion.physics._native import using_native_extension
-from aion.physics.integrators import _integrate_trajectory_py
+from pytekt.physics._native import using_native_extension
+from pytekt.physics.integrators import _integrate_trajectory_py
 
 
 @pytest.mark.skipif(not using_native_extension(), reason="C++ physics extension not built")
 def test_native_pendulum_matches_python():
-    from aion.physics._native import pendulum_trajectory
+    from pytekt.physics._native import pendulum_trajectory
 
     native = pendulum_trajectory(1.0, 0.2, 0.01, 100, 9.80665, 0.0)
 

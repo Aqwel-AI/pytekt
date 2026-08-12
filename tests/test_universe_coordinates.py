@@ -1,13 +1,13 @@
-"""Tests for aion.universe.coordinates."""
+"""Tests for pytekt.universe.coordinates."""
 
-from aion.universe.constants import J2000
-from aion.universe.coordinates import (
+from pytekt.universe.constants import J2000
+from pytekt.universe.coordinates import (
     angular_separation,
     equatorial_to_galactic,
     equatorial_to_horizontal,
     horizontal_to_equatorial,
 )
-from aion.universe.units import parse_dec, parse_ra
+from pytekt.universe.units import parse_dec, parse_ra
 
 
 def test_angular_separation_sirius_pollux():
