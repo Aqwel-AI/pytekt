@@ -68,7 +68,7 @@ from . import rag
 
 # Timing / benchmarks
 from . import benchmarks
-from . import bench
+bench = benchmarks
 
 # Import the code parsing module for language detection and code analysis
 from . import parser
@@ -151,9 +151,6 @@ except ImportError:  # e.g. missing fastapi ([serve])
 
 # Built-in benchmark datasets (Iris, Digits, Housing, Moons, NER, generators)
 from . import datasets
-
-# UI: Hub, HTML dashboards, optional Gradio/Streamlit
-from . import ui
 
 # Core ML stack: preprocessing, classical models, metrics, hyperparameter search
 from . import preprocessing
@@ -247,7 +244,6 @@ __all__ = [
     "llm_eval",         # LLM output evaluation and cost tracking
     "serve",            # FastAPI-based model/chat/RAG serving
     "datasets",         # Built-in benchmark datasets and generators
-    "ui",               # Hub launchers, HTML reports, optional Gradio/Streamlit
     "preprocessing",    # Scalers, encoders, imputers, preprocessing pipelines
     "models",           # Classical ML estimators (linear, KNN, trees, PCA, …)
     "metrics",          # Classification, regression, clustering, NLP, ranking metrics

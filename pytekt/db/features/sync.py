@@ -16,15 +16,24 @@ def sync_usage(
     path: Optional[str] = None,
     table: str = "usage_events",
 ) -> int:
-    """Import ``~/.pytekt/usage/events.jsonl`` into a collection/table."""
-    from ...usage.store import UsageStore, default_store_path
-
-    store = UsageStore(path or default_store_path())
-    events = store.read_all()
+    """Import JSONL usage events into a collection/table."""
+    events_path = path or os.path.expanduser("~/.pytekt/usage/events.jsonl")
+    if not os.path.isfile(events_path):
+        return 0
+    events = []
+    with open(events_path, "r", encoding="utf-8") as f:
+        for i, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                ev = json.loads(line)
+                ev.setdefault("id", i)
+                events.append(ev)
+            except Exception:
+                continue
     if not events:
         return 0
-    for i, ev in enumerate(events):
-        ev.setdefault("id", i + 1)
     return bulk_upsert(conn, table, events, key_field="id")
 
 

@@ -33,7 +33,7 @@ def chunk_array(arr: List[Any], size: int) -> List[List[Any]]:
     return [arr[i:i + size] for i in range(0, len(arr), size)]
 
 
-def remove_duplicates(arr: list[Any]) -> list[Any]:
+def remove_duplicates(arr: List[Any]) -> List[Any]:
     """
     Remove duplicate elements from a list while preserving order.
 
@@ -42,78 +42,62 @@ def remove_duplicates(arr: list[Any]) -> list[Any]:
 
     Parameters
     ----------
-    arr : list[Any]
+    arr : List[Any]
         The input list that may contain duplicate values.
 
     Returns
     -------
-    list[Any]
+    List[Any]
         A list without duplicate elements.
-
-    Raises
-    ------
-    ValueError
-        If the input list is empty.
     """
-
-    # List that will store unique elements
-    without_dupl = []
-
-    # Validate input list
     if not arr:
-        raise ValueError("List must not be empty")
+        return []
 
-    # Add only elements that were not seen before (O(n))
     seen = set()
+    without_dupl = []
     for item in arr:
-        if item not in seen:
-            without_dupl.append(item)
-            seen.add(item)
+        try:
+            if item not in seen:
+                without_dupl.append(item)
+                seen.add(item)
+        except TypeError:
+            if item not in without_dupl:
+                without_dupl.append(item)
 
     return without_dupl
 
 
-def moving_average(arr: list[Union[int, float]]) -> float:
+def moving_average(arr: List[Union[int, float]]) -> float:
     """
     Calculate the arithmetic mean of a list of numbers.
 
-    The function computes the average value of all numeric
-    elements in the list.
-
     Parameters
     ----------
-    arr : list[Union[int, float]]
+    arr : List[Union[int, float]]
         A list containing integer or floating-point numbers.
 
     Returns
     -------
     float
         The average value of the numbers in the list.
-
-    Raises
-    ------
-    ValueError
-        If the input list is empty.
-    TypeError
-        If the list contains non-numeric elements.
     """
-
-    # Accumulator for the sum of elements
-    total = 0.0
-
-    # Validate input list
     if not arr:
-        raise ValueError("List must not be empty")
+        return 0.0
 
-    # Validate types and calculate sum
+    total = 0.0
     for item in arr:
-        if type(item) not in (int, float):
+        if not isinstance(item, (int, float)):
             raise TypeError("List must contain only int or float")
         total += item
 
-    return total / len(arr)
+    return float(total / len(arr))
 
-def flatten_deep(arr: list[list[Any]]) -> list[Any]:
+
+# Alias for backward compatibility
+moving_avarage = moving_average
+
+
+def flatten_deep(arr: List[Any]) -> List[Any]:
     """
     Recursively flatten a deeply nested list into a single list.
 
@@ -123,39 +107,24 @@ def flatten_deep(arr: list[list[Any]]) -> list[Any]:
 
     Parameters
     ----------
-    arr : list[list[Any]]
+    arr : List[Any]
         A list that may contain elements or other nested lists.
 
     Returns
     -------
-    list[Any]
+    List[Any]
         A completely flattened list containing all values from the input.
-
-    Raises
-    ------
-    ValueError
-        If the input list is empty.
     """
-
-    # Initialize an empty list to store the flattened result
-    flat_array = list()
-
-    # Validate input: list must not be empty
     if not arr:
-        raise ValueError("List must not be empty")
+        return []
 
-    # Iterate over each element in the input list
+    flat_array: List[Any] = []
     for item in arr:
-
-        # If the current element is a list, flatten it recursively
-        if isinstance(item, list):
-            flat_array.extend(flatten_deep(item))
-
-        # If the current element is not a list, append it directly
+        if isinstance(item, (list, tuple)):
+            flat_array.extend(flatten_deep(list(item)))
         else:
             flat_array.append(item)
 
-    # Return the fully flattened list
     return flat_array
 
 
@@ -212,49 +181,39 @@ def sliding_window(arr: list[Any], size: int) -> Iterator[list[Any]]:
         yield arr[i:i+size]
 
 
-def pad_array(arr: list[Any], min_len: int, item: Any) -> list[Any]:
+def pad_array(arr: List[Any], min_len: int, item: Any = None) -> List[Any]:
     """
     Extend a list until it reaches a minimum required length.
 
-    This function appends the given `item` repeatedly to the list
-    until its length becomes equal to `min_len`.
+    This function appends `item` repeatedly to the list until
+    its length becomes equal to `min_len`.
 
     Parameters
     ----------
-    arr : list[Any]
+    arr : List[Any]
         The input list to be padded.
     min_len : int
         The minimum desired length of the list.
-    item : Any
-        The element to append until the list reaches the target length.
+    item : Any, optional
+        The element to append until the list reaches the target length (default None).
 
     Returns
     -------
-    list[Any]
+    List[Any]
         The padded list.
-
-    Raises
-    ------
-    ValueError
-        If the input list is empty.
-    TypeError
-        If min_len is not an integer.
     """
-
-    # Validate input list: must not be empty
-    if not arr:
-        raise ValueError("List must not be empty")
-
-    # Validate that min_len is an integer
     if not isinstance(min_len, int):
-        raise TypeError("Size must be an integer")
+        raise TypeError("min_len must be an integer")
 
-    # Append the padding item until the list reaches the required length
-    while len(arr) != min_len:
-        arr.append(item)
+    if not arr:
+        return [item] * max(0, min_len)
 
-    # Return the padded list
-    return arr
+    if len(arr) >= min_len:
+        return list(arr)
+
+    res = list(arr)
+    res.extend([item] * (min_len - len(arr)))
+    return res
 
 
 def rolling_sum(arr: list[int], size: int) -> list[int]:
@@ -418,19 +377,23 @@ def find_missing_number(arr: List[int]) -> int:
     return expected_sum - sum(arr)
 
 
-def find_all_duplicates(arr: List[int]) -> List[int]:
-    """Find all duplicates in an array where elements are in range [1, n]. O(n) time, O(1) space."""
-    res = []
+def find_all_duplicates(arr: List[Any]) -> List[Any]:
+    """Find all duplicate elements in an array while preserving discovery order."""
+    seen = set()
+    duplicates = []
+    added = set()
     for x in arr:
-        idx = abs(x) - 1
-        if arr[idx] < 0:
-            res.append(abs(x))
-        else:
-            arr[idx] *= -1
-    # Cleanup: restore array
-    for i in range(len(arr)):
-        arr[i] = abs(arr[i])
-    return res
+        try:
+            if x in seen:
+                if x not in added:
+                    duplicates.append(x)
+                    added.add(x)
+            else:
+                seen.add(x)
+        except TypeError:
+            if x not in duplicates:
+                duplicates.append(x)
+    return duplicates
 
 
 # --- Optimization ---

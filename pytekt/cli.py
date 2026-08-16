@@ -68,8 +68,7 @@ def _build_parser():
 High-value commands:
   pytekt help                      Show all available PyTekt commands
   pytekt config                    Manage CLI settings (~/.pytekt.yaml)
-  pytekt start / pytekt ui           Open the PyTekt Hub dashboard in the browser
-  pytekt usage / pytekt stats        Token usage & cost dashboard (browser)
+  pytekt start                     Open the PyTekt Hub dashboard in the browser
   pytekt info                      Show environment and optional dependencies
   pytekt embed <file>              Embed a file (or use --text)
   pytekt eval <preds> <answers>    Evaluate predictions
@@ -98,23 +97,6 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     start_parser.add_argument("--host", default="127.0.0.1", help="Bind address")
     start_parser.add_argument("--port", "-p", type=int, default=3000, help="Port (default 3000)")
     start_parser.add_argument("--no-browser", action="store_true", help="Do not open a browser tab")
-
-    # ui (hub, monitor, reports, optional gradio/streamlit)
-    ui_parser = subparsers.add_parser("ui", help="User interfaces: hub, monitor, HTML reports, Gradio/Streamlit")
-    ui_parser.add_argument("--host", default="127.0.0.1", help="Bind address")
-    ui_parser.add_argument("--port", "-p", type=int, default=None, help="Port (hub default 3000, monitor 8000)")
-    ui_parser.add_argument("--no-browser", action="store_true", help="Do not open a browser tab")
-    ui_parser.add_argument("--monitor", action="store_true", help="Launch hardware monitor instead of Hub")
-    ui_parser.add_argument(
-        "--report",
-        metavar="TRACKER_DIR",
-        default=None,
-        help="Build experiment HTML report from tracker directory and exit",
-    )
-    ui_parser.add_argument("-o", "--output", default="experiments.html", help="Output path for --report")
-    ui_parser.add_argument("--gradio", action="store_true", help="Launch Gradio playground (needs [ui] extra)")
-    ui_parser.add_argument("--streamlit", action="store_true", help="Launch Streamlit dataset explorer (needs [ui] extra)")
-    ui_parser.add_argument("--list", action="store_true", help="List available UI interfaces")
 
     # info
     subparsers.add_parser("info", help="Show environment and optional dependencies")
@@ -225,15 +207,15 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     # agent / api / auth — not available in this version
     subparsers.add_parser(
         "agent",
-        help="Coding agent (not available in 0.2.0)",
+        help="Coding agent (not available in this version)",
     )
     subparsers.add_parser(
         "api",
-        help="API connect (not available in 0.2.0)",
+        help="API connect (not available in this version)",
     )
     subparsers.add_parser(
         "auth",
-        help="Auth commands (not available in 0.2.0)",
+        help="Auth commands (not available in this version)",
     )
 
     # config
@@ -243,23 +225,6 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
 
     # help
     subparsers.add_parser("help", help="Show all available PyTekt commands")
-
-    def _add_usage_args(p):
-        p.add_argument("--host", default="127.0.0.1", help="Bind address (default 127.0.0.1)")
-        p.add_argument("--port", "-p", type=int, default=3847, help="Port (default 3847)")
-        p.add_argument("--no-browser", action="store_true", help="Do not open a browser tab")
-
-    usage_parser = subparsers.add_parser(
-        "usage",
-        help="Open usage dashboard: tokens, cost, charts (today / week / month)",
-    )
-    _add_usage_args(usage_parser)
-
-    stats_parser = subparsers.add_parser(
-        "stats",
-        help="Alias for pytekt usage — LLM usage analytics dashboard",
-    )
-    _add_usage_args(stats_parser)
 
     # db
     db_parser = subparsers.add_parser("db", help="Database sync, status, and demos")
@@ -700,42 +665,10 @@ def main():
     if getattr(args, "version", False) or args.command == "version":
         version_command()
         return
-    if args.command in ("start", "ui"):
-        if args.command == "ui" and getattr(args, "list", False):
-            from .ui import list_ui_interfaces
-            for item in list_ui_interfaces():
-                print(f"{item['name']} ({item['id']})")
-                print(f"  {item['description']}")
-                print(f"  Command: {item['command']}  |  API: {item['api']}")
-                print()
-            return
-        if args.command == "ui" and getattr(args, "report", None):
-            from .ui import build_experiment_dashboard
-            path = build_experiment_dashboard(
-                args.report,
-                output=args.output,
-                open_browser=not args.no_browser,
-            )
-            print(f"Report saved: {path}")
-            return
-        if args.command == "ui" and getattr(args, "gradio", False):
-            from .ui import launch_gradio_playground
-            launch_gradio_playground(server_port=args.port or 7860)
-            return
-        if args.command == "ui" and getattr(args, "streamlit", False):
-            from .ui import launch_streamlit_dataset_explorer
-            launch_streamlit_dataset_explorer(server_port=args.port or 8501)
-            return
-        if args.command == "ui" and getattr(args, "monitor", False):
-            from .ui import launch_monitor
-            launch_monitor(
-                host=args.host,
-                port=args.port or 8000,
-                open_browser=not args.no_browser,
-            )
-            return
-        from .ui import launch_hub
-        launch_hub(
+    if args.command == "start":
+        from .hub.launch import run_hub
+
+        run_hub(
             host=args.host,
             port=args.port or 3000,
             open_browser=not args.no_browser,
@@ -801,16 +734,6 @@ def main():
 
     if args.command == "help":
         parser.print_help()
-        return
-
-    if args.command in ("usage", "stats"):
-        from .usage import run_usage_dashboard
-
-        run_usage_dashboard(
-            host=args.host,
-            port=args.port,
-            open_browser=not args.no_browser,
-        )
         return
 
     if args.command == "agent":

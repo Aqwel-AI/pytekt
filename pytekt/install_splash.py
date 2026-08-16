@@ -27,7 +27,7 @@ def _package_version() -> str:
 
         return __version__
     except Exception:
-        return "0.2.0"
+        return "0.2.1"
 
 
 def _state_dir() -> Path:

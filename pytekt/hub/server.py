@@ -62,7 +62,6 @@ def _get_modules_info() -> List[Dict[str, Any]]:
         {"name": "pdf", "category": "Dev", "desc": "API docs generation — PDF, HTML, Markdown, symbol search", "icon": "doc"},
         {"name": "parser", "category": "Dev", "desc": "Language detection for 30+ programming languages", "icon": "lang"},
         {"name": "text", "category": "Dev", "desc": "Text processing and manipulation utilities", "icon": "text"},
-        {"name": "ui", "category": "Dev", "desc": "Hub, HTML dashboards, experiment reports; optional Gradio/Streamlit ([ui])", "icon": "chart"},
     ]
     return modules
 
