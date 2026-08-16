@@ -28,7 +28,7 @@ _SKIP_DIRS = frozenset({
 
 
 def _skip_dirs(workspace: Workspace) -> frozenset:
-    del workspace  # reserved for future .aionignore support
+    del workspace  # reserved for future .pytektignore support
     return _SKIP_DIRS
 
 

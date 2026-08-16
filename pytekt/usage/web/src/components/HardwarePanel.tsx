@@ -39,7 +39,7 @@ export function HardwarePanel({ hw }: Props) {
         <h2 className="section-title">Hardware</h2>
         <p className="empty-state">
           {hw.error || "Install monitor deps:"}{" "}
-          <code>pip install &apos;aqwel-aion[monitor]&apos;</code>
+          <code>pip install &apos;aqwel-pytekt[monitor]&apos;</code>
         </p>
       </motion.section>
     );

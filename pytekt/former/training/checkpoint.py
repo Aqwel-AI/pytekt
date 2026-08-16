@@ -70,7 +70,7 @@ def save_checkpoint_sidecar_meta(
     (``path + '.meta.json'``) for experiment tracking.
     """
     meta: Dict[str, Any] = {
-        "format": "aion_checkpoint_meta_v1",
+        "format": "pytekt_checkpoint_meta_v1",
         "epoch": int(epoch),
         "model_type": str(model_type),
     }

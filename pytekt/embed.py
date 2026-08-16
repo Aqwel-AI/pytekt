@@ -232,7 +232,7 @@ def export_to_faiss_index(embeddings: np.ndarray) -> Any:
         return None
 
 
-def cache_embedding(text: str, vector: np.ndarray, cache_dir: str = ".aion_cache"):
+def cache_embedding(text: str, vector: np.ndarray, cache_dir: str = ".pytekt_cache"):
     """Save an individual embedding to a local cache directory."""
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
@@ -241,7 +241,7 @@ def cache_embedding(text: str, vector: np.ndarray, cache_dir: str = ".aion_cache
     np.save(filepath, vector)
 
 
-def get_cached_embedding(text: str, cache_dir: str = ".aion_cache") -> Optional[np.ndarray]:
+def get_cached_embedding(text: str, cache_dir: str = ".pytekt_cache") -> Optional[np.ndarray]:
     """Retrieve an individual embedding from the local cache."""
     text_hash = hashlib.md5(text.encode()).hexdigest()
     filepath = os.path.join(cache_dir, f"{text_hash}.npy")

@@ -94,7 +94,7 @@ class MemoryCache:
 class DiskCache:
     """SQLite-backed persistent cache with optional TTL."""
 
-    def __init__(self, db_path: str = ".aion_cache.db", *, default_ttl: Optional[int] = None) -> None:
+    def __init__(self, db_path: str = ".pytekt_cache.db", *, default_ttl: Optional[int] = None) -> None:
         self._db_path = db_path
         self._default_ttl = default_ttl
         self._lock = threading.Lock()

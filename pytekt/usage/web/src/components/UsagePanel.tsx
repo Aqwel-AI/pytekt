@@ -84,7 +84,7 @@ export function UsagePanel({
       transition={{ duration: 0.5, delay: 0.1 }}
     >
       <h2 className="section-title">LLM usage ({summary?.range_label ?? "Today"})</h2>
-      <p className="section-desc">Tokens and estimated cost from <code>aion agent</code> sessions</p>
+      <p className="section-desc">Tokens and estimated cost from <code>pytekt agent</code> sessions</p>
 
       <div className="main">
         <KpiCard
@@ -157,7 +157,7 @@ export function UsagePanel({
             </div>
           ) : (
             <p className="empty-state">
-              No LLM usage logged yet. Use <code>aion agent</code> and chat after <code>/connect</code>.
+              No LLM usage logged yet. Use <code>pytekt agent</code> and chat after <code>/connect</code>.
             </p>
           )}
         </div>

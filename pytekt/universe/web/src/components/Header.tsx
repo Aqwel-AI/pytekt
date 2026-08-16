@@ -23,7 +23,7 @@ export function Header({ tab, onTab, observer, version }: Props) {
       <div className="brand">
         <div className="logo">✦</div>
         <div>
-          <h1>Aion Universe</h1>
+          <h1>PyTekt Universe</h1>
           <p className="brand-tagline">Astronomy dashboard · C++ fast path · v{version}</p>
           {ctx && (
             <p className="context-line">

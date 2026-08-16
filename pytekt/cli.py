@@ -270,7 +270,7 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     db_sync_usage.add_argument("--table", default="usage_events", help="Target table")
     db_sync_tracker = db_sub.add_parser("sync-tracker", help="Import experiment runs into DB")
     db_sync_tracker.add_argument("--url", help="Database URL")
-    db_sync_tracker.add_argument("--root", default=".aion_runs", help="Tracker root directory")
+    db_sync_tracker.add_argument("--root", default=".pytekt_runs", help="Tracker root directory")
     db_sync_tracker.add_argument("--table", default="experiments", help="Target table")
     db_sub.add_parser("demo", help="Quick in-memory SQLite demo")
 

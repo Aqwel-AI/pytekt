@@ -20,7 +20,7 @@ export function Header({ range, onRange, context }: Props) {
           A
         </motion.div>
         <div>
-          <h1>Aion Command Center</h1>
+          <h1>PyTekt Command Center</h1>
           <p className="brand-tagline">LLM usage · CPU · GPU · memory — Aqwel AI</p>
           {context && (
             <p className="context-line">

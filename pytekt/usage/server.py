@@ -42,7 +42,7 @@ def _agent_session() -> Dict[str, Any]:
             "trust": bool(agent.get("trust")),
             "idle_disconnect_minutes": agent.get("idle_disconnect_minutes"),
             "config_path": os.path.expanduser("~/.pytekt.yaml"),
-            "note": "pytekt agent was moved to archived/aion_agent/",
+            "note": "pytekt agent was moved to archived/pytekt_agent/",
         }
     except Exception as e:
         return {"error": str(e)}
@@ -121,7 +121,7 @@ class UsageHandler(SimpleHTTPRequestHandler):
             except Exception as e:
                 self._json({"error": str(e)}, status=200)
         elif path == "/api/context":
-            self._json({"note": "pytekt agent was moved to archived/aion_agent/"})
+            self._json({"note": "pytekt agent was moved to archived/pytekt_agent/"})
         elif path.startswith("/api/"):
             self.send_error(404)
         elif path in ("/", "", "/dashboard", "/dashboard/"):

@@ -31,7 +31,7 @@ def sync_usage(
 def sync_tracker(
     conn: Connection,
     *,
-    root: str = ".aion_runs",
+    root: str = ".pytekt_runs",
     table: str = "experiments",
 ) -> int:
     """Import experiment tracker run folders into a collection/table."""

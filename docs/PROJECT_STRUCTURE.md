@@ -2,7 +2,7 @@
 
 > **Aqwel AI product** — see [README](../README.md#pytekt-product-documentation).
 
-**PyTekt 0.2.0** ships as a **research library** (`import pytekt`). The terminal coding agent is **not available** in this release (CLI stubs only; source under `archived/aion_agent/` locally).
+**PyTekt 0.2.0** ships as a **research library** (`import pytekt`). The terminal coding agent is **not available** in this release (CLI stubs only; source under `archived/pytekt_agent/` locally).
 
 | Focus | Package path | Entry |
 |-------|--------------|-------|

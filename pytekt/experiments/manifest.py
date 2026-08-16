@@ -25,7 +25,7 @@ def build_manifest(
     manifest: Dict[str, Any] = {
         "experiment_name": experiment_name,
         "seed": seed,
-        "aion_version": __version__,
+        "pytekt_version": __version__,
         "python_version": sys.version,
         "platform": platform.platform(),
         "created_at": datetime.now(timezone.utc).isoformat(),

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Aion Hub</title>
+  <title>PyTekt Hub</title>
   <style>
     :root {
       --bg: #0a0e14;
@@ -347,13 +347,13 @@
 </head>
 <body>
   <div class="hero">
-    <h1>Aion Hub</h1>
+    <h1>PyTekt Hub</h1>
     <div class="tagline">Complete AI Research & Development Library by Aqwel AI</div>
     <div class="version" id="versionBadge">loading...</div>
     <div class="hero-links">
       <a href="https://aqwelai.xyz/" target="_blank" class="primary">Documentation</a>
-      <a href="https://pypi.org/project/aqwel-aion/" target="_blank" class="secondary">PyPI</a>
-      <a href="https://github.com/aqwelai/aion" target="_blank" class="secondary">GitHub</a>
+      <a href="https://pypi.org/project/aqwel-pytekt/" target="_blank" class="secondary">PyPI</a>
+      <a href="https://github.com/aqwelai/pytekt" target="_blank" class="secondary">GitHub</a>
     </div>
   </div>
 
@@ -385,7 +385,7 @@
     <!-- PLAYGROUND -->
     <div class="panel" id="p-playground">
       <p style="color:var(--muted);font-size:0.9rem;margin-bottom:0.75rem;">
-        Run Python code using Aion directly in the browser. Click a snippet or write your own.
+        Run Python code using PyTekt directly in the browser. Click a snippet or write your own.
       </p>
       <div class="snippets" id="snippetButtons"></div>
       <div class="playground">
@@ -394,10 +394,10 @@
             <span>Python</span>
             <button class="btn btn-run" id="runBtn" onclick="runCode()">Run</button>
           </div>
-          <textarea class="code-input" id="codeInput" spellcheck="false">import aion
-print(f"Aion v{aion.__version__}")
-print(f"Author: {aion.__author__}")
-print(f"Modules: {len(aion.__all__)}")
+          <textarea class="code-input" id="codeInput" spellcheck="false">import pytekt
+print(f"PyTekt v{pytekt.__version__}")
+print(f"Author: {pytekt.__author__}")
+print(f"Modules: {len(pytekt.__all__)}")
 </textarea>
         </div>
         <div class="play-output">
@@ -411,21 +411,21 @@ print(f"Modules: {len(aion.__all__)}")
     <div class="panel" id="p-quickref">
       <div class="ref-section">
         <h3>Getting Started</h3>
-        <div class="ref-code"><span class="kw">import</span> aion
+        <div class="ref-code"><span class="kw">import</span> pytekt
 <span class="cmt"># Check version</span>
-print(aion.__version__)  <span class="cmt"># 0.2.0</span>
+print(pytekt.__version__)  <span class="cmt"># 0.2.0</span>
 
 <span class="cmt"># Math</span>
-aion.maths.<span class="fn">mean</span>([<span class="str">1, 2, 3, 4, 5</span>])
-aion.maths.<span class="fn">determinant</span>([[<span class="str">1, 2</span>], [<span class="str">3, 4</span>]])
+pytekt.maths.<span class="fn">mean</span>([<span class="str">1, 2, 3, 4, 5</span>])
+pytekt.maths.<span class="fn">determinant</span>([[<span class="str">1, 2</span>], [<span class="str">3, 4</span>]])
 
 <span class="cmt"># Algorithms</span>
-aion.algorithms.<span class="fn">binary_search</span>([<span class="str">1, 3, 5, 7, 9</span>], <span class="str">7</span>)
-aion.algorithms.<span class="fn">dijkstra</span>(graph, start)</div>
+pytekt.algorithms.<span class="fn">binary_search</span>([<span class="str">1, 3, 5, 7, 9</span>], <span class="str">7</span>)
+pytekt.algorithms.<span class="fn">dijkstra</span>(graph, start)</div>
       </div>
       <div class="ref-section">
         <h3>Data Processing</h3>
-        <div class="ref-code"><span class="kw">from</span> aion.data <span class="kw">import</span> load_csv, train_val_test_split, augment_text
+        <div class="ref-code"><span class="kw">from</span> pytekt.data <span class="kw">import</span> load_csv, train_val_test_split, augment_text
 
 rows = <span class="fn">load_csv</span>(<span class="str">"data.csv"</span>)
 train, val, test = <span class="fn">train_val_test_split</span>(rows, seed=<span class="str">42</span>)
@@ -433,7 +433,7 @@ variants = <span class="fn">augment_text</span>(<span class="str">"hello world"<
       </div>
       <div class="ref-section">
         <h3>Tokenization</h3>
-        <div class="ref-code"><span class="kw">from</span> aion.tokenizer <span class="kw">import</span> BPETokenizer
+        <div class="ref-code"><span class="kw">from</span> pytekt.tokenizer <span class="kw">import</span> BPETokenizer
 
 bpe = <span class="fn">BPETokenizer</span>(vocab_size=<span class="str">8000</span>)
 bpe.<span class="fn">train</span>([<span class="str">"your corpus here..."</span>] * <span class="str">100</span>)
@@ -442,7 +442,7 @@ text = bpe.<span class="fn">decode</span>(ids)</div>
       </div>
       <div class="ref-section">
         <h3>Caching</h3>
-        <div class="ref-code"><span class="kw">from</span> aion.cache <span class="kw">import</span> MemoryCache, cached
+        <div class="ref-code"><span class="kw">from</span> pytekt.cache <span class="kw">import</span> MemoryCache, cached
 
 cache = <span class="fn">MemoryCache</span>(default_ttl=<span class="str">300</span>)
 cache.<span class="fn">set</span>(<span class="str">"key"</span>, {<span class="str">"value"</span>: <span class="str">42</span>})
@@ -454,7 +454,7 @@ cache.<span class="fn">get</span>(<span class="str">"key"</span>)
       </div>
       <div class="ref-section">
         <h3>Data Structures</h3>
-        <div class="ref-code"><span class="kw">from</span> aion.structures <span class="kw">import</span> Trie, BloomFilter, LRUCache, UnionFind
+        <div class="ref-code"><span class="kw">from</span> pytekt.structures <span class="kw">import</span> Trie, BloomFilter, LRUCache, UnionFind
 
 trie = <span class="fn">Trie</span>()
 trie.<span class="fn">insert</span>(<span class="str">"python"</span>)
@@ -466,7 +466,7 @@ bf.<span class="fn">might_contain</span>(<span class="str">"item"</span>)  <span
       </div>
       <div class="ref-section">
         <h3>Pipelines</h3>
-        <div class="ref-code"><span class="kw">from</span> aion.pipeline <span class="kw">import</span> Pipeline, MapStep, FilterStep
+        <div class="ref-code"><span class="kw">from</span> pytekt.pipeline <span class="kw">import</span> Pipeline, MapStep, FilterStep
 
 pipe = <span class="fn">Pipeline</span>([
     <span class="fn">MapStep</span>(<span class="str">"double"</span>, <span class="kw">lambda</span> x: x * <span class="str">2</span>),
@@ -476,17 +476,17 @@ result = pipe.<span class="fn">execute</span>([<span class="str">1, -2, 3, -4, 5
       </div>
       <div class="ref-section">
         <h3>Agents (not available in 0.2.0)</h3>
-        <div class="ref-code"><span class="cmt"># aion.agents is not available in this release.</span>
-<span class="cmt"># Use aion.providers + aion.tools for LLM workflows.</span>
-<span class="kw">from</span> aion.providers <span class="kw">import</span> OpenAIProvider
-<span class="kw">from</span> aion.tools <span class="kw">import</span> ToolRegistry
+        <div class="ref-code"><span class="cmt"># pytekt.agents is not available in this release.</span>
+<span class="cmt"># Use pytekt.providers + pytekt.tools for LLM workflows.</span>
+<span class="kw">from</span> pytekt.providers <span class="kw">import</span> OpenAIProvider
+<span class="kw">from</span> pytekt.tools <span class="kw">import</span> ToolRegistry
 
 provider = <span class="fn">OpenAIProvider</span>()
 registry = <span class="fn">ToolRegistry</span>()</div>
       </div>
       <div class="ref-section">
         <h3>Experiment Tracking</h3>
-        <div class="ref-code"><span class="kw">from</span> aion.tracker <span class="kw">import</span> Tracker
+        <div class="ref-code"><span class="kw">from</span> pytekt.tracker <span class="kw">import</span> Tracker
 
 tracker = <span class="fn">Tracker</span>(<span class="str">".experiments"</span>)
 run = tracker.<span class="fn">start_run</span>(<span class="str">"baseline"</span>)
@@ -498,16 +498,16 @@ tracker.<span class="fn">compare_runs</span>(metric_name=<span class="str">"loss
       <div class="ref-section">
         <h3>CLI Commands</h3>
         <div class="ref-code"><span class="cmt"># Available commands</span>
-aion start              <span class="cmt"># Open this hub</span>
-aion info               <span class="cmt"># Show environment info</span>
-aion chat               <span class="cmt"># Interactive prompt REPL</span>
-aion embed &lt;file&gt;       <span class="cmt"># Embed a file</span>
-aion eval &lt;p&gt; &lt;a&gt;      <span class="cmt"># Evaluate predictions</span>
-aion watch &lt;file&gt;       <span class="cmt"># Watch file for changes</span>
-aion git status         <span class="cmt"># Git status</span>
-aion monitor            <span class="cmt"># Hardware dashboard</span>
-aion cosmos web         <span class="cmt"># Astronomy dashboard</span>
-aion usage              <span class="cmt"># LLM usage dashboard</span></div>
+pytekt start              <span class="cmt"># Open this hub</span>
+pytekt info               <span class="cmt"># Show environment info</span>
+pytekt chat               <span class="cmt"># Interactive prompt REPL</span>
+pytekt embed &lt;file&gt;       <span class="cmt"># Embed a file</span>
+pytekt eval &lt;p&gt; &lt;a&gt;      <span class="cmt"># Evaluate predictions</span>
+pytekt watch &lt;file&gt;       <span class="cmt"># Watch file for changes</span>
+pytekt git status         <span class="cmt"># Git status</span>
+pytekt monitor            <span class="cmt"># Hardware dashboard</span>
+pytekt cosmos web         <span class="cmt"># Astronomy dashboard</span>
+pytekt usage              <span class="cmt"># LLM usage dashboard</span></div>
       </div>
     </div>
 
@@ -528,18 +528,18 @@ aion usage              <span class="cmt"># LLM usage dashboard</span></div>
 <script>
 (function () {
   const SNIPPETS = [
-    { name: "Library Info", code: `import aion\nprint(f"Aion v{aion.__version__}")\nprint(f"Author: {aion.__author__}")\nprint(f"Developer: {aion.__developer__}")\nprint(f"Public exports: {len(aion.__all__)}")` },
-    { name: "Math", code: `from aion import maths\nprint("Mean:", maths.mean([1, 2, 3, 4, 5]))\nprint("Std:", maths.std_dev([1, 2, 3, 4, 5]))\nprint("Det:", maths.determinant([[1, 2], [3, 4]]))\nprint("Sigmoid:", maths.sigmoid([0, 1, -1]))` },
-    { name: "Algorithms", code: `from aion.algorithms import binary_search, flatten_array, dijkstra\n\nprint("Binary search:", binary_search([10, 20, 30, 40, 50], 30))\nprint("Flatten:", flatten_array([[1, 2], [3, 4], [5]]))\n\ngraph = {"A": [("B", 1), ("C", 4)], "B": [("C", 2)], "C": []}\nprint("Dijkstra:", dijkstra(graph, "A"))` },
-    { name: "Data Structures", code: `from aion.structures import Trie, BloomFilter, LRUCache, UnionFind\n\nt = Trie()\nfor w in ["python", "pytorch", "pandas", "pip", "poetry"]:\n    t.insert(w)\nprint("starts_with('py'):", t.starts_with("py"))\nprint("starts_with('p'):", t.starts_with("p"))\n\nbf = BloomFilter(1000)\nbf.add("hello")\nprint("\\nBloom 'hello':", bf.might_contain("hello"))\nprint("Bloom 'world':", bf.might_contain("world"))\n\nuf = UnionFind()\nuf.union(1, 2); uf.union(3, 4); uf.union(2, 3)\nprint("\\nUnionFind components:", uf.components())` },
-    { name: "Data Split", code: `from aion.data import train_val_test_split, augment_text\n\ndata = list(range(100))\ntrain, val, test = train_val_test_split(data, seed=42)\nprint(f"Train: {len(train)}, Val: {len(val)}, Test: {len(test)}")\n\nvariants = augment_text("The quick brown fox jumps over the lazy dog", num_variants=5, seed=42)\nprint("\\nAugmented variants:")\nfor i, v in enumerate(variants):\n    print(f"  {i+1}. {v}")` },
-    { name: "Tokenizer", code: `from aion.tokenizer import BPETokenizer\n\ncorpus = ["hello world", "hello there", "world hello", "the world is great"] * 20\nbpe = BPETokenizer(vocab_size=80)\nbpe.train(corpus)\n\ntext = "hello world"\ntokens = bpe.tokenize(text)\nids = bpe.encode(text)\ndecoded = bpe.decode(ids)\n\nprint(f"Text: '{text}'")\nprint(f"Tokens: {tokens}")\nprint(f"IDs: {ids}")\nprint(f"Decoded: '{decoded}'")\nprint(f"Vocab size: {len(bpe.vocab)}")` },
-    { name: "Pipeline", code: `from aion.pipeline import Pipeline, MapStep, FilterStep, FunctionStep\n\npipe = Pipeline([\n    MapStep("double", lambda x: x * 2),\n    FilterStep("positive", lambda x: x > 0),\n    FunctionStep("sum", lambda data, ctx: {"result": sum(data), "count": len(data)}),\n])\n\nresult = pipe.execute_detailed([1, -2, 3, -4, 5])\nprint("Success:", result.success)\nprint("Data:", result.data)\nprint(f"Time: {result.total_ms:.2f}ms")\nfor s in result.steps:\n    print(f"  {s.name}: {s.elapsed_ms:.2f}ms")` },
-    { name: "Cache", code: `from aion.cache import MemoryCache, cached\n\ncache = MemoryCache(default_ttl=60)\ncache.set("user:1", {"name": "Alice", "score": 95})\ncache.set("user:2", {"name": "Bob", "score": 87})\n\nprint("user:1 ->", cache.get("user:1"))\nprint("user:2 ->", cache.get("user:2"))\nprint("Size:", cache.size())\n\n@cached(ttl=10)\ndef square(x):\n    print(f"  Computing {x}^2...")\n    return x ** 2\n\nprint("\\nsquare(5):", square(5))\nprint("square(5) again:", square(5))  # cached` },
-    { name: "Tracker", code: `import tempfile, os\nfrom aion.tracker import Tracker\n\nwith tempfile.TemporaryDirectory() as td:\n    tracker = Tracker(td)\n    for i, name in enumerate(["baseline", "improved", "best"]):\n        run = tracker.start_run(name)\n        run.log_params({"lr": 0.001 * (i+1), "model": name})\n        for epoch in range(5):\n            run.log_metric("loss", 1.0 / ((i+1) * (epoch+1)))\n            run.log_metric("acc", 0.5 + 0.1 * (i + epoch))\n        run.end()\n    \n    print("All runs:")\n    for r in tracker.compare_runs("loss"):\n        print(f"  {r['name']}: loss={r['metrics']['loss']:.4f}, acc={r['metrics']['acc']:.2f}")` },
-    { name: "LLM Eval", code: `from aion.llm_eval import toxicity_check, contains_pii, estimate_cost, CostTracker\n\nprint("Toxicity check:")\nprint(" ", toxicity_check("What a beautiful day!"))\nprint(" ", toxicity_check("I hate everything"))\n\nprint("\\nPII detection:")\nprint(" ", contains_pii("Email me at user@example.com or call 555-123-4567"))\n\nprint("\\nCost estimation:")\ntracker = CostTracker()\ntracker.record("openai", prompt_tokens=2000, completion_tokens=1000)\ntracker.record("anthropic", prompt_tokens=1500, completion_tokens=800)\nprint(" ", tracker.summary())` },
-    { name: "Schema Validation", code: `from aion.data import Schema, Field, validate_dataset\n\nschema = Schema(fields=[\n    Field("name", str, required=True),\n    Field("age", int, required=True, validator=lambda x: 0 < x < 150),\n    Field("email", str, required=False),\n])\n\ndata = [\n    {"name": "Alice", "age": 30, "email": "alice@test.com"},\n    {"name": "Bob", "age": 25},\n    {"name": 123, "age": "old"},  # bad types\n    {"age": 30},  # missing name\n]\n\nresult = validate_dataset(data, schema)\nprint(f"Valid: {result['valid']}")\nprint(f"Total: {result['total']}, Errors: {result['error_count']}")\nfor idx, errs in result['errors'].items():\n    print(f"  Row {idx}: {errs}")` },
-    { name: "Datasets", code: `from aion.datasets import load_iris, load_sentiment, make_classification, fetch, list_datasets, summary\n\n# Load classic Iris dataset\niris = load_iris()\nprint(f"Iris: {iris}")\nprint(f"Features: {iris.feature_names}")\nprint(f"Classes: {iris.target_names}")\n\n# Sentiment analysis dataset\nsent = load_sentiment()\nprint(f"\\nSentiment: {sent}")\nfor i in range(3):\n    print(f"  '{sent.data[i,0][:50]}...' => {sent.target_names[sent.target[i]]}")\n\n# Generate synthetic data\nds = make_classification(n_samples=1000, n_features=20, n_classes=5)\nprint(f"\\nSynthetic: {ds}")\n\n# Train/test split\ntrain, test = fetch("wine", return_split=True)\nprint(f"\\nWine train={train.n_samples}, test={test.n_samples}")\n\n# All available datasets\nprint(f"\\nTotal available: {len(list_datasets())} datasets")\nprint(summary("iris"))` },
+    { name: "Library Info", code: `import pytekt\nprint(f"PyTekt v{pytekt.__version__}")\nprint(f"Author: {pytekt.__author__}")\nprint(f"Developer: {pytekt.__developer__}")\nprint(f"Public exports: {len(pytekt.__all__)}")` },
+    { name: "Math", code: `from pytekt import maths\nprint("Mean:", maths.mean([1, 2, 3, 4, 5]))\nprint("Std:", maths.std_dev([1, 2, 3, 4, 5]))\nprint("Det:", maths.determinant([[1, 2], [3, 4]]))\nprint("Sigmoid:", maths.sigmoid([0, 1, -1]))` },
+    { name: "Algorithms", code: `from pytekt.algorithms import binary_search, flatten_array, dijkstra\n\nprint("Binary search:", binary_search([10, 20, 30, 40, 50], 30))\nprint("Flatten:", flatten_array([[1, 2], [3, 4], [5]]))\n\ngraph = {"A": [("B", 1), ("C", 4)], "B": [("C", 2)], "C": []}\nprint("Dijkstra:", dijkstra(graph, "A"))` },
+    { name: "Data Structures", code: `from pytekt.structures import Trie, BloomFilter, LRUCache, UnionFind\n\nt = Trie()\nfor w in ["python", "pytorch", "pandas", "pip", "poetry"]:\n    t.insert(w)\nprint("starts_with('py'):", t.starts_with("py"))\nprint("starts_with('p'):", t.starts_with("p"))\n\nbf = BloomFilter(1000)\nbf.add("hello")\nprint("\\nBloom 'hello':", bf.might_contain("hello"))\nprint("Bloom 'world':", bf.might_contain("world"))\n\nuf = UnionFind()\nuf.union(1, 2); uf.union(3, 4); uf.union(2, 3)\nprint("\\nUnionFind components:", uf.components())` },
+    { name: "Data Split", code: `from pytekt.data import train_val_test_split, augment_text\n\ndata = list(range(100))\ntrain, val, test = train_val_test_split(data, seed=42)\nprint(f"Train: {len(train)}, Val: {len(val)}, Test: {len(test)}")\n\nvariants = augment_text("The quick brown fox jumps over the lazy dog", num_variants=5, seed=42)\nprint("\\nAugmented variants:")\nfor i, v in enumerate(variants):\n    print(f"  {i+1}. {v}")` },
+    { name: "Tokenizer", code: `from pytekt.tokenizer import BPETokenizer\n\ncorpus = ["hello world", "hello there", "world hello", "the world is great"] * 20\nbpe = BPETokenizer(vocab_size=80)\nbpe.train(corpus)\n\ntext = "hello world"\ntokens = bpe.tokenize(text)\nids = bpe.encode(text)\ndecoded = bpe.decode(ids)\n\nprint(f"Text: '{text}'")\nprint(f"Tokens: {tokens}")\nprint(f"IDs: {ids}")\nprint(f"Decoded: '{decoded}'")\nprint(f"Vocab size: {len(bpe.vocab)}")` },
+    { name: "Pipeline", code: `from pytekt.pipeline import Pipeline, MapStep, FilterStep, FunctionStep\n\npipe = Pipeline([\n    MapStep("double", lambda x: x * 2),\n    FilterStep("positive", lambda x: x > 0),\n    FunctionStep("sum", lambda data, ctx: {"result": sum(data), "count": len(data)}),\n])\n\nresult = pipe.execute_detailed([1, -2, 3, -4, 5])\nprint("Success:", result.success)\nprint("Data:", result.data)\nprint(f"Time: {result.total_ms:.2f}ms")\nfor s in result.steps:\n    print(f"  {s.name}: {s.elapsed_ms:.2f}ms")` },
+    { name: "Cache", code: `from pytekt.cache import MemoryCache, cached\n\ncache = MemoryCache(default_ttl=60)\ncache.set("user:1", {"name": "Alice", "score": 95})\ncache.set("user:2", {"name": "Bob", "score": 87})\n\nprint("user:1 ->", cache.get("user:1"))\nprint("user:2 ->", cache.get("user:2"))\nprint("Size:", cache.size())\n\n@cached(ttl=10)\ndef square(x):\n    print(f"  Computing {x}^2...")\n    return x ** 2\n\nprint("\\nsquare(5):", square(5))\nprint("square(5) again:", square(5))  # cached` },
+    { name: "Tracker", code: `import tempfile, os\nfrom pytekt.tracker import Tracker\n\nwith tempfile.TemporaryDirectory() as td:\n    tracker = Tracker(td)\n    for i, name in enumerate(["baseline", "improved", "best"]):\n        run = tracker.start_run(name)\n        run.log_params({"lr": 0.001 * (i+1), "model": name})\n        for epoch in range(5):\n            run.log_metric("loss", 1.0 / ((i+1) * (epoch+1)))\n            run.log_metric("acc", 0.5 + 0.1 * (i + epoch))\n        run.end()\n    \n    print("All runs:")\n    for r in tracker.compare_runs("loss"):\n        print(f"  {r['name']}: loss={r['metrics']['loss']:.4f}, acc={r['metrics']['acc']:.2f}")` },
+    { name: "LLM Eval", code: `from pytekt.llm_eval import toxicity_check, contains_pii, estimate_cost, CostTracker\n\nprint("Toxicity check:")\nprint(" ", toxicity_check("What a beautiful day!"))\nprint(" ", toxicity_check("I hate everything"))\n\nprint("\\nPII detection:")\nprint(" ", contains_pii("Email me at user@example.com or call 555-123-4567"))\n\nprint("\\nCost estimation:")\ntracker = CostTracker()\ntracker.record("openai", prompt_tokens=2000, completion_tokens=1000)\ntracker.record("anthropic", prompt_tokens=1500, completion_tokens=800)\nprint(" ", tracker.summary())` },
+    { name: "Schema Validation", code: `from pytekt.data import Schema, Field, validate_dataset\n\nschema = Schema(fields=[\n    Field("name", str, required=True),\n    Field("age", int, required=True, validator=lambda x: 0 < x < 150),\n    Field("email", str, required=False),\n])\n\ndata = [\n    {"name": "Alice", "age": 30, "email": "alice@test.com"},\n    {"name": "Bob", "age": 25},\n    {"name": 123, "age": "old"},  # bad types\n    {"age": 30},  # missing name\n]\n\nresult = validate_dataset(data, schema)\nprint(f"Valid: {result['valid']}")\nprint(f"Total: {result['total']}, Errors: {result['error_count']}")\nfor idx, errs in result['errors'].items():\n    print(f"  Row {idx}: {errs}")` },
+    { name: "Datasets", code: `from pytekt.datasets import load_iris, load_sentiment, make_classification, fetch, list_datasets, summary\n\n# Load classic Iris dataset\niris = load_iris()\nprint(f"Iris: {iris}")\nprint(f"Features: {iris.feature_names}")\nprint(f"Classes: {iris.target_names}")\n\n# Sentiment analysis dataset\nsent = load_sentiment()\nprint(f"\\nSentiment: {sent}")\nfor i in range(3):\n    print(f"  '{sent.data[i,0][:50]}...' => {sent.target_names[sent.target[i]]}")\n\n# Generate synthetic data\nds = make_classification(n_samples=1000, n_features=20, n_classes=5)\nprint(f"\\nSynthetic: {ds}")\n\n# Train/test split\ntrain, test = fetch("wine", return_split=True)\nprint(f"\\nWine train={train.n_samples}, test={test.n_samples}")\n\n# All available datasets\nprint(f"\\nTotal available: {len(list_datasets())} datasets")\nprint(summary("iris"))` },
   ];
 
   // Tab switching
@@ -595,7 +595,7 @@ aion usage              <span class="cmt"># LLM usage dashboard</span></div>
     for (const [cat, items] of Object.entries(cats)) {
       html += `<div class="cat-title">${cat}</div><div class="mod-grid">`;
       items.forEach(m => {
-        html += `<div class="mod-card"><div class="mod-name">aion.${m.name}</div><div class="mod-desc">${m.desc}</div></div>`;
+        html += `<div class="mod-card"><div class="mod-name">pytekt.${m.name}</div><div class="mod-desc">${m.desc}</div></div>`;
       });
       html += "</div>";
     }

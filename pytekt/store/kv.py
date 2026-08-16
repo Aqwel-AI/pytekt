@@ -23,7 +23,7 @@ class KeyValueStore:
         Table name (allows multiple logical stores in one DB).
     """
 
-    def __init__(self, db_path: str = ".aion_kv.db", table: str = "kv") -> None:
+    def __init__(self, db_path: str = ".pytekt_kv.db", table: str = "kv") -> None:
         self._db_path = db_path
         self._table = table
         self._lock = threading.Lock()

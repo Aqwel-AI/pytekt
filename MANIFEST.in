@@ -16,7 +16,7 @@ recursive-include pytekt/universe/static *
 recursive-include pytekt/universe/static/assets *
 recursive-include pytekt/physics/static *
 include pytekt/py.typed
-recursive-include aion *.py
+recursive-include pytekt *.py
 recursive-include pytekt/monitor/static *.html
 recursive-include pytekt/monitor *.md
 recursive-include pytekt/monitor/examples *.md *.py

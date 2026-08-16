@@ -31,7 +31,7 @@ class LLMCache:
         self,
         backend: Any = "memory",
         *,
-        db_path: str = ".aion_llm_cache.db",
+        db_path: str = ".pytekt_llm_cache.db",
         default_ttl: Optional[int] = None,
     ) -> None:
         if isinstance(backend, str):

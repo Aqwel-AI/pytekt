@@ -34,7 +34,7 @@ export function ObservationsPanel({ latitude, longitude }: Props) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "aion-cosmos-observations.json";
+    a.download = "pytekt-cosmos-observations.json";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -42,7 +42,7 @@ export function ObservationsPanel({ latitude, longitude }: Props) {
   return (
     <div className="panel">
       <h2>Observation log</h2>
-      <p className="muted">Sessions stored in ~/.aion/universe.db</p>
+      <p className="muted">Sessions stored in ~/.pytekt/universe.db</p>
       <div className="field-row" style={{ marginTop: "1rem" }}>
         <div className="field" style={{ flex: 1 }}>
           <label>Notes</label>

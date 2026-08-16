@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `[serve]`, `[db]`, `[universe]`, `[physics]`, `[vision]`, `[ui]`, `[monitor]`, and related groups; `[full]` includes vision OpenCV stack.
 
 ### Not available in 0.2.0
-- **Terminal coding agent** (`pytekt agent`, browser UI, IDE bridge) — **not available**; source under `archived/aion_agent/` (local only).
+- **Terminal coding agent** (`pytekt agent`, browser UI, IDE bridge) — **not available**; source under `archived/pytekt_agent/` (local only).
 - **`pytekt.agents`** ReAct / Planning / MultiAgent framework — not imported in this package version.
 - **`pytekt api` / `pytekt auth`** — **not available**.
 

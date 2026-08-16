@@ -37,7 +37,7 @@ def db_sync_tracker(
     cfg: dict,
     *,
     url: Optional[str] = None,
-    root: str = ".aion_runs",
+    root: str = ".pytekt_runs",
     table: str = "experiments",
 ) -> int:
     conn = get_db_connection(cfg, url=url)
@@ -74,7 +74,7 @@ def db_main(args: argparse.Namespace) -> None:
         n = db_sync_tracker(
             cfg,
             url=getattr(args, "url", None),
-            root=getattr(args, "root", ".aion_runs"),
+            root=getattr(args, "root", ".pytekt_runs"),
             table=getattr(args, "table", "experiments"),
         )
         _print(f"  Synced {n} experiment runs.")

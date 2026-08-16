@@ -42,7 +42,7 @@ Start with **one domain** (e.g. classical mechanics). Expand later.
 | Python ↔ C++ bridge | `pytekt/universe/_native.py` |
 | Public exports | `pytekt/universe/__init__.py` |
 | CLI subcommands | `pytekt/universe/cli.py`, `pytekt/cli.py` |
-| Agent slash commands | Not available in 0.2.0 (`archived/aion_agent/` when restored) |
+| Agent slash commands | Not available in 0.2.0 (`archived/pytekt_agent/` when restored) |
 | Native extension build | `setup.py` → `_get_extensions()` |
 | Tests | `tests/test_universe_*.py` |
 | Module README | `pytekt/universe/README.md` |
@@ -289,7 +289,7 @@ Physical AI agent slash commands / tools land when the **terminal agent** return
 
 ### 8.1 Slash commands (future)
 
-When restoring from `archived/aion_agent/`, add `physics_cmds.py` (mirror universe cmds):
+When restoring from `archived/pytekt_agent/`, add `physics_cmds.py` (mirror universe cmds):
 
 ```text
 /physics pendulum ...

@@ -24,7 +24,7 @@ class PersistentVectorStore:
         Vector dimensionality (must be consistent across all inserts).
     """
 
-    def __init__(self, db_path: str = ".aion_vectors.db", dimension: int = 384) -> None:
+    def __init__(self, db_path: str = ".pytekt_vectors.db", dimension: int = 384) -> None:
         self._db_path = db_path
         self._dim = dimension
         self._lock = threading.Lock()

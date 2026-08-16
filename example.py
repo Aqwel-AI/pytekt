@@ -326,13 +326,13 @@ if stats["modules_with_errors"]:
 
 # 3.2 create_installation_guide() — installation and setup guide (TXT; PDF if ReportLab)
 from pytekt.pdf import create_installation_guide
-install_txt = os.path.join(DOCS_DIR, "aion_installation_guide.txt")
+install_txt = os.path.join(DOCS_DIR, "pytekt_installation_guide.txt")
 create_installation_guide(output_file=install_txt, format="txt")
 print("create_installation_guide() ->", install_txt)
 
 # 3.3 create_quick_reference() — compact function names by module (TXT; PDF if ReportLab)
 from pytekt.pdf import create_quick_reference
-quick_txt = os.path.join(DOCS_DIR, "aion_quick_reference.txt")
+quick_txt = os.path.join(DOCS_DIR, "pytekt_quick_reference.txt")
 create_quick_reference(output_file=quick_txt, format="txt")
 print("create_quick_reference() ->", quick_txt)
 
@@ -402,7 +402,7 @@ import json
 
 _meta_path = Path(V019_DIR) / "run_meta.json"
 _meta = {
-    "format": "aion_checkpoint_meta_v1",
+    "format": "pytekt_checkpoint_meta_v1",
     "epoch": 1,
     "model_type": "demo",
     "note": "example.py",
@@ -578,7 +578,7 @@ print("  search_public_api binary_search hits:", len(_hits))
 _idx_md = os.path.join(V019_DIR, "api_index_slice.md")
 export_api_index(output_file=_idx_md, format="md", include_classes=False)
 print("  export_api_index ->", _idx_md)
-_html_api = os.path.join(V019_DIR, "aion_api_min.html")
+_html_api = os.path.join(V019_DIR, "pytekt_api_min.html")
 create_api_documentation_html(output_file=_html_api)
 print("  create_api_documentation_html ->", _html_api)
 

@@ -10,7 +10,7 @@ All caches support optional time-to-live (TTL) expiration.
 Examples
 --------
 >>> from pytekt.cache import DiskCache, cached
->>> cache = DiskCache(".aion_cache.db", default_ttl=3600)
+>>> cache = DiskCache(".pytekt_cache.db", default_ttl=3600)
 >>> cache.set("key", {"data": 42})
 >>> cache.get("key")
 {'data': 42}

@@ -49,7 +49,7 @@ def test_timeseries_today():
         assert len(ts["tokens"]) == len(ts["labels"])
 
 
-def test_resolve_port_when_3333_not_aion():
+def test_resolve_port_when_3333_not_pytekt():
     """Port 3333 may be another app; PyTekt should not treat it as our dashboard."""
     port, running = resolve_usage_port("127.0.0.1", 3847)
     assert port >= 3847

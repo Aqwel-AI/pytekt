@@ -99,7 +99,7 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>Aion Physics</h1>
+        <h1>PyTekt Physics</h1>
         {info && (
           <span className="badge">
             v{info.version} {info.native ? "· C++" : "· Python"}

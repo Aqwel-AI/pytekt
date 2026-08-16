@@ -367,7 +367,7 @@ def generate_module_documentation(
         return [err]
 
 
-def create_api_documentation(output_file: str = "aion_api_documentation.pdf") -> str:
+def create_api_documentation(output_file: str = "pytekt_api_documentation.pdf") -> str:
     """
     Produce API documentation for all documentable pytekt modules as a single PDF.
     Includes a table of contents (module, short description, function count) and
@@ -433,7 +433,7 @@ def create_api_documentation(output_file: str = "aion_api_documentation.pdf") ->
     return pdf_path
 
 
-def create_text_documentation(output_file: str = "aion_documentation.txt") -> str:
+def create_text_documentation(output_file: str = "pytekt_documentation.txt") -> str:
     """
     Write plain-text API documentation for all documentable modules. Does not
     require ReportLab. Output includes a short table of contents (module names
@@ -480,7 +480,7 @@ def create_text_documentation(output_file: str = "aion_documentation.txt") -> st
     return output_file
 
 
-def create_api_documentation_md(output_file: str = "aion_api_documentation.md") -> str:
+def create_api_documentation_md(output_file: str = "pytekt_api_documentation.md") -> str:
     """
     Write API documentation in Markdown: title, table of contents with anchors,
     then one level-2 section per module (description and level-3 function subsections).
@@ -514,7 +514,7 @@ def create_api_documentation_md(output_file: str = "aion_api_documentation.md") 
     return output_file
 
 
-def create_api_documentation_html(output_file: str = "aion_api_documentation.html") -> str:
+def create_api_documentation_html(output_file: str = "pytekt_api_documentation.html") -> str:
     """
     Write a self-contained HTML API reference for all documentable modules.
     Escapes text for safe display; does not require ReportLab or any extra packages.
@@ -749,7 +749,7 @@ def _get_pytekt_imports_from_source(filepath: str) -> List[str]:
 
 
 def create_module_dependency_doc(
-    output_file: str = "aion_module_dependencies.pdf",
+    output_file: str = "pytekt_module_dependencies.pdf",
     format: str = "pdf",
 ) -> str:
     """
@@ -830,7 +830,7 @@ def export_api_index(
     docstring_one_line. When ``include_classes`` is True, public classes defined
     in each module are appended as rows with the same shape (signature is the
     class constructor signature). format may be ``json``, ``csv``, or ``md``
-    (Markdown table). Default filenames: aion_api_index.json, .csv, or .md.
+    (Markdown table). Default filenames: pytekt_api_index.json, .csv, or .md.
     """
     modules = get_documentable_modules()
     rows: List[Dict[str, str]] = []
@@ -861,11 +861,11 @@ def export_api_index(
                 })
     if output_file is None:
         if format == "csv":
-            output_file = "aion_api_index.csv"
+            output_file = "pytekt_api_index.csv"
         elif format == "md":
-            output_file = "aion_api_index.md"
+            output_file = "pytekt_api_index.md"
         else:
-            output_file = "aion_api_index.json"
+            output_file = "pytekt_api_index.json"
     if format == "csv":
         with open(output_file, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=["module", "function", "signature", "docstring_one_line"])
@@ -939,7 +939,7 @@ def _parse_changelog_md(filepath: str) -> List[Dict[str, Any]]:
 
 def create_changelog_text(
     version_history: Union[List[Dict[str, Any]], str],
-    output_file: str = "aion_changelog.txt",
+    output_file: str = "pytekt_changelog.txt",
     title: Optional[str] = None,
 ) -> str:
     """
@@ -970,7 +970,7 @@ def create_changelog_text(
 
 def create_changelog_pdf(
     version_history: Union[List[Dict[str, Any]], str],
-    output_file: str = "aion_changelog.pdf",
+    output_file: str = "pytekt_changelog.pdf",
     title: Optional[str] = None,
 ) -> str:
     """
@@ -1101,7 +1101,7 @@ def create_function_documentation(
     return pdf_path
 
 
-def create_user_guide_pdf(output_file: str = "aion_user_guide.pdf") -> str:
+def create_user_guide_pdf(output_file: str = "pytekt_user_guide.pdf") -> str:
     """
     Build a user guide PDF with introduction, installation, usage examples for
     major modules, and an advanced features section. Falls back to
@@ -1288,7 +1288,7 @@ Professional prompt management system:
     return pdf_path
 
 
-def create_user_guide_text(output_file: str = "aion_user_guide.txt") -> str:
+def create_user_guide_text(output_file: str = "pytekt_user_guide.txt") -> str:
     """
     Write a plain-text user guide with introduction, installation, quick start
     examples, and advanced features. Used when ReportLab is not available.
@@ -1356,7 +1356,7 @@ ADVANCED FEATURES
 • Statistical computing
 • Data preprocessing pipelines
 
-For complete API documentation, see aion_api_documentation.pdf
+For complete API documentation, see pytekt_api_documentation.pdf
         """)
     print(f"Text user guide generated: {output_file}")
     return output_file
@@ -1385,8 +1385,8 @@ def generate_complete_documentation(output_dir: str = "docs") -> Dict[str, str]:
     os.makedirs(output_dir, exist_ok=True)
     generated_files = {}
     print("Generating complete PyTekt documentation package...")
-    api_pdf = os.path.join(output_dir, "aion_api_documentation.pdf")
-    api_txt = os.path.join(output_dir, "aion_api_documentation.txt")
+    api_pdf = os.path.join(output_dir, "pytekt_api_documentation.pdf")
+    api_txt = os.path.join(output_dir, "pytekt_api_documentation.txt")
     
     try:
         if _HAS_REPORTLAB:
@@ -1394,8 +1394,8 @@ def generate_complete_documentation(output_dir: str = "docs") -> Dict[str, str]:
         generated_files["api_txt"] = create_text_documentation(api_txt)
     except Exception as e:
         print(f"Error generating API docs: {e}")
-    guide_pdf = os.path.join(output_dir, "aion_user_guide.pdf")
-    guide_txt = os.path.join(output_dir, "aion_user_guide.txt")
+    guide_pdf = os.path.join(output_dir, "pytekt_user_guide.pdf")
+    guide_txt = os.path.join(output_dir, "pytekt_user_guide.txt")
     
     try:
         if _HAS_REPORTLAB:
@@ -1411,10 +1411,10 @@ def generate_complete_documentation(output_dir: str = "docs") -> Dict[str, str]:
 Complete documentation package for the PyTekt AI/ML Library - a comprehensive toolkit for AI research and development.
 
 ## Files Generated
-- `aion_api_documentation.pdf` - Complete API reference (PDF format)
-- `aion_api_documentation.txt` - Complete API reference (Text format)
-- `aion_user_guide.pdf` - User guide with examples (PDF format)
-- `aion_user_guide.txt` - User guide with examples (Text format)
+- `pytekt_api_documentation.pdf` - Complete API reference (PDF format)
+- `pytekt_api_documentation.txt` - Complete API reference (Text format)
+- `pytekt_user_guide.pdf` - User guide with examples (PDF format)
+- `pytekt_user_guide.txt` - User guide with examples (Text format)
 
 ## Library Statistics
 - **175+ Functions** across 12 modules
@@ -1423,9 +1423,9 @@ Complete documentation package for the PyTekt AI/ML Library - a comprehensive to
 - **Extensive documentation** and examples
 
 ## Quick Links
-- [Installation Guide](aion_user_guide.pdf#installation)
-- [API Reference](aion_api_documentation.pdf)
-- [Examples](aion_user_guide.pdf#examples)
+- [Installation Guide](pytekt_user_guide.pdf#installation)
+- [API Reference](pytekt_api_documentation.pdf)
+- [Examples](pytekt_user_guide.pdf#examples)
 
 ## Support
 For questions and support, visit: https://linkaiapps.com/#linkai-pytekt
@@ -1514,7 +1514,7 @@ def get_documentation_statistics() -> Dict[str, Any]:
 
 
 def create_installation_guide(
-    output_file: str = "aion_installation_guide.txt",
+    output_file: str = "pytekt_installation_guide.txt",
     format: str = "txt",
 ) -> str:
     """
@@ -1576,7 +1576,7 @@ def create_installation_guide(
 
 
 def create_quick_reference(
-    output_file: str = "aion_quick_reference.txt",
+    output_file: str = "pytekt_quick_reference.txt",
     format: str = "txt",
 ) -> str:
     """
@@ -1660,19 +1660,19 @@ def create_documentation_index(
     if output_file is None:
         output_file = os.path.join(output_dir, "INDEX.md")
     entries = [
-        ("aion_api_documentation.pdf", "Full API reference (PDF)."),
-        ("aion_api_documentation.txt", "Full API reference (plain text)."),
-        ("aion_api_documentation.md", "Full API reference (Markdown)."),
-        ("aion_api_documentation.html", "Full API reference (static HTML)."),
-        ("aion_api_index.md", "API index as a Markdown table."),
-        ("aion_user_guide.pdf", "User guide with examples (PDF)."),
-        ("aion_user_guide.txt", "User guide with examples (plain text)."),
-        ("aion_installation_guide.txt", "Installation and setup guide."),
-        ("aion_quick_reference.txt", "Quick reference - functions by module."),
-        ("aion_changelog.pdf", "Changelog (PDF)."),
-        ("aion_changelog.txt", "Changelog (plain text)."),
-        ("aion_module_dependencies.pdf", "Module dependency report (PDF)."),
-        ("aion_module_dependencies.txt", "Module dependency report (plain text)."),
+        ("pytekt_api_documentation.pdf", "Full API reference (PDF)."),
+        ("pytekt_api_documentation.txt", "Full API reference (plain text)."),
+        ("pytekt_api_documentation.md", "Full API reference (Markdown)."),
+        ("pytekt_api_documentation.html", "Full API reference (static HTML)."),
+        ("pytekt_api_index.md", "API index as a Markdown table."),
+        ("pytekt_user_guide.pdf", "User guide with examples (PDF)."),
+        ("pytekt_user_guide.txt", "User guide with examples (plain text)."),
+        ("pytekt_installation_guide.txt", "Installation and setup guide."),
+        ("pytekt_quick_reference.txt", "Quick reference - functions by module."),
+        ("pytekt_changelog.pdf", "Changelog (PDF)."),
+        ("pytekt_changelog.txt", "Changelog (plain text)."),
+        ("pytekt_module_dependencies.pdf", "Module dependency report (PDF)."),
+        ("pytekt_module_dependencies.txt", "Module dependency report (plain text)."),
     ]
     lines = [
         "# PyTekt Documentation Index",

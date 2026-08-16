@@ -14,7 +14,7 @@ def cached(
     fn: Optional[F] = None,
     *,
     ttl: int = 300,
-    cache_path: str = ".aion_db_cache.db",
+    cache_path: str = ".pytekt_db_cache.db",
 ) -> Any:
     """
     Cache function results using :mod:`pytekt.cache` disk cache.

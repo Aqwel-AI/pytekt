@@ -51,7 +51,7 @@ class SqliteConnection(SqlConnection):
         if self._kv is None:
             from ...store import KeyValueStore
 
-            path = self._db_path if self._db_path != ":memory:" else ".aion_kv.db"
+            path = self._db_path if self._db_path != ":memory:" else ".pytekt_kv.db"
             self._kv = KeyValueStore(path)
         return self._kv
 
@@ -62,7 +62,7 @@ class SqliteConnection(SqlConnection):
             from ...store import ChatHistoryStore
             from ..chat_bridge import ChatBridge
 
-            path = self._db_path if self._db_path != ":memory:" else ".aion_chat.db"
+            path = self._db_path if self._db_path != ":memory:" else ".pytekt_chat.db"
             self._chat = ChatBridge(ChatHistoryStore(path))
         return self._chat
 

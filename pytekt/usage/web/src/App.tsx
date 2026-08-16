@@ -80,7 +80,7 @@ export default function App() {
           Aqwel AI
         </a>
         {" · "}
-        Aion v{version} · <code>aion usage</code> · port 3847
+        PyTekt v{version} · <code>pytekt usage</code> · port 3847
       </footer>
     </div>
   );

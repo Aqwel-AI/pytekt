@@ -41,7 +41,7 @@ export function ObserverBar({
           Use my location
         </button>
         <button type="button" className="btn" onClick={onSave}>
-          Save to ~/.aion.yaml
+          Save to ~/.pytekt.yaml
         </button>
       </div>
       <p className="muted">Julian Date: {jd.toFixed(5)}</p>

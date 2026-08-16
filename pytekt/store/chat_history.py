@@ -35,7 +35,7 @@ class ChatHistoryStore:
         Path to the SQLite database file.
     """
 
-    def __init__(self, db_path: str = ".aion_chat_history.db") -> None:
+    def __init__(self, db_path: str = ".pytekt_chat_history.db") -> None:
         self._db_path = db_path
         self._lock = threading.Lock()
         self._init_db()
