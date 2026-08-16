@@ -19,7 +19,7 @@ License: Apache-2.0
 Copyright: 2025 Aqwel AI
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 from .models import Transformer, MultiHeadAttention, FeedForward, Embedding, PositionalEncoding
 from .training import Trainer, Adam, cross_entropy_loss

@@ -32,7 +32,7 @@ from ._native import using_native_extension
 from .pipeline import PhysicsQueryResult, solve_physics_query, supported_physics_tasks
 from .systems import SimulationResult, projectile_motion, simulate_pendulum, simulate_spring_mass
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 __all__ = [
     "__version__",

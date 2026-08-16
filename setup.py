@@ -107,7 +107,7 @@ def _get_extensions():
 
 setup(
     name="pytekt",
-    version="0.2.0",
+    version="0.2.1",
     author="Aksel Aghajanyan",
     maintainer="Aqwel AI Team",
     description=(

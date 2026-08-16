@@ -1,6 +1,6 @@
 [project]
 name = "pytekt"
-version = "0.2.0"
+version = "0.2.1"
 description = "Open-source AI library for researchers and data scientists (physics, universe, ML, RAG, vision)"
 readme = "README.md"
 license = {text = "Apache-2.0"}

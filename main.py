@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PyTekt v0.2.0 - AI Research Library
+PyTekt v0.2.1 - AI Research Library
 ======================================================
 
 Main entry point for the PyTekt utility library.
