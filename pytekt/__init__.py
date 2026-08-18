@@ -19,7 +19,7 @@ This package provides:
 - Persistent stores, experiment tracking, LLM evaluation
 - REST serving (FastAPI) and Hub / usage dashboards
 
-Terminal coding agent (`pytekt agent`) is not available in this release.
+- Terminal coding agent (`pytekt agent`) — autonomous file read/edit/run assistant
 
 Author: Aksel Aghajanyan
 Developed by: Aqwel AI Team

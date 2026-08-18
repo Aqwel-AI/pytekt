@@ -204,10 +204,67 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     )
     _add_monitor_args(dash_parser)
 
-    # agent / api / auth — not available in this version
-    subparsers.add_parser(
+    # agent — autonomous terminal coding assistant
+    agent_parser = subparsers.add_parser(
         "agent",
-        help="Coding agent (not available in this version)",
+        help="Autonomous coding agent (read, edit, run in your project)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=(
+            "PyTekt Agent — autonomous terminal coding assistant.\n\n"
+            "One-shot:    pytekt agent \"fix the type error in utils.py\"\n"
+            "Interactive: pytekt agent\n"
+        ),
+    )
+    agent_parser.add_argument(
+        "task",
+        nargs="?",
+        default=None,
+        help="Task description for one-shot mode (omit to enter the REPL)",
+    )
+    agent_parser.add_argument(
+        "--provider", "-P",
+        default="openai",
+        metavar="NAME",
+        help=(
+            "LLM provider: openai, anthropic, gemini, ollama, deepseek, nvidia "
+            "(default: openai)"
+        ),
+    )
+    agent_parser.add_argument(
+        "--model", "-m",
+        default=None,
+        metavar="MODEL",
+        help="Model name forwarded to the provider (default: provider's default)",
+    )
+    agent_parser.add_argument(
+        "--api-key", "-k",
+        default=None,
+        metavar="KEY",
+        help="API key (overrides env vars and ~/.pytekt.yaml)",
+    )
+    agent_parser.add_argument(
+        "--mode", "-M",
+        choices=["code", "talk"],
+        default="code",
+        help="Agent mode: 'code' (autonomous coding like Cursor) or 'talk' (technical chat & questions) (default: code)",
+    )
+    agent_parser.add_argument(
+        "--workspace", "-w",
+        default=None,
+        metavar="DIR",
+        help="Root directory for file operations (default: current directory)",
+    )
+    agent_parser.add_argument(
+        "--max-rounds",
+        type=int,
+        default=16,
+        metavar="N",
+        help="Maximum tool-call rounds per turn (default: 16)",
+    )
+    agent_parser.add_argument(
+        "--no-shell",
+        action="store_true",
+        help="Disable run_command (safer for untrusted code bases)",
     )
     subparsers.add_parser(
         "api",
@@ -736,12 +793,37 @@ def main():
         parser.print_help()
         return
 
+
     if args.command == "agent":
-        print(
-            "pytekt agent — not available in 0.2.0.\n"
-            "Use pytekt.providers and pytekt.tools from Python for LLM workflows."
+        from .agent import run_agent_cli
+
+        # Provider-specific model defaults
+        _default_models = {
+            "openai":    "gpt-4o-mini",
+            "anthropic": "claude-3-5-haiku-latest",
+            "claude":    "claude-3-5-haiku-latest",
+            "gemini":    "gemini-2.0-flash",
+            "google":    "gemini-2.0-flash",
+            "ollama":    "llama3",
+            "deepseek":  "deepseek-chat",
+            "nvidia":    "meta/llama-3.1-8b-instruct",
+            "nim":       "meta/llama-3.1-8b-instruct",
+        }
+        provider = args.provider
+        model = args.model or _default_models.get(provider.lower(), "gpt-4o-mini")
+
+        run_agent_cli(
+            task=args.task,
+            workspace=args.workspace,
+            provider=provider,
+            model=model,
+            mode=getattr(args, "mode", None),
+            api_key=args.api_key,
+            max_rounds=args.max_rounds,
+            no_shell=args.no_shell,
         )
         return
+
 
     if args.command in ("api", "auth"):
         print(f"pytekt {args.command} — not available in 0.2.0.")
