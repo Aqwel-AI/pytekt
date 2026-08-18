@@ -8,7 +8,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/aqwel-aion?label=PyPI)](https://pypi.org/project/aqwel-aion/)
 [![Python](https://img.shields.io/pypi/pyversions/aqwel-aion?label=Python)](https://pypi.org/project/aqwel-aion/)
-[![R](https://img.shields.io/badge/R-%3E%3D4.0-276DC3?logo=r)](r_aion/)
+[![R](https://img.shields.io/badge/R-%3E%3D4.0-276DC3?logo=r)](r_pytekt/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Aqwel AI](https://img.shields.io/badge/Product-Aqwel%20AI-0066cc)](https://aqwelai.xyz/)
 
@@ -71,26 +71,26 @@ More paths: [Quick start](#quick-start-choose-your-path) · [Installation](#inst
 
 ---
 
-## R Language Support (`r_aion`)
+## R Language Support (`r_pytekt`)
 
-Aion provides high-performance native R support through the `r_aion` package built with **Rcpp**.
+Pytekt provides high-performance native R support through the `r_pytekt` package built with **Rcpp**.
 
 ### Installation in R
 
 ```R
 # Install directly from local repository or GitHub
-devtools::install("r_aion")
+devtools::install("r_pytekt")
 ```
 
 ### Usage in R
 
 ```R
-library(aion)
+library(pytekt)
 
 x <- c(1.0, 2.0, 3.0, 4.0, 5.0)
-cat("Fast Sum:", aion_sum(x), "\n")
-cat("Fast Mean:", aion_mean(x), "\n")
-print(aion_rolling_mean(x, window = 3))
+cat("Fast Sum:", pytekt_sum(x), "\n")
+cat("Fast Mean:", pytekt_mean(x), "\n")
+print(pytekt_rolling_mean(x, window = 3))
 ```
 
 ---
@@ -121,7 +121,7 @@ This README is the **main documentation** for the GitHub repository. Deeper maps
 | [aion/universe/README.md](aion/universe/README.md) | Astronomy module |
 | [aion/vision/README.md](aion/vision/README.md) | Computer vision (image arrays) |
 | [aion/db/README.md](aion/db/README.md) | Unified database layer |
-| [r_aion/README.md](r_aion/README.md) | **R language bindings** (`r_aion` package via Rcpp) |
+| [r_pytekt/README.md](r_pytekt/README.md) | **R language bindings** (`r_pytekt` package via Rcpp) |
 | [SECURITY.md](SECURITY.md) | API keys, `~/.aion.yaml`, safe publishing |
 | [.env.example](.env.example) | Environment variables (copy to `.env` locally only) |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
@@ -174,7 +174,7 @@ The terminal coding agent (`aion agent`) and in-package ReAct framework (`aion.a
 | **Data scientist / researcher** | `pip install "aqwel-aion[ai]"` → `import aion` → see [Getting Started](#getting-started) |
 | **Physics / astronomy** | `pip install "aqwel-aion[physics,universe]"` → `aion physics` / `aion universe` |
 | **Computer vision** | `pip install "aqwel-aion[vision]"` → see [`aion/vision/README.md`](aion/vision/README.md) |
-| **R user** | `devtools::install_github("aqwel/aion", subdir = "r_aion")` → `library(aion)` → see [`r_aion/README.md`](r_aion/README.md) |
+| **R user** | `devtools::install_github("aqwel/pytekt", subdir = "r_pytekt")` → `library(pytekt)` → see [`r_pytekt/README.md`](r_pytekt/README.md) |
 | **Full local install** | `pip install -e ".[full]"` from this repo |
 
 ---

@@ -1,0 +1,110 @@
+---
+title: "Getting Started with Pytekt in R"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with Pytekt in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction to Pytekt for R
+
+The `pytekt` R package provides native C++ numerical acceleration for common vector operations, reductions, matrix operations, and streaming algorithms, as well as an optional seamless bridge to Pytekt's full Python machine learning and scientific suite via `reticulate`.
+
+## 1. Native High-Performance Numerical Kernels
+
+All native kernels in `pytekt` are compiled via Rcpp using high-performance C++14 routines.
+
+```{r setup}
+library(pytekt)
+
+# Sample dataset
+x <- c(10.0, 25.5, -4.2, 18.0, 99.1, 3.7)
+```
+
+### 1D Reductions & Summary Statistics
+
+```{r reductions}
+# Fast sum and mean
+pytekt_sum(x)
+pytekt_mean(x)
+
+# Variance and standard deviation
+pytekt_variance(x, ddof = 1)
+pytekt_std(x, ddof = 1)
+
+# Extrema and indices (1-based for R)
+pytekt_min(x)
+pytekt_max(x)
+pytekt_argmin(x)
+pytekt_argmax(x)
+```
+
+### Vector Distance & Similarity
+
+```{r distance}
+a <- c(1.0, 2.0, 3.0)
+b <- c(4.0, 5.0, 6.0)
+
+# Euclidean Distance & Cosine Similarity
+pytekt_euclidean_distance(a, b)
+pytekt_cosine_similarity(a, b)
+```
+
+### Streaming & Window Operations
+
+```{r streaming}
+# Cumulative Prefix Sum
+pytekt_prefix_sum(x)
+
+# Rolling window statistics
+pytekt_rolling_mean(x, window = 3)
+pytekt_rolling_sum(x, window = 3)
+
+# Streaming histogram
+pytekt_histogram(x, bins = 5, lo = -10.0, hi = 100.0)
+
+# Block / Chunk Statistics
+pytekt_chunk_statistics(x, chunk_size = 2)
+```
+
+### Fast Matrix Multiplication
+
+```{r matmul}
+# 2x2 matrices flattened row-major
+A <- c(1, 2, 3, 4)
+B <- c(5, 6, 7, 8)
+
+pytekt_matrix_multiply(A, B, m = 2, n = 2, p = 2)
+```
+
+## 2. Using Python Machine Learning & Scientific Models in R
+
+When `reticulate` and the Python `aqwel-aion` package are installed, you can access the complete ML, physics, and astronomy models directly from R:
+
+```R
+if (pytekt_available()) {
+  pytekt <- import_pytekt()
+  
+  # Load built-in research benchmark dataset
+  iris_ds <- pytekt$datasets$load_iris()
+  
+  # Train a Gaussian Naive Bayes classifier
+  scaler <- pytekt$preprocessing$StandardScaler()
+  X_scaled <- scaler$fit_transform(iris_ds$data)
+  
+  clf <- pytekt$models$GaussianNB()
+  clf$fit(X_scaled, iris_ds$target)
+  
+  preds <- clf$predict(X_scaled)
+  acc <- pytekt$metrics$accuracy_score(iris_ds$target, preds)
+  cat("Model Accuracy:", acc, "\n")
+}
+```

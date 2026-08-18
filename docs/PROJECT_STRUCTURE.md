@@ -26,7 +26,7 @@ Shared today: `aion.providers`, `aion.tools`, `aion.rag`, Core ML, physics, univ
 │   └── ADDING_PHYSICAL_AI.md # Guide for Physical AI modules
 ├── pyproject.toml
 ├── aion/                     # Python package (research library)
-├── r_aion/                   # R language bindings (Rcpp, R ≥ 4.0)
+├── r_pytekt/                 # R language bindings (Rcpp, R ≥ 4.0)
 ├── src/                      # Optional native C++ extensions
 └── tests/
 ```
