@@ -4,19 +4,19 @@ import math
 
 import numpy as np
 
-from aion.universe._native import using_native_extension
-from aion.universe.constants import AU, J2000, MU_SUN
-from aion.universe.coordinates import angular_separation, equatorial_to_horizontal, horizontal_to_equatorial
-from aion.universe.cosmology import Cosmology, luminosity_distance_mpc, redshift_from_velocity
-from aion.universe.magnitude import absolute_magnitude, apparent_magnitude
-from aion.universe.observing import air_mass, ecliptic_to_equatorial, moon_illumination, rise_set_approx
-from aion.universe.orbits import hohmann_transfer, kepler_third_law, planet_position, true_anomaly_from_mean
-from aion.universe.time import gmst, lst
+from pytekt.universe._native import using_native_extension
+from pytekt.universe.constants import AU, J2000, MU_SUN
+from pytekt.universe.coordinates import angular_separation, equatorial_to_horizontal, horizontal_to_equatorial
+from pytekt.universe.cosmology import Cosmology, luminosity_distance_mpc, redshift_from_velocity
+from pytekt.universe.magnitude import absolute_magnitude, apparent_magnitude
+from pytekt.universe.observing import air_mass, ecliptic_to_equatorial, moon_illumination, rise_set_approx
+from pytekt.universe.orbits import hohmann_transfer, kepler_third_law, planet_position, true_anomaly_from_mean
+from pytekt.universe.time import gmst, lst
 
 
 def test_gmst_matches_py():
     g = gmst(J2000)
-    from aion.universe.time import _gmst_py
+    from pytekt.universe.time import _gmst_py
 
     assert abs(g - _gmst_py(J2000)) < 1e-9
 
@@ -98,7 +98,7 @@ def test_using_native_extension_bool():
 
 
 def test_batch_separation_if_native():
-    from aion.universe._native import angular_separation_from_target_batch
+    from pytekt.universe._native import angular_separation_from_target_batch
 
     ra = np.array([7.7553, 6.0])
     dec = np.array([28.0262, 0.0])

@@ -1,0 +1,14 @@
+# Sample TOML for pytekt.config examples (not loaded automatically).
+
+[app]
+name = "pytekt-demo"
+debug = false
+
+[db]
+host = "localhost"
+port = 5432
+ssl = true
+
+[llm]
+provider = "openai"
+timeout_seconds = 60

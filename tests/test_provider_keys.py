@@ -2,7 +2,7 @@
 
 import os
 
-from aion.providers.keys import resolve_api_key
+from pytekt.providers.keys import resolve_api_key
 
 
 def test_resolve_gemini_from_google_env(monkeypatch):

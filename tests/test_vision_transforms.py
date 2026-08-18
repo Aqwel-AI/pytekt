@@ -1,4 +1,4 @@
-"""Tests for aion.vision.transforms."""
+"""Tests for pytekt.vision.transforms."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import pytest
 
 pytest.importorskip("PIL")
 
-from aion.vision.transforms import center_crop, crop, flip, letterbox, pad, resize, rotate
+from pytekt.vision.transforms import center_crop, crop, flip, letterbox, pad, resize, rotate
 
 
 def test_resize_shape():

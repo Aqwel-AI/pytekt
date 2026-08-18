@@ -1,9 +1,9 @@
-"""Tests for aion.universe.time."""
+"""Tests for pytekt.universe.time."""
 
 from datetime import datetime, timezone
 
-from aion.universe.constants import J2000
-from aion.universe.time import datetime_to_jd, gmst, jd_to_datetime, lst, mjd
+from pytekt.universe.constants import J2000
+from pytekt.universe.time import datetime_to_jd, gmst, jd_to_datetime, lst, mjd
 
 
 def test_j2000_epoch():

@@ -1,21 +1,21 @@
 """Tests for cosmology, magnitude, and orbits."""
 
-from aion.universe.cosmology import (
+from pytekt.universe.cosmology import (
     Cosmology,
     hubble_flow_velocity,
     lookback_time_gyr,
     luminosity_distance_mpc,
     redshift_from_velocity,
 )
-from aion.universe.magnitude import absolute_magnitude, apparent_magnitude, distance_modulus
-from aion.universe.orbits import (
+from pytekt.universe.magnitude import absolute_magnitude, apparent_magnitude, distance_modulus
+from pytekt.universe.orbits import (
     OrbitalElements,
     hohmann_transfer,
     kepler_third_law,
     planet_position,
     true_anomaly_from_mean,
 )
-from aion.universe.constants import AU, J2000, MU_SUN
+from pytekt.universe.constants import AU, J2000, MU_SUN
 
 
 def test_distance_modulus_10pc():

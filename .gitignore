@@ -1,4 +1,4 @@
-# Aqwel Aion — safe defaults for open source (never commit secrets or local state)
+# Aqwel PyTekt — safe defaults for open source (never commit secrets or local state)
 # Run: git status --ignored   to audit
 
 # Python
@@ -16,8 +16,10 @@
 
 # Native extension (built locally per machine)
 # -----------------------------------------
-aion/_aion_core*.so
-aion/_aion_core*.pyd
+pytekt/_pytekt_core*.so
+pytekt/_pytekt_core*.pyd
+pytekt/_pytekt_core*.so
+pytekt/_pytekt_core*.pyd
 
 # Build & packaging
 # -----------------
@@ -26,7 +28,7 @@ dist/
 *.manifest
 *.spec
 
-# Virtual environments (root only — do not ignore aion/env package)
+# Virtual environments (root only — do not ignore pytekt/env package)
 # ----------------------------------------------------------------
 /.venv/
 /venv/
@@ -52,12 +54,16 @@ id_rsa
 id_rsa.*
 *.secret
 
-# User Aion config (API keys, agent prefs — lives on your machine only)
-# ---------------------------------------------------------------------
-.aion.yaml
-.aion.yml
-.aion/
-**/.aion.yaml
+# User config (API keys, agent prefs — lives on your machine only)
+# -----------------------------------------------------------------
+.pytekt.yaml
+.pytekt.yml
+.pytekt/
+.pytekt.yaml
+.pytekt.yml
+.pytekt/
+**/.pytekt.yaml
+**/.pytekt.yaml
 *.local.yaml
 *.local.yml
 *.local.toml
@@ -130,22 +136,27 @@ experiments/local/
 # ---------------------------
 *.sqlite
 *.sqlite3
-.aion_cache/
-.aion_store/
-**/.aion/usage/events.jsonl
+.pytekt_cache/
+.pytekt_store/
+.pytekt_cache/
+.pytekt_store/
+**/.pytekt/usage/events.jsonl
+**/.pytekt/usage/events.jsonl
 **/node_modules/
-aion/usage/web/dist/
+pytekt/usage/web/dist/
+pytekt/usage/web/dist/
 .agent/
 
 # Generated output (regenerate locally; do not push)
 # --------------------------------------------------
 example_output/
-aion/former/examples_results/*.png
+pytekt/former/examples_results/*.png
+pytekt/former/examples_results/*.png
 
-# Legacy empty package dirs (use aion/cli_agent/ and code.py only)
+# Legacy empty package dirs (use pytekt/cli_agent/ and code.py only)
 # ---------------------------------------------------------------
-aion/agent/
-aion/code/
+pytekt/agent/
+pytekt/code/
 
 # Archived code (kept locally, not shipped)
 # -----------------------------------------

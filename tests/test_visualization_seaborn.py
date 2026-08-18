@@ -5,7 +5,7 @@ import pytest
 
 pytest.importorskip("seaborn")
 
-from aion.visualization.seaborn_plots import sns_heatmap, sns_kdeplot, sns_regplot
+from pytekt.visualization.seaborn_plots import sns_heatmap, sns_kdeplot, sns_regplot
 
 
 def test_sns_heatmap_returns_figure():

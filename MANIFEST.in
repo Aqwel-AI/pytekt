@@ -5,37 +5,37 @@ include LICENSE
 include .env.example
 include docs/PROJECT_STRUCTURE.md
 recursive-include src *.cpp *.hpp *.h *.cc *.cxx
-prune aion/physics/web/node_modules
-prune aion/universe/web/node_modules
-prune aion/usage/web/node_modules
+prune pytekt/physics/web/node_modules
+prune pytekt/universe/web/node_modules
+prune pytekt/usage/web/node_modules
 global-exclude */node_modules/*
 global-exclude node_modules
-recursive-include aion/usage/static *
-recursive-include aion/usage/static/assets *
-recursive-include aion/universe/static *
-recursive-include aion/universe/static/assets *
-recursive-include aion/physics/static *
-include aion/py.typed
-recursive-include aion *.py
-recursive-include aion/monitor/static *.html
-recursive-include aion/monitor *.md
-recursive-include aion/monitor/examples *.md *.py
-recursive-include aion/io *.md
-recursive-include aion/io/examples *.md *.py
-recursive-include aion/providers *.md
-recursive-include aion/providers/examples *.md *.py
-recursive-include aion/rag *.md
-recursive-include aion/rag/examples *.md *.py
-recursive-include aion/tools *.md
-recursive-include aion/tools/examples *.md *.py
-recursive-include aion/vision *.md
-recursive-include aion/vision/examples *.md *.py
-include aion/physics/README.md
-include aion/universe/README.md
-recursive-include aion/config/examples *.ipynb *.toml *.yaml *.md
-recursive-include aion/former/core *.md
-recursive-include aion/former/datasets *.md
-recursive-include aion/former/experiments *.md
-recursive-include aion/former/models *.md
-recursive-include aion/former/training *.md
-recursive-include aion/former/visualization *.md
+recursive-include pytekt/usage/static *
+recursive-include pytekt/usage/static/assets *
+recursive-include pytekt/universe/static *
+recursive-include pytekt/universe/static/assets *
+recursive-include pytekt/physics/static *
+include pytekt/py.typed
+recursive-include pytekt *.py
+recursive-include pytekt/monitor/static *.html
+recursive-include pytekt/monitor *.md
+recursive-include pytekt/monitor/examples *.md *.py
+recursive-include pytekt/io *.md
+recursive-include pytekt/io/examples *.md *.py
+recursive-include pytekt/providers *.md
+recursive-include pytekt/providers/examples *.md *.py
+recursive-include pytekt/rag *.md
+recursive-include pytekt/rag/examples *.md *.py
+recursive-include pytekt/tools *.md
+recursive-include pytekt/tools/examples *.md *.py
+recursive-include pytekt/vision *.md
+recursive-include pytekt/vision/examples *.md *.py
+include pytekt/physics/README.md
+include pytekt/universe/README.md
+recursive-include pytekt/config/examples *.ipynb *.toml *.yaml *.md
+recursive-include pytekt/former/core *.md
+recursive-include pytekt/former/datasets *.md
+recursive-include pytekt/former/experiments *.md
+recursive-include pytekt/former/models *.md
+recursive-include pytekt/former/training *.md
+recursive-include pytekt/former/visualization *.md

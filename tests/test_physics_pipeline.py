@@ -1,6 +1,6 @@
 import pytest
 
-import aion.physics.pipeline as p
+import pytekt.physics.pipeline as p
 
 
 @pytest.mark.parametrize(

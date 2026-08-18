@@ -2,8 +2,8 @@
 
 import pytest
 
-from aion.providers.gemini_provider import GeminiProvider
-from aion.providers.errors import ProviderError
+from pytekt.providers.gemini_provider import GeminiProvider
+from pytekt.providers.errors import ProviderError
 
 
 def test_extract_text_ok():

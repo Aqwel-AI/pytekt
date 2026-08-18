@@ -5,10 +5,10 @@ from pathlib import Path
 
 import numpy as np
 
-from aion.datasets import load_iris
-from aion.models import MLPipeline, GaussianNB, save_model, load_model
-from aion.preprocessing import StandardScaler
-from aion.metrics import bootstrap_ci, compare_models
+from pytekt.datasets import load_iris
+from pytekt.models import MLPipeline, GaussianNB, save_model, load_model
+from pytekt.preprocessing import StandardScaler
+from pytekt.metrics import bootstrap_ci, compare_models
 
 
 def test_mlpipeline():

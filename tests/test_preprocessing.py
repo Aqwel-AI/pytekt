@@ -1,9 +1,9 @@
-"""Tests for aion.preprocessing."""
+"""Tests for pytekt.preprocessing."""
 
 import numpy as np
 import pytest
 
-from aion.preprocessing import (
+from pytekt.preprocessing import (
     StandardScaler,
     MinMaxScaler,
     LabelEncoder,

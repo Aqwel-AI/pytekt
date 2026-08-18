@@ -1,10 +1,10 @@
-"""Tests for aion.models."""
+"""Tests for pytekt.models."""
 
 import numpy as np
 import pytest
 
-from aion.datasets import load_iris, load_moons
-from aion.models import (
+from pytekt.datasets import load_iris, load_moons
+from pytekt.models import (
     LinearRegression,
     LogisticRegression,
     KNNClassifier,

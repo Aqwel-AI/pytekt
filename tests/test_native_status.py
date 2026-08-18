@@ -1,6 +1,6 @@
 """Tests for library-wide native backend reporting."""
 
-from aion.native import (
+from pytekt.native import (
     native_backends,
     native_build_info,
     native_status,
@@ -14,9 +14,9 @@ def test_native_backends_contains_core_and_universe():
     assert "core" in backends
     assert "universe" in backends
     assert "bigdata" in backends
-    assert backends["core"].module_name == "aion._aion_core"
-    assert backends["universe"].module_name == "aion._aion_universe"
-    assert backends["bigdata"].module_name == "aion._aion_bigdata"
+    assert backends["core"].module_name == "pytekt._pytekt_core"
+    assert backends["universe"].module_name == "pytekt._pytekt_universe"
+    assert backends["bigdata"].module_name == "pytekt._pytekt_bigdata"
 
 
 def test_native_status_is_dict_shaped():
@@ -33,14 +33,14 @@ def test_using_any_native_extension_returns_bool():
 
 def test_native_build_info_exposes_sources():
     info = native_build_info()
-    assert "src/aion_core.cpp" in info["sources"]
-    assert "src/aion_bigdata.cpp" in info["sources"]
-    assert "src/aion_universe.cpp" in info["sources"]
+    assert "src/pytekt_core.cpp" in info["sources"]
+    assert "src/pytekt_bigdata.cpp" in info["sources"]
+    assert "src/pytekt_universe.cpp" in info["sources"]
     assert info["pybind11_required"] is True
 
 
 def test_native_status_report_mentions_both_backends():
     report = native_status_report()
-    assert "aion core numerics" in report
-    assert "aion universe astronomy" in report
-    assert "aion big-data kernels" in report
+    assert "pytekt core numerics" in report
+    assert "pytekt universe astronomy" in report
+    assert "pytekt big-data kernels" in report

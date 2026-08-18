@@ -1,6 +1,6 @@
 [project]
-name = "aqwel-aion"
-version = "0.2.0"
+name = "pytekt"
+version = "0.2.1"
 description = "Open-source AI library for researchers and data scientists (physics, universe, ML, RAG, vision)"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -12,6 +12,7 @@ maintainers = [
 ]
 
 keywords = [
+    "pytekt",
     "ai-research",
     "machine-learning",
     "data-science",
@@ -20,7 +21,6 @@ keywords = [
     "astronomy",
     "computer-vision",
     "scientific-computing",
-    "aqwel-ai",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -55,15 +55,15 @@ dependencies = [
 ]
 
 [project.scripts]
-aion = "aion.cli:main"
+pytekt = "pytekt.cli:main"
 
 [project.urls]
-Homepage = "https://aqwelai.xyz/"
-Documentation = "https://aqwelai.xyz/#/docs"
-Repository = "https://github.com/Aqwel-AI/Aion"
-Changelog = "https://github.com/Aqwel-AI/Aion/blob/main/CHANGELOG.md"
-Issues = "https://github.com/Aqwel-AI/Aion/issues"
-PyPI = "https://pypi.org/project/aqwel-aion/"
+Homepage = "https://github.com/Aqwel-AI/pytekt"
+Documentation = "https://github.com/Aqwel-AI/pytekt#readme"
+Repository = "https://github.com/Aqwel-AI/pytekt"
+Changelog = "https://github.com/Aqwel-AI/pytekt/blob/main/CHANGELOG.md"
+Issues = "https://github.com/Aqwel-AI/pytekt/issues"
+PyPI = "https://pypi.org/project/pytekt/"
 
 [project.optional-dependencies]
 tools = [
@@ -174,16 +174,16 @@ full = [
 ]
 
 [tool.setuptools.cmdclass]
-install = "aion._install_hooks.InstallCommand"
-develop = "aion._install_hooks.DevelopCommand"
-editable_wheel = "aion._install_hooks.EditableWheelCommand"
+install = "pytekt._install_hooks.InstallCommand"
+develop = "pytekt._install_hooks.DevelopCommand"
+editable_wheel = "pytekt._install_hooks.EditableWheelCommand"
 
 [tool.setuptools.package-data]
-"aion.monitor" = ["static/*.html", "*.md"]
-"aion.monitor.examples" = ["*.md"]
-"aion.universe" = ["data/*.json", "static/**/*"]
-"aion.physics" = ["static/**/*"]
-"aion.vision" = ["*.md", "examples/*.md"]
+"pytekt.monitor" = ["static/*.html", "*.md"]
+"pytekt.monitor.examples" = ["*.md"]
+"pytekt.universe" = ["data/*.json", "static/**/*"]
+"pytekt.physics" = ["static/**/*"]
+"pytekt.vision" = ["*.md", "examples/*.md"]
 
 [build-system]
 requires = ["setuptools>=64.0", "wheel", "pybind11>=2.10.0"]

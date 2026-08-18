@@ -1,0 +1,35 @@
+{
+  "name": "pytekt-ide",
+  "displayName": "PyTekt IDE Bridge",
+  "description": "Writes open editor paths to .pytekt/open_files.json for the PyTekt coding agent",
+  "version": "0.1.0",
+  "publisher": "aqwel-ai",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pytekt.syncOpenFiles",
+        "title": "PyTekt: Sync Open Files Now"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.3"
+  }
+}

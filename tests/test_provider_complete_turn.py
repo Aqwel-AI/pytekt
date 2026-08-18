@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from aion.providers.anthropic_provider import (
+from pytekt.providers.anthropic_provider import (
     AnthropicProvider,
     _openai_messages_to_anthropic,
     _openai_tools_to_anthropic,
     _parse_anthropic_response,
 )
-from aion.providers.gemini_provider import (
+from pytekt.providers.gemini_provider import (
     GeminiProvider,
     _openai_messages_to_gemini,
     _openai_tools_to_gemini,
@@ -88,7 +88,7 @@ def test_anthropic_complete_turn_mocked():
             {"type": "tool_use", "id": "t1", "name": "grep", "input": {"pattern": "foo"}},
         ]
     }
-    with patch("aion.providers.anthropic_provider.post_json", return_value=fake):
+    with patch("pytekt.providers.anthropic_provider.post_json", return_value=fake):
         turn = provider.complete_turn(
             [{"role": "user", "content": "find foo"}],
             tools=[

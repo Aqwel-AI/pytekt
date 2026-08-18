@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Setup script for Aqwel-Aion v0.2.0
-Open-source AI research library (physics, universe, ML, RAG, vision)
+Setup script for PyTekt v0.1.0
+High-performance data engineering and processing engine built for Python with a C++ core.
 
 Author: Aksel Aghajanyan
 Developed by: Aqwel AI Team
@@ -17,7 +17,7 @@ from setuptools.command.install import install as _install_cmd
 
 def _post_install_splash() -> None:
     try:
-        from aion.install_splash import maybe_show_install_splash
+        from pytekt.install_splash import maybe_show_install_splash
 
         maybe_show_install_splash()
     except Exception:
@@ -62,41 +62,41 @@ def _get_extensions():
     include = include + [src_dir]
     cxx_args = ["-O3", "-std=c++14"] if os.name != "nt" else ["/O2", "/std:c++14"]
     exts = []
-    if os.path.isfile(os.path.join(src_dir, "aion_core.cpp")):
+    if os.path.isfile(os.path.join(src_dir, "pytekt_core.cpp")):
         exts.append(
             Extension(
-                "aion._aion_core",
-                sources=["src/aion_core.cpp"],
+                "pytekt._pytekt_core",
+                sources=["src/pytekt_core.cpp"],
                 include_dirs=include,
                 extra_compile_args=cxx_args,
                 language="c++",
             )
         )
-    if os.path.isfile(os.path.join(src_dir, "aion_bigdata.cpp")):
+    if os.path.isfile(os.path.join(src_dir, "pytekt_bigdata.cpp")):
         exts.append(
             Extension(
-                "aion._aion_bigdata",
-                sources=["src/aion_bigdata.cpp"],
+                "pytekt._pytekt_bigdata",
+                sources=["src/pytekt_bigdata.cpp"],
                 include_dirs=include,
                 extra_compile_args=cxx_args,
                 language="c++",
             )
         )
-    if os.path.isfile(os.path.join(src_dir, "aion_universe.cpp")):
+    if os.path.isfile(os.path.join(src_dir, "pytekt_universe.cpp")):
         exts.append(
             Extension(
-                "aion._aion_universe",
-                sources=["src/aion_universe.cpp"],
+                "pytekt._pytekt_universe",
+                sources=["src/pytekt_universe.cpp"],
                 include_dirs=include,
                 extra_compile_args=cxx_args,
                 language="c++",
             )
         )
-    if os.path.isfile(os.path.join(src_dir, "aion_physics.cpp")):
+    if os.path.isfile(os.path.join(src_dir, "pytekt_physics.cpp")):
         exts.append(
             Extension(
-                "aion._aion_physics",
-                sources=["src/aion_physics.cpp"],
+                "pytekt._pytekt_physics",
+                sources=["src/pytekt_physics.cpp"],
                 include_dirs=include,
                 extra_compile_args=cxx_args,
                 language="c++",
@@ -106,8 +106,8 @@ def _get_extensions():
 
 
 setup(
-    name="aqwel-aion",
-    version="0.2.0",
+    name="pytekt",
+    version="0.2.1",
     author="Aksel Aghajanyan",
     maintainer="Aqwel AI Team",
     description=(
@@ -118,12 +118,12 @@ setup(
     long_description_content_type="text/markdown",
     url="https://aqwelai.xyz/",
     project_urls={
-        "Homepage": "https://aqwelai.xyz/",
-        "Documentation": "https://aqwelai.xyz/#/docs",
-        "Repository": "https://github.com/Aqwel-AI/Aion",
-        "Changelog": "https://github.com/Aqwel-AI/Aion/blob/main/CHANGELOG.md",
-        "Issues": "https://github.com/Aqwel-AI/Aion/issues",
-        "PyPI": "https://pypi.org/project/aqwel-aion/",
+        "Homepage": "https://github.com/Aqwel-AI/pytekt",
+        "Documentation": "https://github.com/Aqwel-AI/pytekt#readme",
+        "Repository": "https://github.com/Aqwel-AI/pytekt",
+        "Changelog": "https://github.com/Aqwel-AI/pytekt/blob/main/CHANGELOG.md",
+        "Issues": "https://github.com/Aqwel-AI/pytekt/issues",
+        "PyPI": "https://pypi.org/project/pytekt/",
     },
     packages=find_packages(),
     ext_modules=_get_extensions(),
@@ -152,6 +152,7 @@ setup(
         "Programming Language :: Python :: 3.13",
     ],
     keywords=[
+        "pytekt",
         "ai-research",
         "machine-learning",
         "data-science",
@@ -160,7 +161,6 @@ setup(
         "astronomy",
         "computer-vision",
         "scientific-computing",
-        "aqwel-ai",
     ],
     python_requires=">=3.8",
 
@@ -188,7 +188,7 @@ setup(
             "numpy>=1.20.0",
         ],
 
-        # Transformer training (Aion Former: decoder-only, NumPy autograd)
+        # Transformer training (PyTekt Former: decoder-only, NumPy autograd)
         "former": [
             "matplotlib>=3.5.0",
             "pyyaml>=6.0",
@@ -297,13 +297,13 @@ setup(
         ],
     },
     package_data={
-        "aion.monitor": ["static/*.html", "*.md"],
-        "aion.monitor.examples": ["*.md"],
+        "pytekt.monitor": ["static/*.html", "*.md"],
+        "pytekt.monitor.examples": ["*.md"],
     },
 
     entry_points={
         "console_scripts": [
-            "aion=aion.cli:main",
+            "pytekt=pytekt.cli:main",
         ],
     },
     cmdclass={

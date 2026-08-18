@@ -1,4 +1,4 @@
-from aion.physics import web_api
+from pytekt.physics import web_api
 
 
 def test_library_info():

@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from aion.visualization.three_d import (
+from pytekt.visualization.three_d import (
     plot_3d_contour,
     plot_3d_scatter,
     plot_3d_surface,

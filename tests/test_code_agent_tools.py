@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from aion.tools.code_agent import edit_file, read_file, write_file
-from aion.tools.workspace import Workspace
+from pytekt.tools.code_agent import edit_file, read_file, write_file
+from pytekt.tools.workspace import Workspace
 
 
 @pytest.fixture

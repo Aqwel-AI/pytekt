@@ -1,4 +1,4 @@
-import aion
+import pytekt
 
 
 SAMPLE_CODE = '''
@@ -38,37 +38,37 @@ class Demo(Base):
 
 
 def test_extract_comments_and_todos():
-    assert aion.snippets.extract_comments(SAMPLE_CODE) == ["# TODO: improve cache policy"]
-    assert aion.snippets.extract_todo_comments(SAMPLE_CODE) == ["# TODO: improve cache policy"]
+    assert pytekt.snippets.extract_comments(SAMPLE_CODE) == ["# TODO: improve cache policy"]
+    assert pytekt.snippets.extract_todo_comments(SAMPLE_CODE) == ["# TODO: improve cache policy"]
 
 
 def test_extract_functions_classes_and_async_functions():
-    assert aion.snippets.extract_functions(SAMPLE_CODE) == ["top_level", "method"]
-    assert aion.snippets.extract_async_functions(SAMPLE_CODE) == ["fetch_data"]
-    assert aion.snippets.extract_class_defs(SAMPLE_CODE) == ["Base", "Demo"]
+    assert pytekt.snippets.extract_functions(SAMPLE_CODE) == ["top_level", "method"]
+    assert pytekt.snippets.extract_async_functions(SAMPLE_CODE) == ["fetch_data"]
+    assert pytekt.snippets.extract_class_defs(SAMPLE_CODE) == ["Base", "Demo"]
 
 
 def test_extract_docstrings_and_imports():
-    docstrings = aion.snippets.extract_docstrings(SAMPLE_CODE)
-    imports = aion.snippets.extract_imports(SAMPLE_CODE)
+    docstrings = pytekt.snippets.extract_docstrings(SAMPLE_CODE)
+    imports = pytekt.snippets.extract_imports(SAMPLE_CODE)
     assert "Module docstring." in docstrings
     assert "Top-level docstring." in docstrings
     assert imports == ["os", "typing"]
 
 
 def test_extract_decorators_methods_and_bases():
-    decorators = aion.snippets.extract_decorators(SAMPLE_CODE)
-    methods = aion.snippets.extract_methods(SAMPLE_CODE)
-    bases = aion.snippets.extract_class_bases(SAMPLE_CODE)
+    decorators = pytekt.snippets.extract_decorators(SAMPLE_CODE)
+    methods = pytekt.snippets.extract_methods(SAMPLE_CODE)
+    bases = pytekt.snippets.extract_class_bases(SAMPLE_CODE)
     assert decorators == ["decorator", "dataclass"]
     assert methods == {"Base": [], "Demo": ["method"]}
     assert bases == {"Base": [], "Demo": ["Base"]}
 
 
 def test_extract_constants_assignments_and_type_hints():
-    constants = aion.snippets.extract_constants(SAMPLE_CODE)
-    assignments = aion.snippets.extract_assignments(SAMPLE_CODE)
-    type_hints = aion.snippets.extract_type_hints(SAMPLE_CODE)
+    constants = pytekt.snippets.extract_constants(SAMPLE_CODE)
+    assignments = pytekt.snippets.extract_assignments(SAMPLE_CODE)
+    type_hints = pytekt.snippets.extract_type_hints(SAMPLE_CODE)
     assert constants == ["CONSTANT_VALUE"]
     assert "CONSTANT_VALUE" in assignments
     assert "local_value" in assignments
@@ -78,9 +78,9 @@ def test_extract_constants_assignments_and_type_hints():
 
 
 def test_extract_signatures_raises_and_returns():
-    signatures = aion.snippets.extract_function_signatures(SAMPLE_CODE)
-    raises = aion.snippets.extract_raise_statements(SAMPLE_CODE)
-    returns = aion.snippets.extract_return_statements(SAMPLE_CODE)
+    signatures = pytekt.snippets.extract_function_signatures(SAMPLE_CODE)
+    raises = pytekt.snippets.extract_raise_statements(SAMPLE_CODE)
+    returns = pytekt.snippets.extract_return_statements(SAMPLE_CODE)
     assert signatures["top_level"] == "top_level(x: int, y: str = 'a') -> str"
     assert signatures["fetch_data"] == "fetch_data(url: str) -> bytes"
     assert "raise ValueError('bad flag')" in raises
@@ -99,19 +99,19 @@ print("hello")
 SELECT 1;
 ```
 """
-    assert aion.snippets.extract_code_blocks(markdown) == ['print("hello")', "SELECT 1;"]
-    assert aion.snippets.extract_code_blocks(markdown, language="python") == ['print("hello")']
-    assert aion.snippets.format_snippet("\n\tif True:\n\t\tprint('x')\n", indent=2) == "  if True:\n    print('x')"
-    assert aion.snippets.truncate_snippet("a\nb\nc", max_lines=2) == "a\nb\n..."
-    assert aion.snippets.snippet_line_count("a\n\nb\n") == 2
+    assert pytekt.snippets.extract_code_blocks(markdown) == ['print("hello")', "SELECT 1;"]
+    assert pytekt.snippets.extract_code_blocks(markdown, language="python") == ['print("hello")']
+    assert pytekt.snippets.format_snippet("\n\tif True:\n\t\tprint('x')\n", indent=2) == "  if True:\n    print('x')"
+    assert pytekt.snippets.truncate_snippet("a\nb\nc", max_lines=2) == "a\nb\n..."
+    assert pytekt.snippets.snippet_line_count("a\n\nb\n") == 2
 
 
 def test_validity_summary_and_entities():
-    assert aion.snippets.is_valid_python_snippet(SAMPLE_CODE) is True
-    assert aion.snippets.is_valid_python_snippet("def broken(") is False
+    assert pytekt.snippets.is_valid_python_snippet(SAMPLE_CODE) is True
+    assert pytekt.snippets.is_valid_python_snippet("def broken(") is False
 
-    summary = aion.snippets.summarize_python_snippet(SAMPLE_CODE)
-    entities = aion.snippets.extract_python_entities(SAMPLE_CODE)
+    summary = pytekt.snippets.summarize_python_snippet(SAMPLE_CODE)
+    entities = pytekt.snippets.extract_python_entities(SAMPLE_CODE)
 
     assert summary["function_count"] == 2
     assert summary["async_function_count"] == 1

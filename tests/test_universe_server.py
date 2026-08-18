@@ -15,7 +15,7 @@ def _free_port() -> int:
 
 
 def test_universe_api_info():
-    from aion.universe.server import run_server
+    from pytekt.universe.server import run_server
 
     port = _free_port()
     thread = threading.Thread(

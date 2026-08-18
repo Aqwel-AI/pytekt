@@ -1,6 +1,6 @@
 """Tests for algorithm catalog."""
 
-from aion.algorithms import count_algorithms, categories, get_algorithm, list_algorithms
+from pytekt.algorithms import count_algorithms, categories, get_algorithm, list_algorithms
 
 
 def test_catalog_count_at_least_420():

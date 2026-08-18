@@ -4,7 +4,7 @@ import threading
 import time
 import urllib.request
 
-from aion.physics.server import PhysicsHandler, _ThreadingHTTPServer
+from pytekt.physics.server import PhysicsHandler, _ThreadingHTTPServer
 
 
 def test_physics_server_info():

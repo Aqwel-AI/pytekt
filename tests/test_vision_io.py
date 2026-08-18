@@ -1,4 +1,4 @@
-"""Tests for aion.vision.io."""
+"""Tests for pytekt.vision.io."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import pytest
 
 pytest.importorskip("PIL")
 
-from aion.vision.io import decode_image, encode_image, image_info, read_image, write_image
+from pytekt.vision.io import decode_image, encode_image, image_info, read_image, write_image
 
 
 def test_write_read_roundtrip(tmp_path):

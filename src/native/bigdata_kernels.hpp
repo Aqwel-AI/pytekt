@@ -1,5 +1,5 @@
 /*
- * Big-data numeric kernels for Aion's native extension.
+ * Big-data numeric kernels for PyTekt's native extension.
  *
  * The goal is not to replace NumPy, but to accelerate common streaming
  * reductions used by the Python algorithms layer:
@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 
-namespace aion_native {
+namespace pytekt_native {
 
 inline py::array_t<double> prefix_sum(py::array_t<double> arr) {
     const auto buf = require_1d_double_buffer(arr, "prefix_sum");
@@ -159,4 +159,4 @@ inline py::dict chunk_statistics(py::array_t<double> arr, std::size_t chunk_size
     return result;
 }
 
-}  // namespace aion_native
+}  // namespace pytekt_native

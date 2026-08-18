@@ -1,6 +1,6 @@
 """Unit tests for SQL filter compilation."""
 
-from aion.db.types import Filter, compile_sql_filters, parse_filters
+from pytekt.db.types import Filter, compile_sql_filters, parse_filters
 
 
 def test_parse_filters_suffix():

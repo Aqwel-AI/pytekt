@@ -1,11 +1,11 @@
-"""Tests for aion.vision.color."""
+"""Tests for pytekt.vision.color."""
 
 from __future__ import annotations
 
 import numpy as np
 import pytest
 
-from aion.vision.color import invert, merge_channels, split_channels, to_gray, to_rgb
+from pytekt.vision.color import invert, merge_channels, split_channels, to_gray, to_rgb
 
 
 def test_to_gray_and_rgb():
@@ -34,7 +34,7 @@ def test_split_merge_invert():
     reason="OpenCV not installed",
 )
 def test_hsv_roundtrip():
-    from aion.vision.color import hsv_to_rgb, rgb_to_hsv
+    from pytekt.vision.color import hsv_to_rgb, rgb_to_hsv
 
     rgb = np.zeros((5, 5, 3), dtype=np.uint8)
     rgb[..., 0] = 200

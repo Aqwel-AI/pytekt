@@ -1,31 +1,31 @@
 """
-Full exercise script for aion.algorithms, aion.visualization, pdf helpers,
+Full exercise script for pytekt.algorithms, pytekt.visualization, pdf helpers,
 and post-0.1.9 / 0.2.0 library surface (I/O, LLM stack, RAG, config/env,
-benchmarks, graphs, 3D/report plots). Compatible with Aion 0.2.0.
+benchmarks, graphs, 3D/report plots). Compatible with PyTekt 0.2.0.
 
 Output is printed for algorithms and infra; standard plots go to example_output/;
 newer extras also write under example_output/v019_examples/.
 
 Contents:
-  - Section 1: aion.algorithms (search + arrays)
-  - Section 2: aion.visualization (1D/2D/training plots)
-  - Section 3: aion.pdf documentation helpers (stats, guides, validation)
+  - Section 1: pytekt.algorithms (search + arrays)
+  - Section 2: pytekt.visualization (1D/2D/training plots)
+  - Section 3: pytekt.pdf documentation helpers (stats, guides, validation)
   - Section 4: library surface demos (I/O, providers, tools, RAG, config, …)
     - fast_* numerics + using_native_extension
-    - aion.io (atomic_write, iter_lines, file_sha256)
-    - aion.providers (supported_providers, parse_chat_completion_response; no API keys)
-    - aion.tools (run_tool_loop with FakeToolProvider; JSON sidecar pattern for checkpoints)
-    - aion.rag (SimpleRAGIndex with local fake embedder)
-    - aion.config (deep_merge, get_nested; optional sample TOML from package examples)
-    - aion.env (load_dotenv_file on a temp .env)
+    - pytekt.io (atomic_write, iter_lines, file_sha256)
+    - pytekt.providers (supported_providers, parse_chat_completion_response; no API keys)
+    - pytekt.tools (run_tool_loop with FakeToolProvider; JSON sidecar pattern for checkpoints)
+    - pytekt.rag (SimpleRAGIndex with local fake embedder)
+    - pytekt.config (deep_merge, get_nested; optional sample TOML from package examples)
+    - pytekt.env (load_dotenv_file on a temp .env)
     - stdlib logging.basicConfig (root logger level)
-    - aion.benchmarks (timed_run, compare_sum_numpy_vs_fast)
-    - aion.algorithms.graphs (dijkstra, connected_components, shortest_path_unweighted)
-    - aion.visualization (plot_3d_scatter, plot_3d_surface, save_figures_pdf)
-    - aion.pdf (search_public_api, export_api_index md, create_api_documentation_html)
-    - aion.tools extras: TokenBucket (rate limit)
+    - pytekt.benchmarks (timed_run, compare_sum_numpy_vs_fast)
+    - pytekt.algorithms.graphs (dijkstra, connected_components, shortest_path_unweighted)
+    - pytekt.visualization (plot_3d_scatter, plot_3d_surface, save_figures_pdf)
+    - pytekt.pdf (search_public_api, export_api_index md, create_api_documentation_html)
+    - pytekt.tools extras: TokenBucket (rate limit)
 Run: python example.py
-Requires: pip install aqwel-aion[full] (or matplotlib + numpy at minimum for sections 1–2;
+Requires: pip install pytekt[full] (or matplotlib + numpy at minimum for sections 1–2;
 [config] for TOML sample load in section 4).
 """
 
@@ -37,16 +37,16 @@ from pathlib import Path
 import numpy as np
 
 # ---------------------------------------------------------------------------
-# 1. aion.algorithms — search and array utilities
+# 1. pytekt.algorithms — search and array utilities
 # ---------------------------------------------------------------------------
-# All functions below are from aion.algorithms; they use only the standard
+# All functions below are from pytekt.algorithms; they use only the standard
 # library (and type hints). Search functions expect sorted lists unless
 # otherwise noted (e.g. linear_search, first/last occurrence).
 print("=" * 60)
-print("aion.algorithms — tests")
+print("pytekt.algorithms — tests")
 print("=" * 60)
 
-from aion.algorithms import (
+from pytekt.algorithms import (
     binary_search,
     lower_bound,
     upper_bound,
@@ -138,20 +138,20 @@ print("pad_array([1,2,3], 6, 0) ->", padded)
 print()
 
 # ---------------------------------------------------------------------------
-# 2. aion.visualization — all plot functions (saved to example_output/)
+# 2. pytekt.visualization — all plot functions (saved to example_output/)
 # ---------------------------------------------------------------------------
 # Every plot function returns a matplotlib Figure. We save each to a file
 # and close the figure to avoid "too many figures" warnings and keep the
 # script suitable for headless/CI environments. Requires matplotlib (and
 # numpy for some plots).
 print("=" * 60)
-print("aion.visualization — tests (plots saved to example_output/)")
+print("pytekt.visualization — tests (plots saved to example_output/)")
 print("=" * 60)
 
 OUTPUT_DIR = "example_output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-from aion.visualization import (
+from pytekt.visualization import (
     plot_array,
     plot_histogram,
     plot_scatter,
@@ -190,7 +190,7 @@ from aion.visualization import (
     plot_early_stopping,
     plot_epoch_time,
 )
-from aion.visualization.utils import save_plot, close_figure
+from pytekt.visualization.utils import save_plot, close_figure
 
 
 def save(name):
@@ -300,22 +300,22 @@ print("All algorithm tests completed.")
 print("All visualization plots saved to", OUTPUT_DIR)
 
 # ---------------------------------------------------------------------------
-# 3. What's new in v0.1.8 — aion.pdf documentation helpers (for team visibility)
+# 3. What's new in v0.1.8 — pytekt.pdf documentation helpers (for team visibility)
 # ---------------------------------------------------------------------------
 # New in this version: five functions for docs stats, installation guide,
 # quick reference, docstring validation, and documentation index.
 # Outputs go to example_output/ so other developers can see generated files.
 print()
 print("=" * 60)
-print("What's new in v0.1.8 — aion.pdf documentation helpers")
+print("What's new in v0.1.8 — pytekt.pdf documentation helpers")
 print("=" * 60)
 
-import aion
+import pytekt
 DOCS_DIR = os.path.join(OUTPUT_DIR, "v018_docs")
 os.makedirs(DOCS_DIR, exist_ok=True)
 
 # 3.1 get_documentation_statistics() — module/function counts and per-module stats
-from aion.pdf import get_documentation_statistics
+from pytekt.pdf import get_documentation_statistics
 stats = get_documentation_statistics()
 print("get_documentation_statistics():")
 print("  module_count:", stats["module_count"])
@@ -325,19 +325,19 @@ if stats["modules_with_errors"]:
     print("  modules_with_errors:", stats["modules_with_errors"])
 
 # 3.2 create_installation_guide() — installation and setup guide (TXT; PDF if ReportLab)
-from aion.pdf import create_installation_guide
-install_txt = os.path.join(DOCS_DIR, "aion_installation_guide.txt")
+from pytekt.pdf import create_installation_guide
+install_txt = os.path.join(DOCS_DIR, "pytekt_installation_guide.txt")
 create_installation_guide(output_file=install_txt, format="txt")
 print("create_installation_guide() ->", install_txt)
 
 # 3.3 create_quick_reference() — compact function names by module (TXT; PDF if ReportLab)
-from aion.pdf import create_quick_reference
-quick_txt = os.path.join(DOCS_DIR, "aion_quick_reference.txt")
+from pytekt.pdf import create_quick_reference
+quick_txt = os.path.join(DOCS_DIR, "pytekt_quick_reference.txt")
 create_quick_reference(output_file=quick_txt, format="txt")
 print("create_quick_reference() ->", quick_txt)
 
 # 3.4 validate_documentation() — report which public functions lack docstrings
-from aion.pdf import validate_documentation
+from pytekt.pdf import validate_documentation
 validation = validate_documentation(module_name=None)
 print("validate_documentation():")
 print("  total_functions:", validation["summary"]["total_functions"])
@@ -347,16 +347,16 @@ if validation["missing_docstrings"]:
     print("  sample missing:", dict(sample))
 
 # 3.5 create_documentation_index() — INDEX.md listing all generated docs
-from aion.pdf import create_documentation_index
+from pytekt.pdf import create_documentation_index
 index_path = create_documentation_index(output_dir=DOCS_DIR)
 print("create_documentation_index() ->", index_path)
 
 # Package metadata (section 3 reference)
 print()
 print("Package metadata:")
-print("  __version__:", aion.__version__)
-print("  __author__:", aion.__author__)
-print("  __developer__:", aion.__developer__)
+print("  __version__:", pytekt.__version__)
+print("  __author__:", pytekt.__author__)
+print("  __developer__:", pytekt.__developer__)
 
 print()
 print("All v0.1.8 doc outputs saved to", DOCS_DIR)
@@ -373,19 +373,19 @@ V019_DIR = os.path.join(OUTPUT_DIR, "v019_examples")
 os.makedirs(V019_DIR, exist_ok=True)
 _ROOT = Path(__file__).resolve().parent
 
-# 4.1 Native / NumPy fast_* API (re-exported on aion)
+# 4.1 Native / NumPy fast_* API (re-exported on pytekt)
 print()
-print("4.1 aion fast_* + using_native_extension")
+print("4.1 pytekt fast_* + using_native_extension")
 x = [0.5, 1.0, 1.5]
-print("  using_native_extension:", aion.using_native_extension())
-print("  fast_sum:", aion.fast_sum(x), "fast_mean:", aion.fast_mean(x))
-print("  fast_softmax (3):", [round(float(v), 4) for v in aion.fast_softmax(x)])
-print("  fast_lower_bound / fast_upper_bound on sorted:", aion.fast_lower_bound([0.0, 0.5, 1.0], 0.5), aion.fast_upper_bound([0.0, 0.5, 1.0], 0.5))
+print("  using_native_extension:", pytekt.using_native_extension())
+print("  fast_sum:", pytekt.fast_sum(x), "fast_mean:", pytekt.fast_mean(x))
+print("  fast_softmax (3):", [round(float(v), 4) for v in pytekt.fast_softmax(x)])
+print("  fast_lower_bound / fast_upper_bound on sorted:", pytekt.fast_lower_bound([0.0, 0.5, 1.0], 0.5), pytekt.fast_upper_bound([0.0, 0.5, 1.0], 0.5))
 
-# 4.2 aion.io — atomic write, line iteration, SHA-256
+# 4.2 pytekt.io — atomic write, line iteration, SHA-256
 print()
-print("4.2 aion.io")
-from aion.io import atomic_write, file_sha256, iter_lines, verify_sha256
+print("4.2 pytekt.io")
+from pytekt.io import atomic_write, file_sha256, iter_lines, verify_sha256
 
 with tempfile.TemporaryDirectory() as _td:
     p = Path(_td) / "state.txt"
@@ -402,7 +402,7 @@ import json
 
 _meta_path = Path(V019_DIR) / "run_meta.json"
 _meta = {
-    "format": "aion_checkpoint_meta_v1",
+    "format": "pytekt_checkpoint_meta_v1",
     "epoch": 1,
     "model_type": "demo",
     "note": "example.py",
@@ -412,10 +412,10 @@ _loaded = json.loads(_meta_path.read_text(encoding="utf-8"))
 print("  meta keys:", sorted(_loaded.keys()))
 print("  json.dumps with default=str:", json.dumps({"t": (1, 2)}, default=str)[:40], "…")
 
-# 4.4 aion.providers — factory names + response parsing (no HTTP)
+# 4.4 pytekt.providers — factory names + response parsing (no HTTP)
 print()
-print("4.4 aion.providers (offline)")
-from aion.providers import parse_chat_completion_response, supported_providers
+print("4.4 pytekt.providers (offline)")
+from pytekt.providers import parse_chat_completion_response, supported_providers
 
 print("  supported_providers (sample):", supported_providers()[:4])
 _stub = {
@@ -431,12 +431,12 @@ _stub = {
 _turn = parse_chat_completion_response(_stub)
 print("  parse_chat_completion_response content:", _turn.content[:40], "…")
 
-# 4.5 aion.tools — tool loop without network (FakeToolProvider)
+# 4.5 pytekt.tools — tool loop without network (FakeToolProvider)
 print()
-print("4.5 aion.tools (offline loop)")
-from aion.providers.structured import AssistantTurn, NormalizedToolCall
-from aion.tools import FakeToolProvider, ToolRegistry, function_tool, make_tool_turn, run_tool_loop
-from aion.tools.rate_limit import TokenBucket
+print("4.5 pytekt.tools (offline loop)")
+from pytekt.providers.structured import AssistantTurn, NormalizedToolCall
+from pytekt.tools import FakeToolProvider, ToolRegistry, function_tool, make_tool_turn, run_tool_loop
+from pytekt.tools.rate_limit import TokenBucket
 
 
 def _add(a: float, b: float) -> float:
@@ -470,10 +470,10 @@ _bucket = TokenBucket(rate_per_sec=100.0, capacity=10.0)
 _bucket.acquire(3.0)
 print("  TokenBucket: acquire(3) completed (100 tokens/s refill, capacity 10)")
 
-# 4.6 aion.rag — in-memory index + fake embeddings
+# 4.6 pytekt.rag — in-memory index + fake embeddings
 print()
-print("4.6 aion.rag")
-from aion.rag import SimpleRAGIndex
+print("4.6 pytekt.rag")
+from pytekt.rag import SimpleRAGIndex
 
 
 def _fake_embed(text: str) -> np.ndarray:
@@ -486,19 +486,19 @@ _n = _ridx.index_texts(["alpha beta gamma.", "delta epsilon."], chunk_size=64, o
 _hits = _ridx.query("alpha", k=2)
 print("  SimpleRAGIndex chunks indexed:", _n, "query hits:", len(_hits))
 
-# 4.7 aion.config — dict merge + optional package sample TOML
+# 4.7 pytekt.config — dict merge + optional package sample TOML
 print()
-print("4.7 aion.config")
-from aion.config import deep_merge, get_nested, set_nested
+print("4.7 pytekt.config")
+from pytekt.config import deep_merge, get_nested, set_nested
 
 _cfg = {"app": {"name": "demo"}, "db": {"host": "localhost"}}
 _cfg = deep_merge(_cfg, {"app": {"debug": True}, "logging": {"level": "INFO"}})
 set_nested(_cfg, "app.version", "0.1.9")
 print("  get_nested app.debug:", get_nested(_cfg, "app.debug"))
-_sample_toml = _ROOT / "aion" / "config" / "examples" / "sample.toml"
+_sample_toml = _ROOT / "pytekt" / "config" / "examples" / "sample.toml"
 if _sample_toml.is_file():
     try:
-        from aion.config import load_toml_file
+        from pytekt.config import load_toml_file
 
         _loaded = load_toml_file(_sample_toml)
         print("  load_toml_file sample keys:", list(_loaded.keys())[:5])
@@ -507,10 +507,10 @@ if _sample_toml.is_file():
 else:
     print("  load_toml_file skipped (sample.toml not found)")
 
-# 4.8 aion.env — parse a temp .env
+# 4.8 pytekt.env — parse a temp .env
 print()
-print("4.8 aion.env")
-from aion.env import load_dotenv_file
+print("4.8 pytekt.env")
+from pytekt.env import load_dotenv_file
 
 with tempfile.TemporaryDirectory() as _td:
     _envp = Path(_td) / ".env"
@@ -526,20 +526,20 @@ import logging
 logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(name)s: %(message)s")
 print("  basicConfig(level=WARNING) applied")
 
-# 4.10 aion.benchmarks
+# 4.10 pytekt.benchmarks
 print()
-print("4.10 aion.benchmarks")
-from aion.benchmarks import compare_sum_numpy_vs_fast, timed_run
+print("4.10 pytekt.benchmarks")
+from pytekt.benchmarks import compare_sum_numpy_vs_fast, timed_run
 
 _, _stats = timed_run(lambda: sum(range(500)), repeats=3, warmup=1)
 print("  timed_run sum(range(500)) mean_s:", round(_stats["mean_s"], 8))
 _cmp = compare_sum_numpy_vs_fast(np.arange(10_000, dtype=np.float64), repeats=3)
 print("  compare_sum_numpy_vs_fast native:", _cmp["using_native_extension"])
 
-# 4.11 aion.algorithms.graphs — Dijkstra, components, unweighted shortest path
+# 4.11 pytekt.algorithms.graphs — Dijkstra, components, unweighted shortest path
 print()
-print("4.11 aion.algorithms graphs (weighted + unweighted)")
-from aion.algorithms import connected_components, dijkstra, shortest_path_unweighted
+print("4.11 pytekt.algorithms graphs (weighted + unweighted)")
+from pytekt.algorithms import connected_components, dijkstra, shortest_path_unweighted
 
 _wg = {"A": [("B", 1.0), ("C", 4.0)], "B": [("C", 2.0), ("D", 5.0)], "C": [("D", 1.0)], "D": []}
 print("  dijkstra A->:", dijkstra(_wg, "A"))
@@ -548,10 +548,10 @@ print("  connected_components count:", len(connected_components(_ug)))
 _dag = {"s": ["a", "b"], "a": ["t"], "b": ["t"], "t": []}
 print("  shortest_path_unweighted s->t:", shortest_path_unweighted(_dag, "s", "t"))
 
-# 4.12 aion.visualization — 3D plots + multi-page PDF of figures
+# 4.12 pytekt.visualization — 3D plots + multi-page PDF of figures
 print()
-print("4.12 aion.visualization 3D + save_figures_pdf")
-from aion.visualization import figures_to_html_img_tags, plot_3d_scatter, plot_3d_surface, save_figures_pdf
+print("4.12 pytekt.visualization 3D + save_figures_pdf")
+from pytekt.visualization import figures_to_html_img_tags, plot_3d_scatter, plot_3d_surface, save_figures_pdf
 
 _fig_s = plot_3d_scatter([0, 1, 2], [0, 1, 0], [0, 0, 1], title="3D scatter (v0.1.9)", show=False)
 _xs = np.linspace(0.0, 1.0, 5)
@@ -563,22 +563,22 @@ save_figures_pdf([_fig_s, _fig_u], _pdf_path)
 _html_snip = figures_to_html_img_tags([_fig_s], fmt="png")
 print("  save_figures_pdf ->", _pdf_path)
 print("  figures_to_html_img_tags length:", len(_html_snip))
-from aion.visualization.utils import close_figure
+from pytekt.visualization.utils import close_figure
 
 close_figure(_fig_s)
 close_figure(_fig_u)
 
-# 4.13 aion.pdf — symbol search, Markdown API index, static HTML API page
+# 4.13 pytekt.pdf — symbol search, Markdown API index, static HTML API page
 print()
-print("4.13 aion.pdf (v0.1.9-style helpers)")
-from aion.pdf import create_api_documentation_html, export_api_index, search_public_api
+print("4.13 pytekt.pdf (v0.1.9-style helpers)")
+from pytekt.pdf import create_api_documentation_html, export_api_index, search_public_api
 
 _hits = search_public_api("binary_search", include_classes=False)
 print("  search_public_api binary_search hits:", len(_hits))
 _idx_md = os.path.join(V019_DIR, "api_index_slice.md")
 export_api_index(output_file=_idx_md, format="md", include_classes=False)
 print("  export_api_index ->", _idx_md)
-_html_api = os.path.join(V019_DIR, "aion_api_min.html")
+_html_api = os.path.join(V019_DIR, "pytekt_api_min.html")
 create_api_documentation_html(output_file=_html_api)
 print("  create_api_documentation_html ->", _html_api)
 

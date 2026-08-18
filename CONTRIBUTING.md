@@ -1,6 +1,6 @@
-# Contributing to Aqwel-Aion
+# Contributing to PyTekt
 
-Thank you for your interest in contributing to Aqwel-Aion! We welcome contributions from the AI research and development community. Aqwel-Aion is **authored by Aksel Aghajanyan** and **developed by the Aqwel AI Team**.
+Thank you for your interest in contributing to PyTekt! We welcome contributions from the AI research and development community. PyTekt is **authored by Aksel Aghajanyan** and **developed by the Aqwel AI Team**.
 
 ## How to Contribute
 
@@ -10,7 +10,7 @@ Thank you for your interest in contributing to Aqwel-Aion! We welcome contributi
 2. **Use the bug report template** when creating new issues
 3. **Provide detailed information**:
    - Operating system and Python version
-   - Aqwel-Aion version
+   - PyTekt version
    - Steps to reproduce the bug
    - Expected vs actual behavior
    - Error messages and stack traces
@@ -28,8 +28,8 @@ Thank you for your interest in contributing to Aqwel-Aion! We welcome contributi
 
 1. **Fork the repository**
    ```bash
-   git clone https://github.com/aqwelai/aion.git
-   cd aion
+   git clone https://github.com/aqwelai/pytekt.git
+   cd pytekt
    ```
 
 2. **Set up development environment**
@@ -102,8 +102,8 @@ Thank you for your interest in contributing to Aqwel-Aion! We welcome contributi
 
 ### Project Structure
 ```
-aion/
-├── aion/           # Main package
+pytekt/
+├── pytekt/           # Main package
 │   ├── maths.py    # Mathematical operations (71+ functions)
 │   ├── embed.py    # Text embeddings and similarity
 │   ├── evaluate.py # Model evaluation metrics
@@ -132,13 +132,13 @@ pytest
 pytest tests/test_maths.py
 
 # Run with coverage
-pytest --cov=aion
+pytest --cov=pytekt
 ```
 
 ### Building Documentation
 ```bash
 # Generate API documentation
-python -c "import aion.pdf; aion.pdf.generate_complete_documentation('docs')"
+python -c "import pytekt.pdf; pytekt.pdf.generate_complete_documentation('docs')"
 ```
 
 ## Community Guidelines
@@ -181,10 +181,10 @@ python -c "import aion.pdf; aion.pdf.generate_complete_documentation('docs')"
 
 ## Legal
 
-By contributing to Aqwel-Aion, you agree that your contributions will be licensed under the Apache License 2.0, the same license as the project.
+By contributing to PyTekt, you agree that your contributions will be licensed under the Apache License 2.0, the same license as the project.
 
 ---
 
-**Thank you for helping make Aqwel-Aion the premier AI research and development library!**
+**Thank you for helping make PyTekt the premier AI research and development library!**
 
 For questions about contributing, contact us at aqwelai.company@gmail.com (Company Gmail).

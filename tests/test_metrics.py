@@ -1,8 +1,8 @@
-"""Tests for aion.metrics."""
+"""Tests for pytekt.metrics."""
 
 import numpy as np
 
-from aion.metrics import (
+from pytekt.metrics import (
     accuracy_score,
     precision_score,
     recall_score,

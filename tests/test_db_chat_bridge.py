@@ -3,9 +3,9 @@
 import os
 import tempfile
 
-from aion.db.chat_bridge import ChatBridge
-from aion.db.settings import get_db_connection, default_db_url
-from aion.store import ChatHistoryStore
+from pytekt.db.chat_bridge import ChatBridge
+from pytekt.db.settings import get_db_connection, default_db_url
+from pytekt.store import ChatHistoryStore
 
 
 def test_chat_bridge_save_thread():

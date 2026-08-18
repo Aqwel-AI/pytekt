@@ -1,10 +1,10 @@
-"""Tests for aion.universe.observing and catalogs."""
+"""Tests for pytekt.universe.observing and catalogs."""
 
 import math
 
-from aion.universe.catalogs import load_bright_stars, load_messier, load_planets
-from aion.universe.constants import J2000
-from aion.universe.observing import air_mass, build_sky_catalog, moon_phase, whats_up, whats_up_all
+from pytekt.universe.catalogs import load_bright_stars, load_messier, load_planets
+from pytekt.universe.constants import J2000
+from pytekt.universe.observing import air_mass, build_sky_catalog, moon_phase, whats_up, whats_up_all
 
 
 def test_moon_phase_bounds():
@@ -51,7 +51,7 @@ def test_builtin_catalogs_nonempty():
 
 
 def test_log_observation_sqlite(tmp_path, monkeypatch):
-    from aion.universe.observations import list_observations, log_observation
+    from pytekt.universe.observations import list_observations, log_observation
 
     monkeypatch.chdir(tmp_path)
     db_url = "sqlite://./cosmos.db"

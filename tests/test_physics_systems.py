@@ -1,6 +1,6 @@
 from math import pi
 
-import aion.physics.systems as sys
+import pytekt.physics.systems as sys
 
 
 def test_pendulum_small_angle_period():

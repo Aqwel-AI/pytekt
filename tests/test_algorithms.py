@@ -1,4 +1,4 @@
-from aion.algorithms import arrays, search, graphs
+from pytekt.algorithms import arrays, search, graphs
 
 
 def test_arrays_basic():

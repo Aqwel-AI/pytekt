@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from aion import bigdata
-from aion.algorithms.arrays import compute_prefix_sums, rolling_sum
+from pytekt import bigdata
+from pytekt.algorithms.arrays import compute_prefix_sums, rolling_sum
 
 
 def test_bigdata_prefix_sum_and_rolling_sum():

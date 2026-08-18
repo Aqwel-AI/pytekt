@@ -40,7 +40,7 @@ class Person:
         self._last_name = last_name
         self.age = age
         Person._population += 1
-        print(f"[Person] Created: {self.full_name}, age {self.age}")
+        print(f"[Person] Created: {self.full_name()}, age {self.age}")
 
     # -------------------------------------------------------------------
     # Encapsulation: property for full name (read‑only)

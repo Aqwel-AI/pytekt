@@ -1,6 +1,6 @@
 """Smoke tests for math algorithms."""
 
-from aion.algorithms import get_algorithm
+from pytekt.algorithms import get_algorithm
 
 
 def test_gcd_lcm():
