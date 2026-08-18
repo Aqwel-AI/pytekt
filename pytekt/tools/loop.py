@@ -40,39 +40,19 @@ def tool_calls_to_message_payload(tool_calls: List[NormalizedToolCall]) -> List[
 def run_tool_loop(
     provider: SupportsCompleteTurn,
     messages: List[Dict[str, Any]],
-    tools: List[Dict[str, Any]],
+    tools: Optional[List[Dict[str, Any]]],
     registry: Any,
     *,
     max_rounds: int = 8,
     temperature: float = 0.7,
     max_tokens: int = 1024,
+    on_tool_call: Optional[Any] = None,
+    on_tool_result: Optional[Any] = None,
     **complete_kw: Any,
 ) -> Tuple[Optional[str], List[Dict[str, Any]]]:
     """
     Run chat completions until the assistant returns text (no tool_calls) or
     ``max_rounds`` is exceeded.
-
-    Parameters
-    ----------
-    provider
-        ``OpenAIProvider`` or ``OpenAICompatibleProvider``.
-    messages
-        Mutable list of chat API messages (dicts); updated in place.
-    tools
-        OpenAI ``tools`` array (from ``pytekt.tools.schemas.function_tool``).
-    registry
-        ``ToolRegistry`` with registered implementations.
-
-    Returns
-    -------
-    final_text, messages
-        Assistant text (or None if only tools ran and rounds exhausted) and
-        the full message list for follow-up turns.
-
-    Raises
-    ------
-    RuntimeError
-        If ``max_rounds`` is hit while the model still requests tools.
     """
     msgs = messages
     for _ in range(max_rounds):
@@ -88,7 +68,33 @@ def run_tool_loop(
             asst["tool_calls"] = tool_calls_to_message_payload(turn.tool_calls)
             msgs.append(asst)
             for tc in turn.tool_calls:
+                parsed_args: Dict[str, Any] = {}
+                try:
+                    import json
+                    if isinstance(tc.arguments_json, str):
+                        parsed_args = json.loads(tc.arguments_json)
+                    elif isinstance(tc.arguments_json, dict):
+                        parsed_args = tc.arguments_json
+                except Exception:
+                    pass
+
+                if on_tool_call is not None:
+                    try:
+                        on_tool_call(tc.name, parsed_args)
+                    except Exception:
+                        pass
+
                 content = registry.call(tc.name, tc.arguments_json)
+
+                if on_tool_result is not None:
+                    try:
+                        on_tool_result(tc.name, content, parsed_args)
+                    except Exception:
+                        try:
+                            on_tool_result(tc.name, content)
+                        except Exception:
+                            pass
+
                 msgs.append(
                     {
                         "role": "tool",
