@@ -1,0 +1,26 @@
+import_pytekt           Import Pytekt Python Module via Reticulate
+pytekt_argmax           Fast Argmax (1-indexed)
+pytekt_argmin           Fast Argmin (1-indexed)
+pytekt_available        Check if Pytekt Python Module is Available
+pytekt_chunk_statistics
+                        Fast Chunk Statistics
+pytekt_cosine_similarity
+                        Fast Cosine Similarity
+pytekt_dot              Fast Dot Product of Two Vectors
+pytekt_euclidean_distance
+                        Fast Euclidean Distance
+pytekt_histogram        Fast Streaming Histogram
+pytekt_matrix_multiply
+                        Fast Matrix Multiplication (Row-Major flattened
+                        matrices)
+pytekt_max              Fast Maximum
+pytekt_mean             Fast Mean
+pytekt_min              Fast Minimum
+pytekt_norm2            Fast L2 Norm
+pytekt_prefix_sum       Fast Cumulative Prefix Sum
+pytekt_rolling_mean     Fast Rolling Mean
+pytekt_rolling_sum      Fast Rolling Sum
+pytekt_std              Fast Standard Deviation
+pytekt_sum              Fast Sum of Numeric Vector
+pytekt_variance         Fast Variance
+pytekt_version          Get Pytekt Python Module Version
