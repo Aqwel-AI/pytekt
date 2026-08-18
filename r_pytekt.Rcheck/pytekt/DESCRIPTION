@@ -1,0 +1,19 @@
+Package: pytekt
+Title: Open-Source AI & Mathematical Computing Engine for R
+Version: 0.2.0
+Authors@R: person("Aksel", "Aghajanyan", role = c("aut", "cre"), email = "aksel@aqwel.ai")
+Author: Aksel Aghajanyan [aut, cre]
+Maintainer: Aksel Aghajanyan <aksel@aqwel.ai>
+Description: R interface to the high-performance Pytekt C++ core routines. Provides fast 1D numerical reductions, vector operations, matrix multiplication, rolling window statistics, and streaming histograms.
+License: Apache License (== 2.0)
+URL: https://github.com/aqwel/pytekt
+BugReports: https://github.com/aqwel/pytekt/issues
+Imports: Rcpp (>= 1.0.0)
+LinkingTo: Rcpp
+Suggests: testthat (>= 3.0.0), reticulate (>= 1.20), knitr, rmarkdown
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+SystemRequirements: C++14
+Encoding: UTF-8
+Config/roxygen2/version: 8.1.0
+Built: R 4.4.3; aarch64-apple-darwin20; 2026-08-18 09:13:16 UTC; unix
