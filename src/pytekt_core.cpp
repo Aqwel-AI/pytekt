@@ -10,6 +10,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include "native/core_kernels.hpp"
 #include <cmath>
 #include <algorithm>
 #include <limits>
@@ -23,13 +24,7 @@ double fast_sum(py::array_t<double> arr) {
     if (buf.ndim != 1) {
         throw std::runtime_error("fast_sum: expected 1D array");
     }
-    const double* ptr = static_cast<const double*>(buf.ptr);
-    const size_t n = buf.shape[0];
-    double s = 0.0;
-    for (size_t i = 0; i < n; ++i) {
-        s += ptr[i];
-    }
-    return s;
+    return aion_core::fast_sum(static_cast<const double*>(buf.ptr), buf.shape[0]);
 }
 
 double fast_dot(py::array_t<double> a, py::array_t<double> b) {
@@ -41,13 +36,11 @@ double fast_dot(py::array_t<double> a, py::array_t<double> b) {
     if (bb.shape[0] != n) {
         throw std::runtime_error("fast_dot: shape mismatch");
     }
-    const double* pa = static_cast<const double*>(ba.ptr);
-    const double* pb = static_cast<const double*>(bb.ptr);
-    double s = 0.0;
-    for (size_t i = 0; i < n; ++i) {
-        s += pa[i] * pb[i];
-    }
-    return s;
+    return aion_core::fast_dot(
+        static_cast<const double*>(ba.ptr),
+        static_cast<const double*>(bb.ptr),
+        n
+    );
 }
 
 double fast_norm2(py::array_t<double> arr) {
@@ -55,13 +48,7 @@ double fast_norm2(py::array_t<double> arr) {
     if (buf.ndim != 1) {
         throw std::runtime_error("fast_norm2: expected 1D array");
     }
-    const double* ptr = static_cast<const double*>(buf.ptr);
-    const size_t n = buf.shape[0];
-    double s = 0.0;
-    for (size_t i = 0; i < n; ++i) {
-        s += ptr[i] * ptr[i];
-    }
-    return std::sqrt(s);
+    return aion_core::fast_norm2(static_cast<const double*>(buf.ptr), buf.shape[0]);
 }
 
 double fast_mean(py::array_t<double> arr) {
@@ -73,12 +60,7 @@ double fast_mean(py::array_t<double> arr) {
     if (n == 0) {
         throw std::runtime_error("fast_mean: empty array");
     }
-    const double* ptr = static_cast<const double*>(buf.ptr);
-    double s = 0.0;
-    for (size_t i = 0; i < n; ++i) {
-        s += ptr[i];
-    }
-    return s / static_cast<double>(n);
+    return aion_core::fast_mean(static_cast<const double*>(buf.ptr), n);
 }
 
 double fast_variance(py::array_t<double> arr, int ddof) {
@@ -90,15 +72,7 @@ double fast_variance(py::array_t<double> arr, int ddof) {
     if (n <= static_cast<size_t>(ddof)) {
         throw std::runtime_error("fast_variance: n must be > ddof");
     }
-    const double* ptr = static_cast<const double*>(buf.ptr);
-    double sum = 0.0, sum2 = 0.0;
-    for (size_t i = 0; i < n; ++i) {
-        sum += ptr[i];
-        sum2 += ptr[i] * ptr[i];
-    }
-    double mean = sum / static_cast<double>(n);
-    double cnt = static_cast<double>(n - ddof);
-    return (sum2 / static_cast<double>(n) - mean * mean) * static_cast<double>(n) / cnt;
+    return aion_core::fast_variance(static_cast<const double*>(buf.ptr), n, ddof);
 }
 
 // ---- 1D index ----

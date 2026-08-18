@@ -8,6 +8,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/pytekt?label=PyPI)](https://pypi.org/project/pytekt/)
 [![Python](https://img.shields.io/pypi/pyversions/pytekt?label=Python)](https://pypi.org/project/pytekt/)
+[![R](https://img.shields.io/badge/R-%3E%3D4.0-276DC3?logo=r)](r_pytekt/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Aqwel AI](https://img.shields.io/badge/Product-Aqwel%20AI-0066cc)](https://aqwelai.xyz/)
 
@@ -66,7 +67,31 @@ pytekt physics tasks    # physics toolkit (needs [physics] / matplotlib)
 pytekt vision --help    # computer vision CLI (needs [vision])
 ```
 
-More paths: [Quick start](#quick-start-choose-your-path) · [Installation](#installation) · [Getting Started](#getting-started)
+More paths: [Quick start](#quick-start-choose-your-path) · [Installation](#installation) · [Getting Started](#getting-started) · [R Language Support](#r-language-support)
+
+---
+
+## R Language Support (`r_pytekt`)
+
+Pytekt provides high-performance native R support through the `r_pytekt` package built with **Rcpp**.
+
+### Installation in R
+
+```R
+# Install directly from local repository or GitHub
+devtools::install("r_pytekt")
+```
+
+### Usage in R
+
+```R
+library(pytekt)
+
+x <- c(1.0, 2.0, 3.0, 4.0, 5.0)
+cat("Fast Sum:", pytekt_sum(x), "\n")
+cat("Fast Mean:", pytekt_mean(x), "\n")
+print(pytekt_rolling_mean(x, window = 3))
+```
 
 ---
 
@@ -96,6 +121,7 @@ This README is the **main documentation** for the GitHub repository. Deeper maps
 | [pytekt/universe/README.md](pytekt/universe/README.md) | Astronomy module |
 | [pytekt/vision/README.md](pytekt/vision/README.md) | Computer vision (image arrays) |
 | [pytekt/db/README.md](pytekt/db/README.md) | Unified database layer |
+| [r_pytekt/README.md](r_pytekt/README.md) | **R language bindings** (`r_pytekt` package via Rcpp) |
 | [SECURITY.md](SECURITY.md) | API keys, `~/.pytekt.yaml`, safe publishing |
 | [.env.example](.env.example) | Environment variables (copy to `.env` locally only) |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
@@ -148,6 +174,7 @@ The terminal coding agent (`pytekt agent`) and in-package ReAct framework (`pyte
 | **Data scientist / researcher** | `pip install "pytekt[ai]"` → `import pytekt` → see [Getting Started](#getting-started) |
 | **Physics / astronomy** | `pip install "pytekt[physics,universe]"` → `pytekt physics` / `pytekt universe` |
 | **Computer vision** | `pip install "pytekt[vision]"` → see [`pytekt/vision/README.md`](pytekt/vision/README.md) |
+| **R user** | `devtools::install_github("aqwel/pytekt", subdir = "r_pytekt")` → `library(pytekt)` → see [`r_pytekt/README.md`](r_pytekt/README.md) |
 | **Full local install** | `pip install -e ".[full]"` from this repo |
 
 ---

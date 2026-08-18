@@ -168,3 +168,13 @@ text.txt
 LICENSE copy
 scratch/
 tmp/
+
+# R build artifacts
+# -----------------
+*.Rcheck/
+r_pytekt/src/*.o
+r_pytekt/src/*.so
+r_pytekt/src/*.dll
+r_pytekt/src/symbols.rds
+.Rhistory
+.RData

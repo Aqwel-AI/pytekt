@@ -24,7 +24,8 @@ Shared today: `pytekt.providers`, `pytekt.tools`, `pytekt.rag`, Core ML, physics
 │   ├── PROJECT_STRUCTURE.md  # This file
 │   └── ADDING_PHYSICAL_AI.md # Guide for Physical AI modules
 ├── pyproject.toml
-├── pytekt/                     # Python package (research library)
+├── pytekt/                   # Python package (research library)
+├── r_pytekt/                 # R language bindings (Rcpp, R ≥ 4.0)
 ├── src/                      # Optional native C++ extensions
 └── tests/
 ```

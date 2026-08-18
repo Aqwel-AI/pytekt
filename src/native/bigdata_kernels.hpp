@@ -95,6 +95,7 @@ inline py::array_t<std::int64_t> histogram(
     auto counts = make_int64_array(bins);
     auto counts_buf = counts.request();
     auto* out = static_cast<std::int64_t*>(counts_buf.ptr);
+    std::fill(out, out + bins, static_cast<std::int64_t>(0));
     const double width = (hi - lo) / static_cast<double>(bins);
     for (std::size_t i = 0; i < n; ++i) {
         const double value = in_ptr[i];
