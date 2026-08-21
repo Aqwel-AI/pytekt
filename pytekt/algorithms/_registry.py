@@ -1,9 +1,37 @@
-"""Register legacy algorithms from search, arrays, and graphs modules."""
+"""Register all algorithms from category subpackages into the unified catalog."""
 
 from __future__ import annotations
 
-from . import arrays, graphs, search
 from .catalog import register_existing
+from .data_structures import (  # noqa: F401
+    arrays,
+    hashing,
+    heaps,
+    queues_stacks,
+    trees,
+    union_find,
+)
+from .graphs import graphs
+from .mathematics import (  # noqa: F401
+    geometry,
+    math_number_theory,
+    numerical,
+    statistics,
+)
+from .paradigms import (  # noqa: F401
+    backtracking,
+    bit_manipulation,
+    dynamic_programming,
+    greedy,
+    sliding_window,
+    two_pointers,
+)
+from .searching import search
+from .sorting import sorting  # noqa: F401
+from .strings import (  # noqa: F401
+    compression,
+    strings,
+)
 
 
 def _register_module(module, category: str) -> None:
@@ -22,28 +50,5 @@ def bootstrap_legacy() -> None:
 
 
 def load_all() -> None:
-    """Import all algorithm modules and register legacy functions."""
-    from importlib import import_module
-
-    import_module("pytekt.algorithms.sliding_window")
-    from . import (  # noqa: F401
-        backtracking,
-        bit_manipulation,
-        compression,
-        dynamic_programming,
-        geometry,
-        greedy,
-        hashing,
-        heaps,
-        math_number_theory,
-        numerical,
-        queues_stacks,
-        sorting,
-        statistics,
-        strings,
-        trees,
-        two_pointers,
-        union_find,
-    )
-
+    """Ensure all subpackages and modules are imported and cataloged."""
     bootstrap_legacy()

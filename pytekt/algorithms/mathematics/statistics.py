@@ -6,7 +6,7 @@ import math
 from collections import Counter
 from typing import List, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 @register_algorithm(category="statistics", summary="Arithmetic mean of values.")

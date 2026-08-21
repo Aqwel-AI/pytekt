@@ -1068,3 +1068,11 @@ def geometric_median_search(points: List[Tuple[float, float]], eps: float = 1e-7
         if math.sqrt((x - nx)**2 + (y - ny)**2) < eps:
             return (nx, ny)
         x, y = nx, ny
+
+
+# Aliases for compatibility
+First_Occurrence = first_occurrence
+Last_Occurrence = last_occurrence
+First_Last_Occurrence = first_last_occurrence
+roatated_search = rotated_search
+find_peak_element = find_all_peaks

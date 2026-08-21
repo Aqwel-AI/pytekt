@@ -6,7 +6,7 @@ import base64
 import heapq
 from typing import Dict, List, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 @register_algorithm(category="compression", summary="Run-length encode string to (char, count) pairs.")

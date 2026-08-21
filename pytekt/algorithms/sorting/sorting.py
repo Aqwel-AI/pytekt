@@ -6,7 +6,7 @@ import math
 import random
 from typing import List, Optional, TypeVar
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 T = TypeVar("T")
 

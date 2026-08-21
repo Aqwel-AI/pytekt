@@ -6,7 +6,7 @@ import hashlib
 import struct
 from typing import Any, List, Tuple, Union
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 HashableInput = Union[str, bytes, int]
 

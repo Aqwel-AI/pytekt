@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict, deque
 from typing import Deque, Dict, List, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 @register_algorithm(category="sliding_window", summary="Maximum sum of any contiguous subarray of size k.")

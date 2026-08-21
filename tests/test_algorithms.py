@@ -1,4 +1,13 @@
 from pytekt.algorithms import arrays, search, graphs
+from pytekt.algorithms import (
+    data_structures,
+    searching,
+    sorting,
+    graphs as graphs_subpkg,
+    paradigms,
+    mathematics,
+    strings,
+)
 
 
 def test_arrays_basic():
@@ -34,3 +43,38 @@ def test_graphs_algorithms():
     }
     dist = graphs.dijkstra(weighted, "a")
     assert dist["d"] == 4.0
+
+
+def test_subpackages_structure():
+    # data_structures
+    assert data_structures.arrays.flatten_array([[10], [20]]) == [10, 20]
+    assert hasattr(data_structures, "heaps")
+    assert hasattr(data_structures, "trees")
+    assert hasattr(data_structures, "queues_stacks")
+    assert hasattr(data_structures, "union_find")
+    assert hasattr(data_structures, "hashing")
+
+    # searching
+    assert searching.binary_search([1, 2, 3, 4], 3) == 2
+    assert searching.kmp_search("ABC ABCDAB", "ABCD") == [4]
+
+    # sorting
+    assert sorting.quick_sort([5, 2, 8, 1]) == [1, 2, 5, 8]
+    assert sorting.merge_sort([5, 2, 8, 1]) == [1, 2, 5, 8]
+
+    # graphs
+    g = {"1": ["2"], "2": ["3"], "3": []}
+    assert graphs_subpkg.bfs(g, "1") == ["1", "2", "3"]
+
+    # paradigms
+    assert paradigms.dynamic_programming.lcs_length("abcde", "ace") == 3
+    assert paradigms.greedy.fractional_knapsack([10, 20, 30], [60, 100, 120], 50) == 240.0
+
+    # mathematics
+    assert mathematics.math_number_theory.gcd(48, 18) == 6
+    assert mathematics.math_number_theory.is_prime(17) is True
+
+    # strings
+    assert strings.strings.is_anagram("anagram", "nagaram") is True
+    assert hasattr(strings, "compression")
+    assert strings.compression.run_length_encode("AAABBBCC") == [("A", 3), ("B", 3), ("C", 2)]

@@ -6,7 +6,7 @@ import math
 import random
 from typing import Callable, List, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 @register_algorithm(category="numerical", summary="Root of f(x)=0 on [a,b] via bisection.")

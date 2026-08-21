@@ -865,3 +865,7 @@ def min_max_scaling(arr: List[Union[int, float]], low: float = 0.0, high: float 
     if mn == mx:
         return [(low + high) / 2] * len(arr)
     return [low + (x - mn) / (mx - mn) * (high - low) for x in arr]
+
+
+# Alias for compatibility
+moving_avarage = moving_average

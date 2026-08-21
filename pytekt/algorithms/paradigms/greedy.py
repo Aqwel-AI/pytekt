@@ -6,7 +6,7 @@ import heapq
 from collections import Counter
 from typing import Any, Dict, List, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 @register_algorithm(category="greedy", summary="Maximum non-overlapping activities by finish time")
