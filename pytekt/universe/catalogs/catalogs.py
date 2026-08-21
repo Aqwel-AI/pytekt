@@ -48,7 +48,7 @@ def load_planets() -> List[Dict[str, Any]]:
 def catalog_to_dataset(catalog: List[Dict[str, Any]], *, name: str = "universe"):
     """Export catalog rows as :class:`pytekt.datasets.Dataset`."""
     import numpy as np
-    from ..datasets import Dataset
+    from pytekt.datasets import Dataset
 
     ra = np.array([float(r.get("ra_hours", r.get("ra", 0))) for r in catalog])
     dec = np.array([float(r.get("dec_deg", r.get("dec", 0))) for r in catalog])
