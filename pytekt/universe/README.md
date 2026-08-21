@@ -1,126 +1,77 @@
-# PyTekt Universe
+# PyTekt Universe — Astronomy & Astrometry Toolkit
 
-Lightweight astronomy toolkit for **observing**, **orbital mechanics**, and **cosmology basics** — NumPy-first, no Astropy required. Hot-path math runs in C++ (`pytekt._pytekt_universe`) when built; pure Python fallbacks always available.
+Lightweight, high-performance astronomy toolkit for **astrometry**, **orbital mechanics**, **cosmology**, and **observational astronomy** with optional C++ hardware acceleration (`pytekt._pytekt_universe`) and pure Python fallbacks.
 
-> **Precision:** v1 is educational / prototyping quality, not publication-grade astrometry.
+---
 
-## Quick start
+## 1. Architecture & Domain Taxonomy
+
+The package is organized into 6 modular domain subpackages:
+
+```
+pytekt/universe/
+├── core/                # Physical constants (AU, C, G, J2000), units, time, C++ native acceleration
+├── astrometry/          # Coordinate frames (Equatorial/Horizontal/Galactic), precession, magnitudes
+├── ephemeris/           # Keplerian orbital mechanics, planetary positions, lunar almanac, observing
+├── cosmology/           # FLRW cosmological distances, lookback time, Hubble flow velocity, redshift
+├── catalogs/            # Built-in star/Messier/planet catalogs, dataset conversion, exoplanet queries
+├── service/             # Astronomy pipeline steps, sky map & orbit plots, CLI, REST API & dashboard
+├── data/                # Astronomical JSON databases (bright_stars.json, messier.json)
+└── __init__.py          # Unified entry point & backward compatibility aliases
+```
+
+### Domain Subpackage Reference
+
+| Subpackage | Key Exports | Primary Use Cases |
+|---|---|---|
+| **`pytekt.universe.core`** | `AU`, `C`, `G`, `J2000`, `deg_to_rad`, `format_ra`, `format_dec`, `now_jd`, `gmst`, `lst` | Physical constants, coordinate string parsing, sidereal time |
+| **`pytekt.universe.astrometry`** | `equatorial_to_horizontal`, `horizontal_to_equatorial`, `equatorial_to_galactic`, `precess`, `apparent_magnitude`, `distance_modulus` | Telescope pointing, Alt/Az conversions, epoch precession, photometry |
+| **`pytekt.universe.ephemeris`** | `moon_phase`, `moon_illumination`, `whats_up`, `air_mass`, `kepler_third_law`, `hohmann_transfer`, `planet_position` | Lunar phase tracking, stargazing session planning, orbital transfers |
+| **`pytekt.universe.cosmology`** | `Cosmology`, `comoving_distance_mpc`, `luminosity_distance_mpc`, `lookback_time_gyr`, `redshift_from_velocity` | FLRW cosmological calculations, Hubble flow, universe expansion |
+| **`pytekt.universe.catalogs`** | `load_bright_stars`, `load_messier`, `load_planets`, `catalog_to_dataset`, `fetch_exoplanet_table` | Curated celestial databases, dataset analysis, exoplanet tables |
+| **`pytekt.universe.service`** | `UniverseCatalogStep`, `UniversePlotStep`, `plot_skymap`, `plot_orbit`, `run_server`, `run_universe_dashboard` | Pipeline orchestration, interactive charts, REST server & web dashboard |
+
+---
+
+## 2. Quick Start
+
+### 2.1 Domain Subpackage Imports (Recommended)
 
 ```python
-from pytekt.universe import (
-    equatorial_to_horizontal,
-    moon_phase,
-    now_jd,
-    whats_up,
-    luminosity_distance_mpc,
-    using_native_extension,
-)
+from pytekt.universe.core import now_jd
+from pytekt.universe.astrometry import equatorial_to_horizontal
+from pytekt.universe.ephemeris import moon_phase, whats_up
+from pytekt.universe.cosmology import Cosmology, luminosity_distance_mpc
 
-print("C++ extension:", using_native_extension())
-
+# 1. Ephemeris & Observing
 jd = now_jd()
 phase, name = moon_phase(jd)
-print(name, phase)
+print(f"Moon: {name} (phase={phase:.2f})")
 
+# 2. Celestial Coordinates (Sirius Alt/Az from lat 40.0, lon 44.5)
 alt, az = equatorial_to_horizontal(6.75, -16.7, 40.0, 44.5, jd)
 visible = whats_up(40.0, 44.5, jd)
-print(f"Sirius alt={alt:.1f}° · {len(visible)} bright stars up")
+print(f"Sirius: alt={alt:.1f}°, az={az:.1f}° · {len(visible)} bright stars above horizon")
 
-d_l = luminosity_distance_mpc(0.1)  # Mpc, flat ΛCDM H0=70
+# 3. Cosmology Model
+cosmo = Cosmology(H0=70.0, Om0=0.3)
+print(f"Luminosity Distance (z=0.1): {cosmo.luminosity_distance(0.1):.1f} Mpc")
 ```
 
-`pytekt.cosmos` remains a deprecated import alias for `pytekt.universe`.
+---
 
-## CLI
+## 3. CLI & Web Dashboard
 
 ```bash
+# Lunar phase
 pytekt universe moon
+
+# What's up tonight
 pytekt universe sky --lat 40.18 --lon 44.51
+
+# Coordinate conversion
 pytekt universe coords "6h 45m 08s" "-16d 42m 58s"
-pytekt universe web              # browser dashboard (port 3857)
-pytekt universe-dashboard        # alias for universe web
-pytekt universe demo
 
-# deprecated aliases still work:
-pytekt cosmos web
-```
-
-## Web dashboard
-
-React SPA at `pytekt/universe/web/` (built to `pytekt/universe/static/`).
-
-**Tabs:** Tonight (Alt/Az sky map), Moon, Coordinates, Cosmology, Catalogs, Observation log.
-
-```bash
+# Launch browser dashboard (port 3857)
 pytekt universe web
-# or build + launch:
-./pytekt/universe/run_dashboard.sh
-
-# Dev: terminal 1
-pytekt universe web --no-browser
-# terminal 2
-cd pytekt/universe/web && npm run dev   # proxies /api → :3857
-```
-
-Observer lat/lon is read from `~/.pytekt.yaml` (`universe.latitude`, `universe.longitude`; `cosmos.*` still accepted) and can be saved from the UI.
-
-## Agent (not available)
-
-Slash commands below require the terminal agent, which is **not available** in 0.2.0. Use `pytekt universe …` CLI today.
-
-- `/sky` — moon phase and bright stars above horizon
-- `/sky moon` — moon only
-- `/sky log` — log session to `~/.pytekt/cosmos.db`
-- `/sky web` — open Universe dashboard in browser
-
-## Native C++ extension
-
-Build with the main package (requires pybind11):
-
-```bash
-pip install pybind11
-pip install -e .
-python -c "from pytekt.universe import using_native_extension; print(using_native_extension())"
-```
-
-Accelerated paths (C++ in `src/pytekt_universe.cpp`):
-
-| Area | Functions |
-|------|-----------|
-| Time | `gmst_hours`, `lst_hours` |
-| Coordinates | `equatorial_to_horizontal` (+ batch), `horizontal_to_equatorial`, `angular_separation`, galactic/ecliptic transforms, `precess` |
-| Observing | `air_mass` (+ batch), `rise_set_approx`, `moon_phase_fraction`, `moon_illumination`, `is_circumpolar` |
-| Orbits | Kepler solver, `hohmann_transfer`, `planet_ecliptic_position`, `position_from_elements` |
-| Cosmology | comoving/luminosity/angular-diameter distance, lookback time, `redshift_from_velocity`, `hubble_flow_velocity` |
-| Photometry | flux↔magnitude, distance modulus, absolute/apparent magnitude |
-
-## Modules
-
-| Module | Contents |
-|--------|----------|
-| `constants` | AU, ly, pc, c, H₀, G, J2000 |
-| `units` | Angles, distances, magnitudes |
-| `time` | Julian date, GMST, LST |
-| `coordinates` | RA/Dec ↔ Alt/Az, galactic, separation |
-| `observing` | Moon, air mass, rise/set, `whats_up` |
-| `orbits` | Kepler elements, Hohmann, planet positions |
-| `cosmology` | Flat ΛCDM distances, lookback time |
-| `magnitude` | Distance modulus, color index |
-| `catalogs` | Bright stars, Messier, planets |
-| `viz` | Sky map, HR diagram (requires `[viz]`) |
-| `observations` | Log sessions via `pytekt.db` |
-
-## Examples
-
-```bash
-python -m pytekt.universe.examples.demo_coordinates
-python -m pytekt.universe.examples.demo_sky_tonight
-python -m pytekt.universe.examples.demo_cosmology
-```
-
-## Optional extras
-
-```bash
-pip install pytekt[viz]       # matplotlib plots
-pip install pytekt[universe]  # same as viz for universe plots
 ```
