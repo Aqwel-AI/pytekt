@@ -5,7 +5,7 @@ from __future__ import annotations
 import random
 from typing import List, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 @register_algorithm(category="math")

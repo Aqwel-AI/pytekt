@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import deque
 from typing import Deque, List, Optional, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 @register_algorithm(category="queues_stacks", summary="Stack operations: push then pop sequence.")

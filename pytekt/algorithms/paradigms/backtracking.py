@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Set, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 @register_algorithm(category="backtracking", summary="All permutations of a list.")

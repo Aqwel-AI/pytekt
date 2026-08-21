@@ -794,3 +794,8 @@ def find_all_paths(graph: Dict[Any, List[Any]], start: Any, end: Any, path: List
             for newpath in newpaths:
                 paths.append(newpath)
     return paths
+
+
+# Aliases for compatibility
+pagerank = page_rank_simple
+a_star = a_star_search

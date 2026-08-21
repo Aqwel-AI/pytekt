@@ -1,110 +1,107 @@
-# pytekt.algorithms — High-Performance Algorithmic Engine
+# pytekt.algorithms — High-Performance Algorithmic Suite
 
 ## 1. Overview
 
-The **pytekt.algorithms** package is a professional-grade suite of algorithmic primitives designed for high-performance data processing, optimization, and structural reasoning. It provides a robust foundation for research and production workflows, prioritizing mathematical correctness and computational efficiency.
-
-**Core Capabilities:**
-
-- **Search Intelligence**: From classic binary search to advanced optimization (BS on answer) and multi-pattern string matching.
-- **Sequence Engineering**: Robust array processing, matrix operations, and statistical normalization utilities.
-- **Graph Processing**: A complete suite of graph algorithms including pathfinding, connectivity, network flow, and centrality.
+The **pytekt.algorithms** package is a professional, domain-structured algorithmic library designed for high-performance sequence analysis, graph theory, mathematical reasoning, combinatorial optimization, and data structures. It provides over 570+ tested, zero-dependency algorithmic primitives.
 
 ---
 
-## 2. Architecture
+## 2. Package Architecture
 
-The package is organized into specialized modules with a searchable **catalog** (`catalog.py`).
+The package is organized into 7 clean domain categories with full subpackage modularity and unified catalog discovery:
 
-| Module   | Domain                                      | Implementation Level |
-|----------|---------------------------------------------|----------------------|
-| `search` | Sequence search, optimization, string matching | Professional         |
-| `arrays` | Vector/Matrix ops, stats, sequence utils    | Professional         |
-| `graphs` | Connectivity, flow, pathfinding, centrality | Professional         |
-| `sorting` … `queues_stacks` | 18 category modules (see CATALOG.md) | Professional |
-
-**Discovery API:** `count_algorithms()`, `list_algorithms(category)`, `get_algorithm(name)`.
-
-See [CATALOG.md](CATALOG.md) for the full category table (~570+ functions).
-
-```mermaid
-graph TD
-    subgraph PyTekt_Algorithms [pytekt.algorithms]
-        search[search.py: Search & Selection]
-        arrays[arrays.py: Matrix & Sequence]
-        graphs[graphs.py: Advanced Graphs]
-    end
-    
-    PyTekt_Algorithms --> Search_Ops
-    PyTekt_Algorithms --> Vector_Ops
-    PyTekt_Algorithms --> Graph_Ops
+```
+pytekt/algorithms/
+├── data_structures/     # Arrays, Heaps, Stacks/Queues, Trees, Union-Find, Hashing
+├── searching/           # Sequence search, Selection, BS on Answer, String pattern matching
+├── sorting/             # Comparison, Distribution, and Specialized sorting algorithms
+├── graphs/              # Traversal, Shortest paths, MST, Network flow, Centrality, SCC
+├── paradigms/           # Dynamic programming, Greedy, Backtracking, Two pointers, Sliding window, Bit
+├── mathematics/         # Number theory, Numerical methods, Computational geometry, Statistics
+├── strings/             # String transformations, Edit distance, Compression (Huffman, LZW, RLE)
+├── catalog.py           # Algorithmic discovery and metadata registry
+└── _registry.py         # Subpackage auto-loader and bootstrap
 ```
 
----
+### Domain Taxonomy
 
-## 3. Module Reference
-
-### 3.1 Search & Selection (`search.py`)
-Deterministic, $O(\log n)$ search implementations and selection primitives.
-
-- **Sequence Search**: `binary_search`, `ternary_search`, `jump_search`, `exponential_search`, `interpolation_search`, `fibonacci_search`.
-- **Optimization**: `integer_sqrt`, `nth_root`, `koko_eating_bananas`, `ship_capacity`, `split_array_max_sum`.
-- **String Matching**: `kmp_search`, `rabin_karp`, `boyer_moore_simple`, `z_algorithm`, `aho_corasick_simple`, `bitap_search`.
-- **Selection**: `quickselect`, `find_median_unordered`, `find_k_closest_elements`.
-
-### 3.2 Matrix & Sequence Engineering (`arrays.py`)
-Optimized utilities for list manipulation and numerical analysis.
-
-- **Structural**: `flatten_array`, `flatten_deep`, `chunk_array`, `pairwise`, `sliding_window`, `pad_array`.
-- **Matrix Operations**: `matrix_transpose`, `matrix_multiply`, `matrix_diagonal_sum`.
-- **Statistical & Normalization**: `moving_average`, `z_score_normalization`, `min_max_scaling`, `rolling_sum`.
-- **Analysis**: `is_monotonic`, `find_all_peaks`, `longest_increasing_subsequence`.
-
-### 3.3 Advanced Graph Processing (`graphs.py`)
-Professional-grade graph theory implementations.
-
-- **Traversal & Pathfinding**: `bfs`, `dfs`, `dijkstra`, `a_star`, `bellman_ford`, `floyd_warshall`, `bidirectional_bfs`.
-- **Connectivity**: `tarjan_scc`, `kosaraju_scc`, `connected_components`, `is_bipartite`, `find_bridges`.
-- **Spanning Trees**: `prim_mst`, `kruskal_mst`.
-- **Network Flow & Centrality**: `ford_fulkerson` (Max Flow), `pagerank`.
+| Domain Category | Subpackage | Key Modules / Primitives | Functions |
+|---|---|---|---|
+| **Data Structures** | `pytekt.algorithms.data_structures` | `arrays`, `heaps`, `queues_stacks`, `trees`, `union_find`, `hashing` | ~160 |
+| **Searching** | `pytekt.algorithms.searching` | `search` (Binary, Jump, Ternary, KMP, Quickselect, Optimization) | ~45 |
+| **Sorting** | `pytekt.algorithms.sorting` | `sorting` (Quick, Merge, Heap, TimSort, Radix, Counting, Shell) | ~35 |
+| **Graphs** | `pytekt.algorithms.graphs` | `graphs` (Dijkstra, A*, Floyd-Warshall, Tarjan SCC, Kruskal, Flow) | ~30 |
+| **Paradigms** | `pytekt.algorithms.paradigms` | `dynamic_programming`, `greedy`, `backtracking`, `sliding_window`, `two_pointers`, `bit_manipulation` | ~165 |
+| **Mathematics** | `pytekt.algorithms.mathematics` | `math_number_theory`, `numerical`, `geometry`, `statistics` | ~115 |
+| **Strings & Compression** | `pytekt.algorithms.strings` | `strings`, `compression` (Huffman, LZW, RLE, Levenshtein, Suffix) | ~45 |
 
 ---
 
-## 4. Usage Examples
+## 3. Usage & Import Styles
+
+### 3.1 Domain Subpackage Imports (Recommended)
+
+```python
+# Import from clean category subpackages
+from pytekt.algorithms.data_structures import arrays, trees, heaps
+from pytekt.algorithms.searching import binary_search, kmp_search
+from pytekt.algorithms.sorting import quick_sort, merge_sort
+from pytekt.algorithms.graphs import dijkstra, bfs, dfs
+from pytekt.algorithms.paradigms import dynamic_programming, greedy, backtracking
+from pytekt.algorithms.mathematics import math_number_theory, numerical, geometry
+from pytekt.algorithms.strings import compression, strings
+```
+
+### 3.2 Curated Top-Level Access
 
 ```python
 from pytekt.algorithms import (
-    binary_search, 
-    kmp_search, 
-    dijkstra, 
-    matrix_multiply,
-    moving_average
+    binary_search,
+    dijkstra,
+    flatten_array,
+    kmp_search,
+    moving_average,
 )
 
-# 1. Search with KMP
-text = "ABC ABCDAB ABCDABCDABDE"
-pattern = "ABCDABD"
-indices = kmp_search(text, pattern) # [15]
+# Binary Search
+idx = binary_search([10, 20, 30, 40, 50], 30)  # 2
 
-# 2. Graph Pathfinding
+# Graph Shortest Path
 graph = {
     'A': [('B', 1), ('C', 4)],
     'B': [('C', 2), ('D', 5)],
     'C': [('D', 1)],
-    'D': []
+    'D': [],
 }
-dist, path = dijkstra(graph, 'A') # {'A': 0, 'B': 1, 'C': 3, 'D': 4}, {'D': 'C', 'C': 'B', 'B': 'A'}
+distances, paths = dijkstra(graph, 'A')
+```
 
-# 3. Array Processing
-data = [10, 20, 30, 40, 50]
-avg = moving_average(data) # 30.0
+### 3.3 Dynamic Catalog Discovery
+
+```python
+from pytekt.algorithms import count_algorithms, categories, list_algorithms, get_algorithm
+
+# Total number of registered algorithms
+print(count_algorithms())  # 572+
+
+# All registered categories
+print(categories())
+
+# Inspect a category
+dp_algos = list_algorithms("dynamic_programming")
+for entry in dp_algos[:3]:
+    print(f"[{entry.category}] {entry.name}: {entry.summary}")
+
+# Execute dynamically by name
+fn = get_algorithm("lcs_length")
+assert fn("abcde", "ace") == 3
 ```
 
 ---
 
-## 5. Design Principles
+## 4. Design Principles
 
-- **Type Integrity**: Strict use of `TypeVar`, `Optional`, and `Union` for robust static analysis.
-- **Consistency**: All functions follow `snake_case` naming and standardized return patterns.
-- **Optimal Complexity**: Algorithms are implemented using their theoretically optimal time and space complexities.
-- **Zero Dependencies**: Core logic relies exclusively on the Python standard library.
+- **Zero External Dependencies**: 100% Python standard library for core algorithms.
+- **Strict Typing**: Full type annotations (`TypeVar`, `Optional`, `List`, `Dict`, `Tuple`).
+- **Optimal Time & Space Complexities**: Standard mathematical efficiency across all routines.
+- **Backward Compatibility**: Supports legacy module imports through `pytekt.algorithms.*` aliases.

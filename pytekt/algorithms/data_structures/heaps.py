@@ -6,7 +6,7 @@ import heapq
 from collections import Counter
 from typing import Any, Callable, List, Optional, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 @register_algorithm(category="heaps", summary="Heapify a list in-place into a min-heap.")

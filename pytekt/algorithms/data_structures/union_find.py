@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Tuple
 
-from .catalog import register_algorithm
+from pytekt.algorithms.catalog import register_algorithm
 
 
 def _make_parent(n: int) -> List[int]:
