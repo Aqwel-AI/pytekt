@@ -6,7 +6,7 @@ from typing import Any, Optional, Sequence
 
 import numpy as np
 
-from .utils import require_plotly
+from pytekt.visualization.core.utils import require_plotly
 
 
 def plotly_3d_scatter(

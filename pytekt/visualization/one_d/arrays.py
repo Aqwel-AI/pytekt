@@ -17,7 +17,7 @@ from typing import Sequence, List, Optional
 import matplotlib.pyplot as plt  # type: ignore[import-untyped]
 import numpy as np
 
-from .utils import finalize_plot
+from pytekt.visualization.core.utils import finalize_plot
 
 
 def plot_array(

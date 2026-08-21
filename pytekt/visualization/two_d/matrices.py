@@ -18,7 +18,7 @@ from typing import Sequence, Optional
 import matplotlib.pyplot as plt  # type: ignore[import-untyped]
 import numpy as np
 
-from .utils import finalize_plot
+from pytekt.visualization.core.utils import finalize_plot
 
 
 def plot_matrix_heatmap(
