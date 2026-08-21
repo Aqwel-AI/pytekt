@@ -7,7 +7,7 @@ from typing import Any, List, Optional, Sequence
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .utils import require_seaborn, safe_show
+from pytekt.visualization.core.utils import require_seaborn, safe_show
 
 
 def set_pytekt_style() -> None:

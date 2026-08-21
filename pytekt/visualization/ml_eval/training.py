@@ -13,7 +13,7 @@ from typing import Dict, Sequence, Optional, Iterable
 
 import matplotlib.pyplot as plt  # type: ignore[import-untyped]
 
-from .utils import finalize_plot
+from pytekt.visualization.core.utils import finalize_plot
 
 
 def plot_training_history(

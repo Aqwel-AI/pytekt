@@ -6,7 +6,7 @@ from typing import Optional, Sequence, Tuple
 
 import numpy as np
 
-from .utils import safe_show
+from pytekt.visualization.core.utils import safe_show
 
 
 def _make_3d_axes(
