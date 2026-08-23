@@ -52,6 +52,7 @@ dependencies = [
     "watchdog>=2.1.0",
     "gitpython>=3.1.0",
     "certifi>=2023.0.0",
+    "rich>=12.0.0",
 ]
 
 [project.scripts]
@@ -66,6 +67,34 @@ Issues = "https://github.com/Aqwel-AI/pytekt/issues"
 PyPI = "https://pypi.org/project/pytekt/"
 
 [project.optional-dependencies]
+data = [
+    "pandas>=1.3.0",
+    "numpy>=1.21.0",
+]
+ml = [
+    "scikit-learn>=1.0.0",
+    "xgboost>=1.6.0",
+]
+dl = [
+    "torch>=1.12.0",
+    "tensorflow>=2.10.0",
+]
+viz = [
+    "matplotlib>=3.5.0",
+    "seaborn>=0.11.0",
+]
+nlp = [
+    "transformers>=4.20.0",
+    "nltk>=3.7",
+]
+vision = [
+    "pillow>=9.0.0",
+    "opencv-python-headless>=4.5.0",
+]
+stats = [
+    "scipy>=1.7.0",
+    "statsmodels>=0.13.0",
+]
 tools = [
     "tiktoken>=0.5.0",
 ]
@@ -92,10 +121,6 @@ cosmos = [
 physics = [
     "matplotlib>=3.5.0",
 ]
-vision = [
-    "pillow>=9.0.0",
-    "opencv-python-headless>=4.5.0",
-]
 monitor = [
     "psutil>=5.9.0",
     "fastapi>=0.100.0",
@@ -106,11 +131,6 @@ dev = [
     "pytest>=7.0",
     "black>=23.0",
     "flake8>=6.0",
-]
-viz = [
-    "matplotlib>=3.5.0",
-    "seaborn>=0.11.0",
-    "numpy>=1.20.0",
 ]
 viz3d = [
     "plotly>=5.18.0",

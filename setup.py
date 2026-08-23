@@ -170,16 +170,45 @@ setup(
         "watchdog>=2.1.0",
         "gitpython>=3.1.0",
         "certifi>=2023.0.0",
+        "rich>=12.0.0",
     ],
 
     # Optional feature dependencies
     extras_require={
+        # Data handling
+        "data": [
+            "pandas>=1.3.0",
+            "numpy>=1.21.0",
+        ],
+
+        # Machine Learning
+        "ml": [
+            "scikit-learn>=1.0.0",
+            "xgboost>=1.6.0",
+        ],
+
+        # Deep Learning
+        "dl": [
+            "torch>=1.12.0",
+            "tensorflow>=2.10.0",
+        ],
+
+        # NLP
+        "nlp": [
+            "transformers>=4.20.0",
+            "nltk>=3.7",
+        ],
+
+        # Statistics
+        "stats": [
+            "scipy>=1.7.0",
+            "statsmodels>=0.13.0",
+        ],
 
         # Visualization support
         "viz": [
             "matplotlib>=3.5.0",
             "seaborn>=0.11.0",
-            "numpy>=1.20.0",
         ],
         "viz3d": [
             "plotly>=5.18.0",

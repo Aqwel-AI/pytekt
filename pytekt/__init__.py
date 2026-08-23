@@ -198,6 +198,7 @@ from .native import (
 
 # Import the command-line interface module for CLI functionality
 from . import cli
+from . import wizard
 
 # Define the public API exports for the package
 __all__ = [
@@ -206,6 +207,7 @@ __all__ = [
     "__developer__",    # Developing team
     "__license__",      # License information
     "__copyright__",    # Copyright information
+    "wizard",           # Interactive setup wizard
     "text",             # Text processing module
     "files",            # File management module
     "io",               # Streaming, atomic writes, checksums

@@ -28,13 +28,11 @@ Shared stack: **`pytekt.providers`**, **`pytekt.tools`**, **`pytekt.rag`**, Core
 
 Install, import, and run a first example.
 
-**1. Install**
+**1. Install & Initialize**
 
 ```bash
 pip install pytekt
-# optional stacks:
-pip install "pytekt[ai,viz]"           # ML + plots
-pip install "pytekt[vision,physics]"   # CV + physics
+pytekt init     # Interactive green setup wizard (select modules & optional stacks)
 ```
 
 **2. Check it works**
@@ -737,17 +735,25 @@ pip install -e .[dev,full]
    pip install pytekt
    ```
 
-3. For visualization and full ML/docs, use extras:
+3. Run the interactive setup wizard:
 
    ```bash
-   pip install pytekt[full]
+   pytekt init
    ```
 
-4. Verify the install (you should see an **animated install screen** with large module names and ✓ INSTALLED lines):
+   The setup wizard guides you through selecting modules (Code, PDF, Maths, Text, Files, Git, Embed, RAG, DB, Parser & Snippets) with smooth green terminal animations.
+
+   For non-interactive or CI usage:
+   ```bash
+   pytekt init --all
+   pytekt init --only code,git,pdf
+   ```
+
+4. Verify the install:
 
    ```bash
    python -c "import pytekt; print(pytekt.__version__)"
-   pytekt welcome    # replay the install animation anytime
+   pytekt info
    ```
 
    Disable the animation: `PYTEKT_NO_SPLASH=1 pip install pytekt` or `pytekt welcome --no-animation`.

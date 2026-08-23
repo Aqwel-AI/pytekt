@@ -66,6 +66,7 @@ def _build_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 High-value commands:
+  pytekt init                      Interactive setup wizard (post-install)
   pytekt help                      Show all available PyTekt commands
   pytekt config                    Manage CLI settings (~/.pytekt.yaml)
   pytekt start                     Open the PyTekt Hub dashboard in the browser
@@ -91,6 +92,33 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     )
     parser.add_argument("--version", action="store_true", help="Show version and exit")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # init (setup wizard)
+    init_parser = subparsers.add_parser(
+        "init",
+        help="Interactive setup wizard for external dependency groups",
+    )
+    init_parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Install all external dependencies in non-interactive mode",
+    )
+    init_parser.add_argument(
+        "--none",
+        action="store_true",
+        help="Core only: install no extra dependencies and confirm base setup",
+    )
+    init_parser.add_argument(
+        "--only",
+        type=str,
+        default=None,
+        help="Comma-separated list of specific dependency groups to install (e.g., ml,viz)",
+    )
+    init_parser.add_argument(
+        "--non-interactive",
+        action="store_true",
+        help="Run in non-interactive plain text mode",
+    )
 
     # start (hub)
     start_parser = subparsers.add_parser("start", help="Open the PyTekt Hub dashboard in the browser")
@@ -710,8 +738,8 @@ def main():
     args = parser.parse_args()
 
     # Once per installed/updated version (wheel installs skip setuptools hooks).
-    # Skip for ``pytekt welcome`` so the animation is not shown twice.
-    if args.command != "welcome" and not os.environ.get("PYTEKT_NO_SPLASH"):
+    # Skip for ``pytekt welcome`` and ``pytekt init`` so the animation is not shown twice.
+    if args.command not in ("welcome", "init") and not os.environ.get("PYTEKT_NO_SPLASH"):
         try:
             from .install_splash import maybe_show_install_splash
 
@@ -722,6 +750,17 @@ def main():
     if getattr(args, "version", False) or args.command == "version":
         version_command()
         return
+    if args.command == "init":
+        from .wizard import run_wizard
+
+        sys.exit(
+            run_wizard(
+                all_modules=getattr(args, "all", False),
+                none_modules=getattr(args, "none", False),
+                only_modules=getattr(args, "only", None),
+                non_interactive=getattr(args, "non_interactive", False),
+            )
+        )
     if args.command == "start":
         from .hub.launch import run_hub
 
