@@ -57,6 +57,15 @@ def _bigdata_available() -> bool:
         return False
 
 
+def _bots_available() -> bool:
+    try:
+        from .bots._core import _IS_NATIVE
+
+        return bool(_IS_NATIVE)
+    except Exception:
+        return False
+
+
 def native_backends() -> Dict[str, NativeBackendStatus]:
     """Return every optional native backend known to the library."""
     return {
@@ -86,6 +95,15 @@ def native_backends() -> Dict[str, NativeBackendStatus]:
             available=_bigdata_available(),
             fallback="NumPy / Python",
             purpose="Prefix sums, rolling windows, histograms, and chunk stats.",
+        ),
+        "bots": NativeBackendStatus(
+            key="bots",
+            name="pytekt bots high-performance core",
+            module_name="pytekt.bots._native_core",
+            source="pytekt/bots/_core/bindings.cpp",
+            available=_bots_available(),
+            fallback="Pure Python reference engine",
+            purpose="Trie/regex dispatcher, token-bucket rate limiter, FSM, TTL cache, anti-spam, and metrics.",
         ),
     }
 
