@@ -102,6 +102,27 @@ def _get_extensions():
                 language="c++",
             )
         )
+    bots_dir = os.path.join(root, "pytekt", "bots", "_core")
+    bots_sources = [
+        os.path.join("pytekt", "bots", "_core", "bindings.cpp"),
+        os.path.join("pytekt", "bots", "_core", "dispatcher.cpp"),
+        os.path.join("pytekt", "bots", "_core", "ratelimiter.cpp"),
+        os.path.join("pytekt", "bots", "_core", "fsm.cpp"),
+        os.path.join("pytekt", "bots", "_core", "cache.cpp"),
+        os.path.join("pytekt", "bots", "_core", "webhook_server.cpp"),
+        os.path.join("pytekt", "bots", "_core", "antispam.cpp"),
+        os.path.join("pytekt", "bots", "_core", "metrics.cpp"),
+    ]
+    if all(os.path.isfile(os.path.join(root, s)) for s in bots_sources):
+        exts.append(
+            Extension(
+                "pytekt.bots._native_core",
+                sources=bots_sources,
+                include_dirs=include + [bots_dir],
+                extra_compile_args=cxx_args,
+                language="c++",
+            )
+        )
     return exts
 
 

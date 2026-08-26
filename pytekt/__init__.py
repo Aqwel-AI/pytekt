@@ -64,6 +64,9 @@ from . import providers
 from . import tools
 from . import rag
 
+# High-performance native bot framework
+from . import bots
+
 
 
 # Timing / benchmarks
@@ -212,6 +215,7 @@ __all__ = [
     "providers",        # OpenAI / Gemini / Anthropic / compatible APIs
     "tools",            # LLM tool schemas, registry, loop, retry, tokens
     "rag",              # Chunking, vector stores, simple RAG index
+    "bots",             # High-performance native bots framework
     "config",           # TOML/YAML config loading
     "env",              # Dotenv-style and required env vars
     "benchmarks",       # Timing and fast_* comparison helpers
