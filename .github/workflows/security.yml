@@ -1,0 +1,67 @@
+name: Security & Sanitizers Audit
+
+on:
+  push:
+    branches: [ main, master, "feature/**" ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    - cron: '0 4 * * 1' # Weekly Monday security audit
+
+jobs:
+  secrets-and-dependencies:
+    name: Secrets Scan & Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run PyTekt Secret Scanner
+        run: |
+          python scripts/scan_secrets.py
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit pytest pybind11
+          pip install -e .
+
+      - name: Run pip-audit for CVE vulnerabilities
+        run: |
+          pip-audit || true
+
+  asan-ubsan-fuzzing:
+    name: AddressSanitizer & Fuzz Testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools and compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libstdc++-11-dev
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov pybind11 numpy
+
+      - name: Compile C++ Core with ASan & UBSan
+        env:
+          CC: clang
+          CXX: clang++
+          PYTEKT_ENABLE_ASAN: "1"
+        run: |
+          python setup.py build_ext --inplace
+
+      - name: Run Security & Fuzz Test Suite
+        env:
+          ASAN_OPTIONS: detect_leaks=0:symbolize=1
+        run: |
+          pytest tests/test_bots_security.py tests/test_bots_core.py tests/test_bots_framework.py tests/test_bots_ai.py tests/test_bots_ui.py -v

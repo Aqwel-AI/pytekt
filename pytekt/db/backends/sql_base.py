@@ -153,6 +153,29 @@ class SqlConnection(Connection, QueryBackend):
             cur = self._execute(sql, tuple(params))
             return int(getattr(cur, "rowcount", 0) or 0)
 
+    def _load_existing_schema(self, table: str) -> None:
+        """Inspect and load schema for pre-existing tables in the database."""
+        try:
+            with self._lock:
+                if getattr(self, "engine", "") == "sqlite":
+                    cur = self._execute(f"PRAGMA table_info({table})", ())
+                    rows = cur.fetchall() if hasattr(cur, "fetchall") else ()
+                    if rows:
+                        cols = {}
+                        for r in rows:
+                            col_name = r["name"] if isinstance(r, dict) or hasattr(r, "__getitem__") else r[1]
+                            col_type = (r["type"] if isinstance(r, dict) or hasattr(r, "__getitem__") else r[2]).lower()
+                            cols[col_name] = "json" if "json" in col_type else col_type
+                        self._schemas[table] = cols
+                        self._json_cols[table] = {k for k, t in cols.items() if t == "json"}
+                else:
+                    cur = self._execute(f"SELECT * FROM {table} WHERE 1=0", ())
+                    if hasattr(cur, "description") and cur.description:
+                        cols = {desc[0]: "text" for desc in cur.description}
+                        self._schemas[table] = cols
+        except Exception:
+            pass
+
     def execute_query(
         self,
         table: str,
@@ -166,7 +189,9 @@ class SqlConnection(Connection, QueryBackend):
     ) -> List[Dict[str, Any]]:
         table = _safe_table(table)
         if table not in self._schemas:
-            return []
+            self._load_existing_schema(table)
+            if table not in self._schemas:
+                return []
         where, params = compile_sql_filters(filters, json_columns=tuple(self._json_cols.get(table, ())))
         cols = ", ".join(columns) if columns else "*"
         sql = f"SELECT {cols} FROM {table}"
@@ -186,7 +211,9 @@ class SqlConnection(Connection, QueryBackend):
     def execute_count(self, table: str, *, filters: List[Filter]) -> int:
         table = _safe_table(table)
         if table not in self._schemas:
-            return 0
+            self._load_existing_schema(table)
+            if table not in self._schemas:
+                return 0
         where, params = compile_sql_filters(filters, json_columns=tuple(self._json_cols.get(table, ())))
         sql = f"SELECT COUNT(*) AS c FROM {table}"
         if where:

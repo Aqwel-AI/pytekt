@@ -1,0 +1,14 @@
+id: echo
+name: Echo / Starter
+description: Minimal bot, one command + one message handler (default scaffold)
+platforms:
+  - telegram
+  - discord
+with_ai: false
+with_db: false
+with_roles: false
+with_i18n: false
+with_scheduler: false
+with_payments: false
+with_ui: false
+minimal: true

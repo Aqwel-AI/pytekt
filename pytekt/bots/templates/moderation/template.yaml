@@ -1,0 +1,20 @@
+id: moderation
+name: Moderation Bot
+description: Permissions/roles pre-configured, ai.moderate wired into message handler
+platforms:
+  - telegram
+  - discord
+with_ai: true
+with_db: true
+with_roles: true
+with_i18n: false
+with_scheduler: false
+with_payments: false
+with_ui: false
+minimal: false
+extra_env:
+  OPENAI_API_KEY: sk-example-key-for-ai
+  ADMIN_USER_IDS: 123456789,admin_user
+  DATABASE_URL: sqlite:///moderation.db
+extra_deps:
+  - openai>=1.0.0
