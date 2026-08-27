@@ -61,6 +61,10 @@ def _get_extensions():
     src_dir = os.path.join(root, "src")
     include = include + [src_dir]
     cxx_args = ["-O3", "-std=c++14"] if os.name != "nt" else ["/O2", "/std:c++14"]
+    link_args = []
+    if os.environ.get("PYTEKT_ENABLE_ASAN") == "1" and os.name != "nt":
+        cxx_args.extend(["-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-g"])
+        link_args.extend(["-fsanitize=address,undefined"])
     exts = []
     if os.path.isfile(os.path.join(src_dir, "pytekt_core.cpp")):
         exts.append(
@@ -119,7 +123,7 @@ def _get_extensions():
                 "pytekt.bots._native_core",
                 sources=bots_sources,
                 include_dirs=include + [bots_dir],
-                extra_compile_args=cxx_args,
+                extra_link_args=link_args,
                 language="c++",
             )
         )

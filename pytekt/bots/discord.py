@@ -17,30 +17,47 @@ from typing import Any, Dict, List, Optional, Union
 
 from .base import Bot, Context, UniversalEvent
 
+import os
+
 logger = logging.getLogger("pytekt.bots.discord")
 
 
 class DiscordBot(Bot):
     """
-    Discord Bot adapter extending the core Bot class.
+    Discord Bot adapter normalizing Gateway and Interaction payloads into UniversalEvents.
 
     Parameters
     ----------
-    token : str
-        Discord Bot Token (e.g. from Discord Developer Portal).
-    base_url : str, optional
-        API URL root (default 'https://discord.com/api/v10').
+    token : str, optional
+        Discord Bot Token. If omitted, loaded from DISCORD_BOT_TOKEN environment variable.
+    application_id : str, optional
+        Discord Application / Client ID.
+    public_key : str, optional
+        Discord Public Key for verifying webhook signatures.
     """
 
     def __init__(
         self,
-        token: str,
+        token: Optional[str] = None,
+        application_id: Optional[str] = None,
+        public_key: Optional[str] = None,
         base_url: str = "https://discord.com/api/v10",
     ) -> None:
         super().__init__(platform="discord")
-        self.token = token.strip()
+        resolved_token = token or os.environ.get("DISCORD_BOT_TOKEN", "")
+        if not resolved_token:
+            raise ValueError(
+                "DiscordBot requires a bot token. Pass it directly (token='...') "
+                "or set the DISCORD_BOT_TOKEN environment variable."
+            )
+        self.token = resolved_token.strip()
+        self.application_id = application_id
+        self.public_key = public_key
         self.base_url = base_url.rstrip("/")
-        self._running = False
+
+    def __repr__(self) -> str:
+        masked = (self.token[:6] + "***") if self.token and len(self.token) > 6 else "***"
+        return f"DiscordBot(token='{masked}', platform='discord')"
 
     async def _api_call(
         self,
@@ -101,19 +118,22 @@ class DiscordBot(Bot):
     async def send_message(
         self,
         chat_id: Union[str, int],
-        text: str,
+        text: str = "",
         reply_to_message_id: Optional[Union[str, int]] = None,
         embeds: Optional[List[Dict[str, Any]]] = None,
+        components: Optional[List[Dict[str, Any]]] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Send a message to a Discord channel (chat_id = channel_id)."""
         payload: Dict[str, Any] = {
-            "content": str(text),
+            "content": str(text) if text else "",
         }
         if reply_to_message_id:
             payload["message_reference"] = {"message_id": str(reply_to_message_id)}
         if embeds:
             payload["embeds"] = embeds
+        if components:
+            payload["components"] = components
         payload.update(kwargs)
         return await self._api_call("POST", f"/channels/{chat_id}/messages", payload)
 
@@ -121,18 +141,43 @@ class DiscordBot(Bot):
         self,
         chat_id: Union[str, int],
         message_id: Union[str, int],
-        text: str,
+        text: str = "",
         embeds: Optional[List[Dict[str, Any]]] = None,
+        components: Optional[List[Dict[str, Any]]] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Edit an existing Discord message."""
         payload: Dict[str, Any] = {
-            "content": str(text),
+            "content": str(text) if text else "",
         }
         if embeds is not None:
             payload["embeds"] = embeds
+        if components is not None:
+            payload["components"] = components
         payload.update(kwargs)
         return await self._api_call("PATCH", f"/channels/{chat_id}/messages/{message_id}", payload)
+
+    async def show_modal(
+        self,
+        chat_id: Union[str, int],
+        modal_payload: Dict[str, Any],
+        interaction_id: Optional[str] = None,
+        interaction_token: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Send a Modal interaction response on Discord."""
+        if interaction_id and interaction_token:
+            return await self._api_call(
+                "POST",
+                f"/interactions/{interaction_id}/{interaction_token}/callback",
+                modal_payload,
+            )
+        # Fallback to sending channel prompt
+        return await self.send_message(
+            chat_id=chat_id,
+            text=f"📋 **{modal_payload.get('data', {}).get('title', 'Modal')}**",
+            components=modal_payload.get("data", {}).get("components"),
+        )
 
     async def send_chat_action(
         self,
@@ -149,6 +194,35 @@ class DiscordBot(Bot):
     ) -> Dict[str, Any]:
         """Delete a message in a channel."""
         return await self._api_call("DELETE", f"/channels/{chat_id}/messages/{message_id}")
+
+    async def send_invoice(
+        self,
+        chat_id: str,
+        title: str,
+        description: str,
+        payload: str,
+        provider_token: str,
+        currency: str,
+        prices: Sequence[Any],
+        **kwargs: Any,
+    ) -> Any:
+        """Raise NotSupportedError on Discord."""
+        from .payments import NotSupportedError
+        raise NotSupportedError(
+            "Payments API is not supported on Discord. Discord does not have a native in-chat payments API."
+        )
+
+    async def answer_pre_checkout_query(
+        self,
+        pre_checkout_query_id: str,
+        ok: bool = True,
+        error_message: Optional[str] = None,
+    ) -> Any:
+        """Raise NotSupportedError on Discord."""
+        from .payments import NotSupportedError
+        raise NotSupportedError(
+            "Payments API is not supported on Discord. Discord does not have a native in-chat payments API."
+        )
 
     def run(self) -> None:
         """Run Discord bot via Webhook listener or mock Gateway."""

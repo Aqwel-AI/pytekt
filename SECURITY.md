@@ -1,45 +1,72 @@
-# Security Policy
+# Security Policy & Hardening Guidelines
 
-## Reporting vulnerabilities
+PyTekt takes security, memory safety, and token protection seriously across all layers—from the high-performance C++ native core to the declarative Python bot framework.
 
-If you find a security issue, please **do not** open a public GitHub issue with exploit details.
+---
 
-Contact the maintainers privately (e.g. GitHub Security Advisories or email listed on [aqwelai.xyz](https://aqwelai.xyz/)).
+## 1. Supported Versions
 
-## What this repository contains
+| Version | Supported | Security Updates |
+|---|---|---|
+| **0.1.x / 0.2.x** | :white_check_mark: | Active |
+| **< 0.1.0** | :x: | End of Life |
 
-- **Open-source Python code** — safe to publish.
-- **No user secrets** — API keys must never be committed.
+---
 
-## What must stay private (never in git)
+## 2. Reporting a Vulnerability
 
-| Item | Where it belongs |
-|------|------------------|
-| API keys (OpenAI, Gemini, Anthropic, …) | Environment variables or `~/.pytekt.yaml` (when configured) |
-| `.env` with real values | Your machine only (see `.env.example`) |
-| `~/.pytekt.yaml` | Your home directory (private config / future agent settings) |
-| Private datasets, checkpoints, experiment logs | Local folders (see `.gitignore`) |
-| Cursor/IDE project state | `.cursor/`, `.vscode/` (ignored) |
+If you discover a security vulnerability within PyTekt (such as a memory safety issue, secret leak, or authentication bypass), **please do not open a public GitHub issue**.
 
-Cloning this repo **does not** give anyone access to your accounts or files.
+### Responsible Disclosure Contact
+- **Email:** `security@aqwelai.xyz` (or `aksel@aqwelai.xyz`)
+- **PGP Key:** Available upon request for encrypted disclosure.
 
-## Terminal coding agent (not available)
+### What to Include
+1. Description of the vulnerability and its potential impact.
+2. Minimal proof-of-concept (PoC) code or test case reproducing the issue.
+3. Target platform details (OS, Python version, architecture).
+4. Proposed patch or mitigation if available.
 
-In **0.2.0**, `pytekt agent` is **not available**. When the agent returns in a future release and **workspace trust** is enabled, it may:
+### Response Timeline
+- **Initial Response:** Within 24–48 hours.
+- **Triage & Status Update:** Within 72 hours.
+- **Coordinated Release & Advisory:** Target within 14 days of confirmation.
 
-- Read and write files in your project
-- Run shell commands (if trusted mode allows)
+---
 
-Only enable trust in directories you control. Review tool output before running in sensitive environments.
+## 3. Security Architecture & Guarantees
 
-Today, LLM calls from Python use **`pytekt.providers`** with keys from the environment — never commit those keys.
+### A. Secrets Protection
+- **Masked Representations:** `TelegramBot`, `DiscordBot`, and `AI` instances mask credentials in `__repr__` and string outputs (e.g. `123456:***`).
+- **Sanitized Logs & Exceptions:** Network exception loggers automatically redact bot tokens from API URLs.
+- **Cache Isolation:** API keys and credentials are never stored or serialized into the C++ `Cache` or `FSM` state stores.
+- **Environment Loading:** Default loading pattern reads tokens from environment variables (`TELEGRAM_BOT_TOKEN`, `DISCORD_BOT_TOKEN`, `OPENAI_API_KEY`, etc.).
+- **Automated CI Scanning:** The repository runs `scripts/scan_secrets.py` on every commit to prevent accidental leakage of credentials.
 
-## Before you `git push`
+### B. C++ Memory Safety & Parsing Robustness
+- **Bounded Deserialization:** The C++ `JsonParser` enforces a maximum parsing recursion depth (64 levels) and a 10MB input size ceiling to prevent stack overflows and memory exhaustion attacks.
+- **ASan & UBSan:** C++ extensions can be built with `-fsanitize=address,undefined` via `PYTEKT_ENABLE_ASAN=1`.
+- **Fuzz Testing:** Continuous fuzz testing targets `UniversalEvent` update parsers (`parse_telegram`, `parse_discord`, `parse_generic`) with malformed, deeply nested, and corrupted JSON payloads.
 
-1. Run `git status` — ensure no `.env`, `*.yaml` with keys, or `credentials/` files are staged.
-2. Use `cp .env.example .env` locally; never add `.env` to commits.
-3. If a key was committed by mistake: rotate the key immediately, then remove it from git history.
+### C. Webhook Server & Header Authentication
+- **Secret Token Validation:** Telegram webhooks can be secured with `X-Telegram-Bot-Api-Secret-Token` via `bot.run_webhook(secret_token=...)`, rejecting unauthenticated requests before event dispatch.
+- **Endpoint Segregation:** Mini-App and Activity routes hosted via `bot.serve_web_app(path, ...)` are strictly isolated from internal bot event dispatching endpoints.
 
-## Dependency security
+### D. AI Tool-Calling & Prompt Injection Defenses
+- **Untrusted Model Output:** All arguments supplied by language models for `@ai.tool` invocations are treated as untrusted user input, validated against expected JSON structures and type signatures before execution.
+- **RAG Prompt Injection Containment:** Retrieved knowledge base documents are enclosed within explicitly delimited `<retrieved_reference_documents>` tags with strict system instructions that untrusted documents cannot override system behavior or invoke unauthorized tools.
 
-Install from PyPI or this repo with pinned extras. Run your own `pip audit` or Dependabot in CI for production use.
+### E. Rate Limiting as DoS Protection
+- **Multi-Scope Token Buckets:** Thread-safe C++ rate limiting applies separate buckets for `user`, `chat`, and `global` scopes.
+- **Attacker Isolation:** Malicious floods from a single user or chat are dropped immediately without consuming rate limit quotas of other users or chats.
+
+---
+
+## 4. Developer Responsibilities
+
+While PyTekt enforces framework-level guardrails, developers building bots must maintain the following security practices:
+
+1. **Keep Secrets in Environment Variables:** Never commit `.env` files, API tokens, or webhook secrets to public version control.
+2. **Sanitize Tool Logic:** Ensure custom `@ai.tool` functions validate domain-specific constraints (e.g. database access permissions, input path sanitization).
+3. **Use HTTPS for Webhooks:** In production, always terminate TLS/HTTPS in front of `WebhookServer` using a reverse proxy (e.g. Nginx, Cloudflare, Caddy).
+4. **Regular Dependency Audits:** Run `pip-audit` regularly to monitor third-party package vulnerabilities.

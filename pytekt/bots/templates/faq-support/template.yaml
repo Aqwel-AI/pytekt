@@ -1,0 +1,19 @@
+id: faq-support
+name: FAQ / Support Bot
+description: AI chatbot template plus ai.knowledge_base pointed at a sample faq.md
+platforms:
+  - telegram
+  - discord
+with_ai: true
+with_db: true
+with_roles: false
+with_i18n: false
+with_scheduler: false
+with_payments: false
+with_ui: false
+minimal: false
+extra_env:
+  OPENAI_API_KEY: sk-example-key-for-ai
+  DATABASE_URL: sqlite:///faq_support.db
+extra_deps:
+  - openai>=1.0.0

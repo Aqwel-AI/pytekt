@@ -84,7 +84,7 @@ PYBIND11_MODULE(_native_core, m) {
         .def("set_custom_rule", &RateLimiter::set_custom_rule, py::arg("scope"), py::arg("capacity"), py::arg("window_seconds"))
         .def("acquire", &RateLimiter::acquire, py::arg("key"), py::arg("tokens") = 1.0)
         .def("check", &RateLimiter::check, py::arg("key"), py::arg("tokens") = 1.0)
-        .def("check_and_acquire", &RateLimiter::check_and_acquire, py::arg("user_id"), py::arg("chat_id"), py::arg("tokens") = 1.0)
+        .def("check_and_acquire", &RateLimiter::check_and_acquire, py::arg("user_id") = "", py::arg("chat_id") = "", py::arg("tokens") = 1.0)
         .def("record_429", &RateLimiter::record_429, py::arg("key"), py::arg("retry_after_seconds"))
         .def("get_retry_after", &RateLimiter::get_retry_after, py::arg("key"))
         .def("reset", &RateLimiter::reset, py::arg("key") = "")

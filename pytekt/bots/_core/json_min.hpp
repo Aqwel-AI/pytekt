@@ -9,6 +9,7 @@
 #include <cctype>
 #include <stdexcept>
 #include <algorithm>
+#include <cmath>
 
 namespace pytekt {
 namespace bots {
@@ -49,7 +50,7 @@ struct JsonValue {
     static JsonValue from_number(double n) {
         JsonValue v;
         v.type = JsonType::Number;
-        v.num_val = n;
+        v.num_val = (std::isnan(n) || std::isinf(n)) ? 0.0 : n;
         return v;
     }
 
@@ -147,7 +148,15 @@ struct JsonValue {
                     else if (c == '\n') ss << "\\n";
                     else if (c == '\r') ss << "\\r";
                     else if (c == '\t') ss << "\\t";
-                    else ss << c;
+                    else if (static_cast<unsigned char>(c) < 0x20) {
+                        // Escape non-printable control characters
+                        ss << "\\u00";
+                        const char* hex = "0123456789abcdef";
+                        ss << hex[(static_cast<unsigned char>(c) >> 4) & 0xF];
+                        ss << hex[static_cast<unsigned char>(c) & 0xF];
+                    } else {
+                        ss << c;
+                    }
                 }
                 ss << '"';
                 break;
@@ -176,13 +185,19 @@ struct JsonValue {
 
 class JsonParser {
 public:
+    static constexpr size_t MAX_DEPTH = 64;
+    static constexpr size_t MAX_INPUT_SIZE = 10 * 1024 * 1024; // 10MB maximum payload
+
     static JsonValue parse(const std::string& str) {
+        if (str.size() > MAX_INPUT_SIZE) {
+            return JsonValue::null_val();
+        }
         size_t idx = 0;
         skip_ws(str, idx);
         if (idx >= str.size()) {
             return JsonValue::null_val();
         }
-        return parse_value(str, idx);
+        return parse_value(str, idx, 0);
     }
 
 private:
@@ -192,13 +207,16 @@ private:
         }
     }
 
-    static JsonValue parse_value(const std::string& s, size_t& idx) {
+    static JsonValue parse_value(const std::string& s, size_t& idx, size_t depth) {
+        if (depth > MAX_DEPTH) {
+            return JsonValue::null_val();
+        }
         skip_ws(s, idx);
         if (idx >= s.size()) return JsonValue::null_val();
 
         char c = s[idx];
-        if (c == '{') return parse_object(s, idx);
-        if (c == '[') return parse_array(s, idx);
+        if (c == '{') return parse_object(s, idx, depth + 1);
+        if (c == '[') return parse_array(s, idx, depth + 1);
         if (c == '"') return parse_string(s, idx);
         if (c == 't' || c == 'f') return parse_bool(s, idx);
         if (c == 'n') return parse_null(s, idx);
@@ -207,7 +225,7 @@ private:
         return JsonValue::null_val();
     }
 
-    static JsonValue parse_object(const std::string& s, size_t& idx) {
+    static JsonValue parse_object(const std::string& s, size_t& idx, size_t depth) {
         JsonValue val;
         val.type = JsonType::Object;
         idx++; // skip '{'
@@ -225,7 +243,7 @@ private:
             if (idx < s.size() && s[idx] == ':') {
                 idx++;
             }
-            JsonValue child = parse_value(s, idx);
+            JsonValue child = parse_value(s, idx, depth);
             val.obj_val[key.str_val] = child;
 
             skip_ws(s, idx);
@@ -234,12 +252,14 @@ private:
             } else if (idx < s.size() && s[idx] == '}') {
                 idx++;
                 return val;
+            } else {
+                idx++; // advance on unexpected character to prevent hang
             }
         }
         return val;
     }
 
-    static JsonValue parse_array(const std::string& s, size_t& idx) {
+    static JsonValue parse_array(const std::string& s, size_t& idx, size_t depth) {
         JsonValue val;
         val.type = JsonType::Array;
         idx++; // skip '['
@@ -252,7 +272,7 @@ private:
                 return val;
             }
 
-            JsonValue child = parse_value(s, idx);
+            JsonValue child = parse_value(s, idx, depth);
             val.arr_val.push_back(child);
 
             skip_ws(s, idx);
@@ -261,6 +281,8 @@ private:
             } else if (idx < s.size() && s[idx] == ']') {
                 idx++;
                 return val;
+            } else {
+                idx++; // advance on unexpected character
             }
         }
         return val;
@@ -331,6 +353,7 @@ private:
         std::string num_str = s.substr(start, idx - start);
         try {
             double d = std::stod(num_str);
+            if (std::isnan(d) || std::isinf(d)) d = 0.0;
             return JsonValue::from_number(d);
         } catch (...) {
             return JsonValue::from_number(0.0);

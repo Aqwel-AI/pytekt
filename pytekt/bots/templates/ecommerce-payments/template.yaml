@@ -1,0 +1,17 @@
+id: ecommerce-payments
+name: E-commerce / Payments Bot (Telegram only)
+description: bots.payments pre-wired with a sample send_invoice checkout flow
+platforms:
+  - telegram
+with_ai: false
+with_db: true
+with_roles: false
+with_i18n: false
+with_scheduler: false
+with_payments: true
+with_ui: true
+minimal: false
+extra_env:
+  TELEGRAM_BOT_TOKEN: 123456:TEST_TOKEN
+  PAYMENT_PROVIDER_TOKEN: 284685063:TEST:example_provider_token
+  DATABASE_URL: sqlite:///store.db

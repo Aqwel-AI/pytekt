@@ -16,6 +16,9 @@ from typing import Any, Dict, List, Optional, Union
 
 from .base import Bot, Context, UniversalEvent
 
+import os
+import re
+
 logger = logging.getLogger("pytekt.bots.telegram")
 
 
@@ -25,23 +28,33 @@ class TelegramBot(Bot):
 
     Parameters
     ----------
-    token : str
-        Telegram Bot API token from @BotFather.
+    token : str, optional
+        Telegram Bot API token from @BotFather. If omitted, loaded from TELEGRAM_BOT_TOKEN env var.
     base_url : str, optional
         API URL root (default 'https://api.telegram.org').
     """
 
     def __init__(
         self,
-        token: str,
+        token: Optional[str] = None,
         base_url: str = "https://api.telegram.org",
     ) -> None:
         super().__init__(platform="telegram")
-        self.token = token.strip()
+        resolved_token = token or os.environ.get("TELEGRAM_BOT_TOKEN", "")
+        if not resolved_token:
+            raise ValueError(
+                "TelegramBot requires a bot token. Pass it directly (token='...') "
+                "or set the TELEGRAM_BOT_TOKEN environment variable."
+            )
+        self.token = resolved_token.strip()
         self.base_url = base_url.rstrip("/")
         self._api_prefix = f"{self.base_url}/bot{self.token}"
         self._running = False
         self._last_update_id = 0
+
+    def __repr__(self) -> str:
+        masked = (self.token[:6] + ":***") if self.token and ":" in self.token else "***"
+        return f"TelegramBot(token='{masked}', platform='telegram')"
 
     # ------------------------------------------------------------------
     # HTTP API Client with Auto-Backoff
@@ -131,7 +144,10 @@ class TelegramBot(Bot):
         if parse_mode:
             payload["parse_mode"] = parse_mode
         if reply_to_message_id:
-            payload["reply_to_message_id"] = int(reply_to_message_id)
+            try:
+                payload["reply_to_message_id"] = int(reply_to_message_id)
+            except (ValueError, TypeError):
+                pass
         if reply_markup:
             payload["reply_markup"] = reply_markup
         payload.update(kwargs)
@@ -165,6 +181,8 @@ class TelegramBot(Bot):
         photo: Union[str, bytes],
         caption: Optional[str] = None,
         parse_mode: Optional[str] = None,
+        reply_to_message_id: Optional[Union[str, int]] = None,
+        reply_markup: Optional[Dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Send a photo by URL, file_id, or multipart."""
@@ -176,6 +194,13 @@ class TelegramBot(Bot):
             payload["caption"] = caption
         if parse_mode:
             payload["parse_mode"] = parse_mode
+        if reply_to_message_id:
+            try:
+                payload["reply_to_message_id"] = int(reply_to_message_id)
+            except (ValueError, TypeError):
+                pass
+        if reply_markup:
+            payload["reply_markup"] = reply_markup
         payload.update(kwargs)
         return await self._api_call("sendPhoto", payload)
 
@@ -256,6 +281,49 @@ class TelegramBot(Bot):
     async def delete_webhook(self, drop_pending_updates: bool = False) -> Dict[str, Any]:
         """Delete Telegram webhook."""
         return await self._api_call("deleteWebhook", {"drop_pending_updates": drop_pending_updates})
+
+    async def send_invoice(
+        self,
+        chat_id: str,
+        title: str,
+        description: str,
+        payload: str,
+        provider_token: str,
+        currency: str,
+        prices: Sequence[Any],
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Send a native Telegram payment invoice."""
+        price_objs = [
+            p.to_dict() if hasattr(p, "to_dict") else {"label": p.get("label", ""), "amount": int(p.get("amount", 0))}
+            for p in prices
+        ]
+        body: Dict[str, Any] = {
+            "chat_id": chat_id,
+            "title": title,
+            "description": description,
+            "payload": payload,
+            "provider_token": provider_token,
+            "currency": currency.upper(),
+            "prices": price_objs,
+            **kwargs,
+        }
+        return await self._api_call("sendInvoice", body)
+
+    async def answer_pre_checkout_query(
+        self,
+        pre_checkout_query_id: str,
+        ok: bool = True,
+        error_message: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Confirm or reject a Telegram pre-checkout payment query."""
+        body: Dict[str, Any] = {
+            "pre_checkout_query_id": pre_checkout_query_id,
+            "ok": ok,
+        }
+        if error_message:
+            body["error_message"] = error_message
+        return await self._api_call("answerPreCheckoutQuery", body)
 
     # ------------------------------------------------------------------
     # Polling & Execution

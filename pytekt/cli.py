@@ -29,6 +29,11 @@ try:
 except ImportError:
     GIT_AVAILABLE = False
 
+__path__ = []
+from . import branding
+spinner = branding.spinner
+sys.modules["pytekt.cli.branding"] = branding
+
 
 def _version_string():
     from . import __version__
@@ -126,6 +131,52 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
 
     # chat
     subparsers.add_parser("chat", help="Start interactive chat (prompt templates + embedding)")
+
+    # bots
+    bots_parser = subparsers.add_parser("bots", help="Bot creation, scaffolding, and hot-reload runner")
+    bots_sub = bots_parser.add_subparsers(dest="bots_command", help="Bot subcommands")
+
+    # pytekt bots new <name> --platform telegram|discord|slack
+    new_bot_parser = bots_sub.add_parser("new", help="Scaffold a new PyTekt bot project")
+    new_bot_parser.add_argument("name", help="Name of the bot project")
+    new_bot_parser.add_argument("--platform", "-p", choices=["telegram", "discord", "slack"], default=None, help="Target platform (telegram; discord and slack coming soon)")
+    new_bot_parser.add_argument("--template", "-t", default=None, help="Starter template (echo, ai-chatbot, faq-support, moderation, reminder-scheduler, ecommerce-payments)")
+    new_bot_parser.add_argument("--manual", action="store_true", help="Print copy-paste-ready manual setup instructions instead of generating files")
+    new_bot_parser.add_argument("--yes", "-y", action="store_true", help="Skip interactive prompts and use defaults or specified arguments")
+    new_bot_parser.add_argument("--dir", "-d", default=None, help="Target directory (default: current directory)")
+    new_bot_parser.add_argument("--with-ai", "--ai", dest="with_ai", action="store_true", default=None, help="Include bots.ai layer and tool setup")
+    new_bot_parser.add_argument("--with-db", "--db", dest="with_db", action="store_true", default=None, help="Include pytekt.db persistence and models layer")
+    new_bot_parser.add_argument("--with-roles", "--roles", dest="with_roles", action="store_true", default=None, help="Include Role-Based Access Control (RBAC) & admin commands")
+    new_bot_parser.add_argument("--with-i18n", "--i18n", dest="with_i18n", action="store_true", default=None, help="Include multi-language translations and /lang switcher")
+    new_bot_parser.add_argument("--with-scheduler", "--scheduler", dest="with_scheduler", action="store_true", default=None, help="Include background cron & interval task scheduler")
+    new_bot_parser.add_argument("--with-payments", "--payments", dest="with_payments", action="store_true", default=None, help="Include Telegram Stars & crypto payment invoices")
+    new_bot_parser.add_argument("--with-ui", "--ui", dest="with_ui", action="store_true", default=None, help="Include declarative UI pagination catalogs and wizards")
+    new_bot_parser.add_argument("--minimal", action="store_true", default=None, help="Generate minimal single-file layout instead of full modular project")
+    new_bot_parser.add_argument("--no-animation", action="store_true", help="Disable branded CLI animation and output clean text")
+
+    # pytekt bots dev <script>
+    dev_bot_parser = bots_sub.add_parser("dev", help="Run bot with file-watching and hot-reload")
+    dev_bot_parser.add_argument("script", nargs="?", default="main.py", help="Bot entry-point script (default: main.py)")
+    dev_bot_parser.add_argument("--interval", "-i", type=float, default=1.0, help="File watch polling interval (seconds)")
+
+    # new (top-level shortcut for scaffolding)
+    top_new_parser = subparsers.add_parser("new", help="Scaffold a new project (e.g. pytekt new bots telegram)")
+    top_new_parser.add_argument("target", help="Project type ('bot', 'bots') or project name")
+    top_new_parser.add_argument("extra", nargs="?", default=None, help="Project name or platform (optional)")
+    top_new_parser.add_argument("--platform", "-p", choices=["telegram", "discord", "slack"], default=None, help="Target platform (telegram; discord and slack coming soon)")
+    top_new_parser.add_argument("--template", "-t", default=None, help="Starter template (echo, ai-chatbot, faq-support, moderation, reminder-scheduler, ecommerce-payments)")
+    top_new_parser.add_argument("--manual", action="store_true", help="Print copy-paste-ready manual setup instructions instead of generating files")
+    top_new_parser.add_argument("--yes", "-y", action="store_true", help="Skip interactive prompts and use defaults or specified arguments")
+    top_new_parser.add_argument("--dir", "-d", default=None, help="Target directory (default: current directory)")
+    top_new_parser.add_argument("--with-ai", "--ai", dest="with_ai", action="store_true", default=None, help="Include bots.ai layer and tool setup")
+    top_new_parser.add_argument("--with-db", "--db", dest="with_db", action="store_true", default=None, help="Include pytekt.db persistence and models layer")
+    top_new_parser.add_argument("--with-roles", "--roles", dest="with_roles", action="store_true", default=None, help="Include Role-Based Access Control (RBAC) & admin commands")
+    top_new_parser.add_argument("--with-i18n", "--i18n", dest="with_i18n", action="store_true", default=None, help="Include multi-language translations and /lang switcher")
+    top_new_parser.add_argument("--with-scheduler", "--scheduler", dest="with_scheduler", action="store_true", default=None, help="Include background cron & interval task scheduler")
+    top_new_parser.add_argument("--with-payments", "--payments", dest="with_payments", action="store_true", default=None, help="Include Telegram Stars & crypto payment invoices")
+    top_new_parser.add_argument("--with-ui", "--ui", dest="with_ui", action="store_true", default=None, help="Include declarative UI pagination catalogs and wizards")
+    top_new_parser.add_argument("--minimal", action="store_true", default=None, help="Generate minimal single-file layout instead of full modular project")
+    top_new_parser.add_argument("--no-animation", action="store_true", help="Disable branded CLI animation and output clean text")
 
     # git
     git_parser = subparsers.add_parser("git", help="Git repository operations")
@@ -604,6 +655,66 @@ def chat_command():
             pass
 
 
+def _run_bot_dev_server(script_path: str = "main.py", interval: float = 1.0) -> None:
+    """Run bot script in subprocess with auto-restart on code modifications."""
+    from pathlib import Path
+    script = Path(script_path).resolve()
+    if not script.is_file():
+        print(f"❌ Error: Bot script '{script_path}' not found.", file=sys.stderr)
+        sys.exit(1)
+
+    watch_dir = script.parent
+    print(f"🔥 Starting PyTekt Bot Dev Server (watching {watch_dir} for changes)...")
+    print(f"   Target: {script.name}")
+    print(f"   Press Ctrl+C to stop.\n")
+
+    def _get_mtimes() -> Dict[Path, float]:
+        mtimes: Dict[Path, float] = {}
+        for root, dirs, files in os.walk(watch_dir):
+            if any(p in root for p in (".git", ".venv", "venv", "__pycache__", ".pytest_cache")):
+                continue
+            for f in files:
+                if f.endswith((".py", ".env", ".json", ".yaml", ".yml")):
+                    p = Path(root) / f
+                    try:
+                        mtimes[p] = p.stat().st_mtime
+                    except OSError:
+                        pass
+        return mtimes
+
+    process = subprocess.Popen([sys.executable, str(script)])
+    last_mtimes = _get_mtimes()
+
+    try:
+        while True:
+            time.sleep(interval)
+            current_mtimes = _get_mtimes()
+            changed = False
+            for p, mt in current_mtimes.items():
+                if p not in last_mtimes or mt > last_mtimes[p]:
+                    print(f"\n🔄 File modified: {p.relative_to(watch_dir)} — restarting bot...")
+                    changed = True
+                    break
+
+            if changed:
+                last_mtimes = current_mtimes
+                if process.poll() is None:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=2.0)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                process = subprocess.Popen([sys.executable, str(script)])
+    except KeyboardInterrupt:
+        print("\n🛑 Stopping Bot Dev Server...")
+        if process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=2.0)
+            except subprocess.TimeoutExpired:
+                process.kill()
+
+
 def git_status_command(repo_path="."):
     """
     Print repository status for the given path: branch, working tree state,
@@ -827,6 +938,130 @@ def main():
 
     if args.command in ("api", "auth"):
         print(f"pytekt {args.command} — not available in 0.2.0.")
+        return
+
+    if args.command == "bots":
+        if getattr(args, "bots_command", None) == "new":
+            from .branding import animate_bot_scaffold, prompt_scaffold_wizard, is_interactive, WizardCancelled
+            from pathlib import Path
+
+            is_tty = is_interactive() and not getattr(args, "no_animation", False)
+            manual_mode = "manual" if getattr(args, "manual", False) else None
+            skip_prompts = getattr(args, "yes", False)
+
+            try:
+                opts = prompt_scaffold_wizard(
+                    name=args.name,
+                    platform=args.platform,
+                    template=getattr(args, "template", None),
+                    scaffold_mode=manual_mode,
+                    skip_prompts=skip_prompts,
+                    with_ai=args.with_ai,
+                    with_db=args.with_db,
+                    with_roles=args.with_roles,
+                    with_i18n=args.with_i18n,
+                    with_scheduler=args.with_scheduler,
+                    with_payments=args.with_payments,
+                    with_ui=args.with_ui,
+                    minimal=args.minimal,
+                    interactive=is_tty,
+                )
+
+                target = Path(args.dir) if args.dir else None
+                animate_bot_scaffold(
+                    name=args.name,
+                    platform=opts["platform"],
+                    target_dir=target,
+                    template=opts["template"],
+                    scaffold_mode=opts["scaffold_mode"],
+                    manifest=opts["manifest"],
+                    include_ai=opts["with_ai"],
+                    include_db=opts["with_db"],
+                    include_roles=opts["with_roles"],
+                    include_i18n=opts["with_i18n"],
+                    include_scheduler=opts["with_scheduler"],
+                    include_payments=opts["with_payments"],
+                    include_ui=opts["with_ui"],
+                    minimal=opts["minimal"],
+                    animated=not getattr(args, "no_animation", False),
+                )
+            except (KeyboardInterrupt, WizardCancelled):
+                return 130
+            return
+        elif getattr(args, "bots_command", None) == "dev":
+            _run_bot_dev_server(args.script, args.interval)
+            return
+        else:
+            bots_parser.print_help()
+            return
+
+    if args.command == "new":
+        from .branding import animate_bot_scaffold, prompt_scaffold_wizard, is_interactive, WizardCancelled
+        from pathlib import Path
+
+        target = args.target.strip().lower()
+        extra = (args.extra or "").strip().lower()
+        platform = args.platform
+
+        # Case 1: pytekt new bots telegram -> platform="telegram", name="telegram_bot"
+        # Case 2: pytekt new bot my_bot -> platform="telegram", name="my_bot"
+        # Case 3: pytekt new bot my_bot --platform discord -> platform="discord", name="my_bot"
+        # Case 4: pytekt new my_bot -> platform="telegram", name="my_bot"
+        if target in ("bot", "bots"):
+            if extra in ("telegram", "discord", "slack"):
+                platform = extra
+                name = f"{platform}_bot"
+            elif extra:
+                name = args.extra.strip()
+            else:
+                name = "my_bot"
+        else:
+            name = args.target.strip()
+            if extra in ("telegram", "discord", "slack"):
+                platform = extra
+
+        is_tty = is_interactive() and not getattr(args, "no_animation", False)
+        manual_mode = "manual" if getattr(args, "manual", False) else None
+        skip_prompts = getattr(args, "yes", False)
+
+        try:
+            opts = prompt_scaffold_wizard(
+                name=name,
+                platform=platform,
+                template=getattr(args, "template", None),
+                scaffold_mode=manual_mode,
+                skip_prompts=skip_prompts,
+                with_ai=args.with_ai,
+                with_db=args.with_db,
+                with_roles=args.with_roles,
+                with_i18n=args.with_i18n,
+                with_scheduler=args.with_scheduler,
+                with_payments=args.with_payments,
+                with_ui=args.with_ui,
+                minimal=args.minimal,
+                interactive=is_tty,
+            )
+
+            target_dir = Path(args.dir) if args.dir else None
+            animate_bot_scaffold(
+                name=name,
+                platform=opts["platform"],
+                target_dir=target_dir,
+                template=opts["template"],
+                scaffold_mode=opts["scaffold_mode"],
+                manifest=opts["manifest"],
+                include_ai=opts["with_ai"],
+                include_db=opts["with_db"],
+                include_roles=opts["with_roles"],
+                include_i18n=opts["with_i18n"],
+                include_scheduler=opts["with_scheduler"],
+                include_payments=opts["with_payments"],
+                include_ui=opts["with_ui"],
+                minimal=opts["minimal"],
+                animated=not getattr(args, "no_animation", False),
+            )
+        except (KeyboardInterrupt, WizardCancelled):
+            return 130
         return
 
     if args.command == "config":

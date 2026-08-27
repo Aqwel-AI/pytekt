@@ -1,17 +1,20 @@
 """
 Platform-agnostic Bot and Context base classes.
-High-performance core dispatching delegating to C++ _core with Python decorators.
+High-performance core dispatching delegating to C++ _core with Python decorators
+and declarative cross-platform UI rendering (Keyboards, Cards, Modals, Wizards).
 """
 
 from __future__ import annotations
 
 import asyncio
+import fnmatch
 import functools
 import inspect
 import json
 import logging
 import time
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Sequence, Union
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Optional, Sequence, Tuple, Union
 
 from ._core import (
     AntiSpam,
@@ -23,6 +26,20 @@ from ._core import (
     UniversalEvent,
     WebhookServer,
 )
+from .persistence import BotDB
+from .roles import RoleRegistry, admin_only as _admin_only_dec, requires_role as _requires_role_dec
+from .i18n import I18nManager
+from .scheduler import Scheduler
+from .extension import Extension, ExtensionManager
+from .testing import BotTestClient
+from .payments import Invoice, LabeledPrice, NotSupportedError, PreCheckoutQuery, SuccessfulPayment
+
+if TYPE_CHECKING:
+    from .ui.card import Card
+    from .ui.components import UIComponent
+    from .ui.keyboard import Keyboard
+    from .ui.modal import Modal
+    from .ui.wizard import Wizard
 
 logger = logging.getLogger("pytekt.bots")
 
@@ -33,7 +50,8 @@ MiddlewareFunc = Callable[..., Any]
 class Context:
     """
     Context wrapping a normalized UniversalEvent and providing convenience methods
-    for replying, sending media, managing FSM state, and streaming AI responses.
+    for replying, sending media, declarative UI rendering, managing FSM state,
+    and streaming AI responses.
     """
 
     def __init__(self, bot: "Bot", event: UniversalEvent) -> None:
@@ -88,6 +106,20 @@ class Context:
     def audio(self) -> Optional[str]:
         return self.metadata.get("url") or self.metadata.get("file_id")
 
+    @property
+    def lang(self) -> str:
+        """Return user's language code from platform metadata, or 'en'."""
+        return (
+            self.event.metadata.get("language_code")
+            or self.event.metadata.get("locale")
+            or self.event.metadata.get("lang")
+            or "en"
+        )
+
+    def t(self, key: str, **kwargs: Any) -> str:
+        """Translate a string key using the bot's i18n manager."""
+        return self.bot.t(key, lang=self.lang, **kwargs)
+
     def _fsm_key(self) -> str:
         return f"{self.chat_id}:{self.user_id}" if self.user_id else self.chat_id
 
@@ -96,38 +128,240 @@ class Context:
     # ------------------------------------------------------------------
 
     async def get_state(self) -> str:
-        return self.bot.fsm.get_state(self._fsm_key())
+        k = self._fsm_key()
+        st = self.bot.fsm.get_state(k)
+        if not st and self.bot.db is not None:
+            st = self.bot.db.get_state(k)
+            if st:
+                self.bot.fsm.set_state(k, st, 0.0)
+        return st
 
-    async def set_state(self, state: str, ttl: float = 0.0) -> None:
-        self.bot.fsm.set_state(self._fsm_key(), state, ttl)
+    async def set_state(self, state: str, ttl: float = 0.0, persistent: bool = False) -> None:
+        k = self._fsm_key()
+        if persistent and self.bot.db is not None:
+            self.bot.db.set_state(k, state, ttl)
+        self.bot.fsm.set_state(k, state, ttl)
 
     async def clear_state(self) -> None:
-        self.bot.fsm.clear_state(self._fsm_key())
+        k = self._fsm_key()
+        if self.bot.db is not None:
+            self.bot.db.clear_state(k)
+        self.bot.fsm.clear_state(k)
 
     async def get_data(self, key: str) -> str:
-        return self.bot.fsm.get_data(self._fsm_key(), key)
+        k = self._fsm_key()
+        val = self.bot.fsm.get_data(k, key)
+        if not val and self.bot.db is not None:
+            val = self.bot.db.get_data(k, key)
+            if val:
+                self.bot.fsm.set_data(k, key, val, 0.0)
+        return val
 
-    async def set_data(self, key: str, value: str, ttl: float = 0.0) -> None:
-        self.bot.fsm.set_data(self._fsm_key(), key, value, ttl)
+    async def set_data(self, key: str, value: str, ttl: float = 0.0, persistent: bool = False) -> None:
+        k = self._fsm_key()
+        if persistent and self.bot.db is not None:
+            self.bot.db.set_data(k, key, value, ttl)
+        self.bot.fsm.set_data(k, key, value, ttl)
 
     async def get_all_data(self) -> Dict[str, str]:
-        return self.bot.fsm.get_all_data(self._fsm_key())
+        k = self._fsm_key()
+        data = self.bot.fsm.get_all_data(k)
+        if not data and self.bot.db is not None:
+            data = self.bot.db.get_all_data(k)
+        return data
 
     async def clear_data(self) -> None:
-        self.bot.fsm.clear_data(self._fsm_key())
+        k = self._fsm_key()
+        if self.bot.db is not None:
+            self.bot.db.clear_data(k)
+        self.bot.fsm.clear_data(k)
+
+    async def send_invoice(
+        self,
+        title: str,
+        description: str,
+        payload: str,
+        provider_token: str,
+        currency: str,
+        prices: Sequence[Any],
+        **kwargs: Any,
+    ) -> Any:
+        """Send an in-chat payment invoice to the current chat."""
+        return await self.bot.send_invoice(
+            chat_id=self.chat_id,
+            title=title,
+            description=description,
+            payload=payload,
+            provider_token=provider_token,
+            currency=currency,
+            prices=prices,
+            **kwargs,
+        )
 
     # ------------------------------------------------------------------
     # Messaging & Action helpers
     # ------------------------------------------------------------------
 
-    async def reply(self, text: str, **kwargs: Any) -> Any:
-        """Send a reply to the originating chat."""
+    async def reply(
+        self,
+        text: str = "",
+        ui: Optional[Any] = None,
+        **kwargs: Any,
+    ) -> Any:
+        """
+        Send a reply to the originating chat, optionally attaching a cross-platform
+        UI component (Keyboard, Card, etc.).
+        """
+        from .ui.card import Card
+        from .ui.components import UIComponent
+        from .ui.keyboard import Keyboard
+
+        if ui is not None:
+            if isinstance(ui, Card):
+                compiled = ui.compile(self.platform)
+                if self.platform == "discord":
+                    embeds = [compiled["embed"]] if "embed" in compiled else kwargs.get("embeds", [])
+                    components = compiled.get("components") or kwargs.get("components")
+                    return await self.bot.send_message(
+                        chat_id=self.chat_id,
+                        text=text or compiled.get("text", ""),
+                        reply_to_message_id=self.id or None,
+                        embeds=embeds,
+                        components=components,
+                        **kwargs,
+                    )
+                else:  # Telegram or generic fallback
+                    photo = compiled.get("photo")
+                    reply_markup = compiled.get("reply_markup") or kwargs.get("reply_markup")
+                    parse_mode = compiled.get("parse_mode", "HTML")
+                    card_text = compiled.get("text", "")
+                    body_text = f"{text}\n\n{card_text}".strip() if text and card_text else (text or card_text)
+                    if photo:
+                        return await self.bot.send_photo(
+                            chat_id=self.chat_id,
+                            photo=photo,
+                            caption=body_text,
+                            parse_mode=parse_mode,
+                            reply_markup=reply_markup,
+                            reply_to_message_id=self.id or None,
+                            **kwargs,
+                        )
+                    else:
+                        return await self.bot.send_message(
+                            chat_id=self.chat_id,
+                            text=body_text,
+                            parse_mode=parse_mode,
+                            reply_markup=reply_markup,
+                            reply_to_message_id=self.id or None,
+                            **kwargs,
+                        )
+
+            elif isinstance(ui, Keyboard):
+                if self.platform == "discord":
+                    components = ui.to_discord()
+                    return await self.bot.send_message(
+                        chat_id=self.chat_id,
+                        text=text,
+                        reply_to_message_id=self.id or None,
+                        components=components,
+                        **kwargs,
+                    )
+                else:  # Telegram
+                    reply_markup = ui.to_telegram()
+                    return await self.bot.send_message(
+                        chat_id=self.chat_id,
+                        text=text or " ",
+                        reply_to_message_id=self.id or None,
+                        reply_markup=reply_markup,
+                        **kwargs,
+                    )
+
+            elif isinstance(ui, UIComponent):
+                compiled = ui.compile(self.platform)
+                return await self.bot.send_message(
+                    chat_id=self.chat_id,
+                    text=text or compiled.get("text", ""),
+                    reply_to_message_id=self.id or None,
+                    **{**compiled, **kwargs},
+                )
+
         return await self.bot.send_message(
             chat_id=self.chat_id,
             text=text,
             reply_to_message_id=self.id or None,
             **kwargs,
         )
+
+    async def show_modal(self, modal: "Modal") -> Any:
+        """
+        Display an interactive Modal form.
+        Compiles to a native Modal interaction response on Discord,
+        or degrades gracefully to a ForceReply conversational prompt on Telegram.
+        """
+        if self.platform == "discord":
+            compiled = modal.to_discord()
+            if hasattr(self.bot, "show_modal"):
+                return await self.bot.show_modal(
+                    chat_id=self.chat_id,
+                    modal_payload=compiled,
+                    interaction_id=self.id,
+                )
+            return await self.bot.send_message(
+                chat_id=self.chat_id,
+                text=f"📋 **{modal.title}**",
+                **compiled,
+            )
+        else:
+            compiled = modal.to_telegram()
+            return await self.bot.send_message(
+                chat_id=self.chat_id,
+                text=compiled["text"],
+                reply_markup=compiled["reply_markup"],
+                parse_mode=compiled["parse_mode"],
+                reply_to_message_id=self.id or None,
+            )
+
+    async def start_wizard(self, wizard: "Wizard") -> Any:
+        """
+        Start an interactive multi-step Wizard flow for the user.
+        Renders step 0 and sets up automatic in-place message navigation.
+        """
+        self.bot.register_wizard(wizard)
+        rendered = wizard.render_step(0, self.platform)
+
+        # Save wizard session in FSM
+        await self.set_data(f"wiz:{wizard.id}:step", "0")
+
+        if self.platform == "discord":
+            msg = await self.bot.send_message(
+                chat_id=self.chat_id,
+                text=rendered.get("text", ""),
+                embeds=[rendered["embed"]] if "embed" in rendered else None,
+                components=rendered.get("components"),
+            )
+        else:
+            if rendered.get("photo"):
+                msg = await self.bot.send_photo(
+                    chat_id=self.chat_id,
+                    photo=rendered["photo"],
+                    caption=rendered.get("caption") or rendered.get("text", ""),
+                    parse_mode=rendered.get("parse_mode", "HTML"),
+                    reply_markup=rendered.get("reply_markup"),
+                )
+            else:
+                msg = await self.bot.send_message(
+                    chat_id=self.chat_id,
+                    text=rendered.get("text", ""),
+                    parse_mode=rendered.get("parse_mode", "HTML"),
+                    reply_markup=rendered.get("reply_markup"),
+                )
+
+        msg_id = getattr(msg, "id", None) or getattr(msg, "message_id", None)
+        if msg_id is None and isinstance(msg, dict):
+            msg_id = msg.get("id") or msg.get("message_id")
+        if msg_id:
+            await self.set_data(f"wiz:{wizard.id}:msg_id", str(msg_id))
+        return msg
 
     async def send_typing(self) -> Any:
         """Send typing action indicator to chat."""
@@ -173,7 +407,9 @@ class Context:
                     first_msg = await self.reply(accumulated + " ▍")
                     last_edit_time = now
                 elif first_msg is not None and (now - last_edit_time) >= edit_throttle:
-                    msg_id = getattr(first_msg, "id", None) or getattr(first_msg, "message_id", None) or str(first_msg)
+                    msg_id = getattr(first_msg, "id", None) or getattr(first_msg, "message_id", None)
+                    if msg_id is None and isinstance(first_msg, dict):
+                        msg_id = first_msg.get("id") or first_msg.get("message_id")
                     try:
                         await self.bot.edit_message_text(
                             chat_id=self.chat_id,
@@ -186,7 +422,9 @@ class Context:
 
             # Final edit without cursor
             if first_msg is not None:
-                msg_id = getattr(first_msg, "id", None) or getattr(first_msg, "message_id", None) or str(first_msg)
+                msg_id = getattr(first_msg, "id", None) or getattr(first_msg, "message_id", None)
+                if msg_id is None and isinstance(first_msg, dict):
+                    msg_id = first_msg.get("id") or first_msg.get("message_id")
                 try:
                     return await self.bot.edit_message_text(
                         chat_id=self.chat_id,
@@ -206,7 +444,8 @@ class Context:
 class Bot:
     """
     Platform-agnostic Bot base class with compiled C++ core components:
-    Dispatcher, RateLimiter, FSM, in-process Cache, WebhookServer, AntiSpam, Metrics.
+    Dispatcher, RateLimiter, FSM, in-process Cache, WebhookServer, AntiSpam, Metrics,
+    and cross-platform UI rendering (Keyboards, Cards, Modals, Wizards).
     """
 
     def __init__(self, platform: str = "generic") -> None:
@@ -219,9 +458,115 @@ class Bot:
         self.metrics = Metrics()
         self.webhook_server = WebhookServer()
 
+        self.db: Optional[BotDB] = None
+        self.roles = RoleRegistry(self)
+        self.i18n = I18nManager()
+        self.scheduler = Scheduler(self)
+        self.extension_manager = ExtensionManager(self)
+        self._pre_checkout_handlers: List[Callable[..., Any]] = []
+        self._payment_handlers: List[Callable[..., Any]] = []
+
         self._handlers: Dict[str, HandlerFunc] = {}
+        self._button_handlers: List[Tuple[Optional[str], HandlerFunc]] = []
+        self._modal_handlers: List[Tuple[Optional[str], HandlerFunc]] = []
+        self._wizards: Dict[str, "Wizard"] = {}
         self._middlewares: List[MiddlewareFunc] = []
         self._handler_counter = 0
+
+    def init_db(self, source: Union[str, Any] = "sqlite:///./bot.db") -> BotDB:
+        """Initialize database persistence for FSM, roles, and long-term facts."""
+        self.db = BotDB(source)
+        return self.db
+
+    def test_client(self) -> BotTestClient:
+        """Create an in-memory client for testing handlers without network connections."""
+        return BotTestClient(self)
+
+    def every(self, interval: Union[str, int, float]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        """Register a periodic scheduled task running on the bot event loop."""
+        def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
+            self.scheduler.add_interval_job(interval, fn)
+            return fn
+        return decorator
+
+    def cron(self, cron_expr: str) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        """Register a cron-scheduled recurring task running on the bot event loop."""
+        def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
+            self.scheduler.add_cron_job(cron_expr, fn)
+            return fn
+        return decorator
+
+    def admin_only(
+        self,
+        fn: Optional[Callable[..., Any]] = None,
+        on_forbidden: Optional[Callable[[Context], Any]] = None,
+    ) -> Any:
+        """Restrict handler access to administrators."""
+        dec = _admin_only_dec(on_forbidden=on_forbidden)
+        if fn is not None:
+            return dec(fn)
+        return dec
+
+    def requires_role(
+        self,
+        role: str,
+        on_forbidden: Optional[Callable[[Context], Any]] = None,
+    ) -> Callable[..., Any]:
+        """Restrict handler access to users possessing a specific role."""
+        return _requires_role_dec(role, on_forbidden=on_forbidden)
+
+    def t(self, key: str, lang: Optional[str] = None, **kwargs: Any) -> str:
+        """Translate a string key using the configured i18n translation tables."""
+        return self.i18n.translate(key, lang=lang, **kwargs)
+
+    def load_translations(self, dir_path: Union[str, Path]) -> None:
+        """Load translation JSON/YAML files from a directory."""
+        self.i18n.load_directory(dir_path)
+
+    def add_translations(self, lang: str, table: Dict[str, Any]) -> None:
+        """Add translations for a language code."""
+        self.i18n.add_translations(lang, table)
+
+    def add_extension(self, ext: Extension) -> None:
+        """Attach a reusable Extension plugin instance to the bot."""
+        self.extension_manager.add_extension(ext)
+
+    def load_extension(self, module_path: str) -> None:
+        """Dynamically import and load an Extension module or cog."""
+        self.extension_manager.load_extension(module_path)
+
+    def on_pre_checkout(self, fn: Callable[..., Any]) -> Callable[..., Any]:
+        """Register a handler for Telegram pre-checkout payment confirmation queries."""
+        self._pre_checkout_handlers.append(fn)
+        return fn
+
+    def on_payment(self, fn: Callable[..., Any]) -> Callable[..., Any]:
+        """Register a handler for successful payment confirmations."""
+        self._payment_handlers.append(fn)
+        return fn
+
+    async def send_invoice(
+        self,
+        chat_id: str,
+        title: str,
+        description: str,
+        payload: str,
+        provider_token: str,
+        currency: str,
+        prices: Sequence[Any],
+        **kwargs: Any,
+    ) -> Any:
+        """Send a native payment invoice (Telegram only)."""
+        raise NotSupportedError(f"Payments API is not supported on platform '{self.platform}'.")
+
+    async def answer_pre_checkout_query(
+        self,
+        pre_checkout_query_id: str,
+        ok: bool = True,
+        error_message: Optional[str] = None,
+    ) -> Any:
+        """Confirm or reject a pre-checkout payment query."""
+        raise NotSupportedError(f"Payments API is not supported on platform '{self.platform}'.")
 
     def _next_handler_id(self, prefix: str = "h") -> str:
         self._handler_counter += 1
@@ -251,6 +596,31 @@ class Bot:
                 hid = self._next_handler_id("msg")
                 self._handlers[hid] = fn
                 self.dispatcher.add_event_handler("message", hid)
+            return fn
+        return decorator
+
+    def on_button(self, callback_id: Optional[str] = None) -> Callable[[HandlerFunc], HandlerFunc]:
+        """
+        Register a handler for button clicks and interactive callbacks.
+        Supports exact callback_id, glob wildcards ('wiz:*'), or all buttons (None / '*').
+        """
+        def decorator(fn: HandlerFunc) -> HandlerFunc:
+            self._button_handlers.append((callback_id, fn))
+            # Also register in dispatcher under callback/interaction event
+            hid = self._next_handler_id(f"btn_{callback_id or 'all'}")
+            self._handlers[hid] = fn
+            self.dispatcher.add_event_handler("callback", hid)
+            self.dispatcher.add_event_handler("interaction", hid)
+            return fn
+        return decorator
+
+    def on_modal_submit(self, custom_id: Optional[str] = None) -> Callable[[HandlerFunc], HandlerFunc]:
+        """Register a handler for modal form submissions."""
+        def decorator(fn: HandlerFunc) -> HandlerFunc:
+            self._modal_handlers.append((custom_id, fn))
+            hid = self._next_handler_id(f"modal_{custom_id or 'all'}")
+            self._handlers[hid] = fn
+            self.dispatcher.add_event_handler("modal_submit", hid)
             return fn
         return decorator
 
@@ -336,6 +706,120 @@ class Bot:
         self._middlewares.append(fn)
         return fn
 
+    # GramMY / Express / Koa style alias
+    use = middleware
+
+    # ------------------------------------------------------------------
+    # Wizard Navigation Engine
+    # ------------------------------------------------------------------
+
+    def register_wizard(self, wizard: "Wizard") -> None:
+        """Register wizard flow handlers for automatic step navigation."""
+        if wizard.id in self._wizards:
+            return
+        self._wizards[wizard.id] = wizard
+
+        @self.on_button(f"wiz:{wizard.id}:*")
+        async def handle_wizard_nav(ctx: Context) -> Any:
+            cb_data = ctx.text  # contains "wiz:<id>:<action>:<step>"
+            parts = cb_data.split(":")
+            if len(parts) < 4:
+                return
+
+            wiz_id, action, step_str = parts[1], parts[2], parts[3]
+            current_step = int(step_str)
+            wiz = self._wizards.get(wiz_id)
+            if not wiz:
+                return
+
+            msg_id = ctx.metadata.get("message_id") or ctx.id
+
+            if action == "next":
+                new_step = current_step + 1
+                if new_step < len(wiz.steps):
+                    rendered = wiz.render_step(new_step, ctx.platform)
+                    await self._edit_wizard_message(ctx, msg_id, rendered)
+                    await ctx.set_data(f"wiz:{wiz_id}:step", str(new_step))
+
+            elif action == "back":
+                new_step = max(0, current_step - 1)
+                rendered = wiz.render_step(new_step, ctx.platform)
+                await self._edit_wizard_message(ctx, msg_id, rendered)
+                await ctx.set_data(f"wiz:{wiz_id}:step", str(new_step))
+
+            elif action == "cancel":
+                await ctx.clear_data()
+                if wiz.on_cancel:
+                    res = wiz.on_cancel(ctx)
+                    if inspect.iscoroutine(res):
+                        await res
+                else:
+                    await self.edit_message_text(
+                        chat_id=ctx.chat_id,
+                        message_id=msg_id,
+                        text="❌ <i>Flow cancelled.</i>",
+                        parse_mode="HTML",
+                        reply_markup={"inline_keyboard": []},
+                    )
+
+            elif action == "finish":
+                await ctx.clear_data()
+                if wiz.on_finish:
+                    res = wiz.on_finish(ctx)
+                    if inspect.iscoroutine(res):
+                        await res
+                else:
+                    await self.edit_message_text(
+                        chat_id=ctx.chat_id,
+                        message_id=msg_id,
+                        text="✅ <i>Flow completed successfully!</i>",
+                        parse_mode="HTML",
+                        reply_markup={"inline_keyboard": []},
+                    )
+
+    async def _edit_wizard_message(self, ctx: Context, message_id: str, rendered: Dict[str, Any]) -> Any:
+        """Helper to edit a wizard step message in place across platforms."""
+        if ctx.platform == "discord":
+            return await self.edit_message_text(
+                chat_id=ctx.chat_id,
+                message_id=message_id,
+                text=rendered.get("text", ""),
+                embeds=[rendered["embed"]] if "embed" in rendered else None,
+                components=rendered.get("components"),
+            )
+        else:
+            return await self.edit_message_text(
+                chat_id=ctx.chat_id,
+                message_id=message_id,
+                text=rendered.get("text", ""),
+                parse_mode=rendered.get("parse_mode", "HTML"),
+                reply_markup=rendered.get("reply_markup"),
+            )
+
+    # ------------------------------------------------------------------
+    # Built-in WebApp Server Helper
+    # ------------------------------------------------------------------
+
+    def serve_web_app(
+        self,
+        path: str,
+        html_content: Union[str, Callable[[], str]],
+    ) -> str:
+        """
+        Serve a custom HTML/CSS/JS WebApp using the built-in C++ WebhookServer.
+        Returns the registered URL path.
+        """
+        clean_path = "/" + path.lstrip("/")
+
+        def web_app_handler(method: str, req_path: str, body: str) -> str:
+            if callable(html_content):
+                return html_content()
+            return str(html_content)
+
+        self.webhook_server.add_route(clean_path, web_app_handler)
+        logger.info("Serving WebApp on path %s", clean_path)
+        return clean_path
+
     # ------------------------------------------------------------------
     # AI Commands Declarative Generator
     # ------------------------------------------------------------------
@@ -380,6 +864,11 @@ class Bot:
         if isinstance(raw_data, UniversalEvent):
             return raw_data
         if isinstance(raw_data, dict):
+            # Check if it's already structured as a generic/mock UniversalEvent
+            if "event_type" in raw_data or (
+                "chat_id" in raw_data and "update_id" not in raw_data and "t" not in raw_data and "d" not in raw_data
+            ):
+                return self.dispatcher.parse_generic(json.dumps(raw_data), self.platform)
             raw_str = json.dumps(raw_data)
         else:
             raw_str = str(raw_data)
@@ -412,17 +901,44 @@ class Bot:
 
         # 3. Match handlers in C++ Dispatcher
         handler_ids = self.dispatcher.match(event, current_state)
-        if not handler_ids:
+
+        # 4. Check button handlers if event is callback or interaction
+        target_handlers: List[HandlerFunc] = []
+        for hid in handler_ids:
+            if hid in self._handlers:
+                target_handlers.append(self._handlers[hid])
+
+        if event.event_type in ("callback", "interaction"):
+            btn_id = event.text
+            for pattern, h_fn in self._button_handlers:
+                if pattern is None or pattern == "*" or pattern == btn_id or fnmatch.fnmatch(btn_id, pattern):
+                    if h_fn not in target_handlers:
+                        target_handlers.append(h_fn)
+
+        if event.event_type == "modal_submit":
+            m_id = event.text
+            for pattern, h_fn in self._modal_handlers:
+                if pattern is None or pattern == "*" or pattern == m_id or fnmatch.fnmatch(m_id, pattern):
+                    if h_fn not in target_handlers:
+                        target_handlers.append(h_fn)
+
+        if event.event_type == "pre_checkout_query":
+            for h in self._pre_checkout_handlers:
+                if h not in target_handlers:
+                    target_handlers.append(h)
+
+        if event.event_type == "successful_payment":
+            for h in self._payment_handlers:
+                if h not in target_handlers:
+                    target_handlers.append(h)
+
+        if not target_handlers:
             return []
 
         results: List[Any] = []
 
-        # 4. Execute matched handlers through middleware chain
-        for hid in handler_ids:
-            handler = self._handlers.get(hid)
-            if not handler:
-                continue
-
+        # 5. Execute matched handlers through middleware chain
+        for handler in target_handlers:
             async def run_handler(c: Context = ctx, target_fn: HandlerFunc = handler) -> Any:
                 res = target_fn(c)
                 if inspect.iscoroutine(res):
@@ -447,7 +963,7 @@ class Bot:
                 res = await chain()
                 results.append(res)
             except Exception as e:
-                logger.error("Error running handler %s: %s", hid, e, exc_info=True)
+                logger.error("Error running handler %s: %s", getattr(handler, "__name__", str(handler)), e, exc_info=True)
 
         duration = time.monotonic() - t0
         cmd_name = event.command or event.event_type or "message"

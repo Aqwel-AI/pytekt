@@ -201,6 +201,9 @@ from .native import (
 
 # Import the command-line interface module for CLI functionality
 from . import cli
+from . import branding
+import sys
+sys.modules["pytekt.cli.branding"] = branding
 
 # Define the public API exports for the package
 __all__ = [

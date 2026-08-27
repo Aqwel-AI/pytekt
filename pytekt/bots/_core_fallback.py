@@ -389,7 +389,7 @@ class RateLimiter:
             return True
         return False
 
-    def check_and_acquire(self, user_id: str, chat_id: str, tokens: float = 1.0) -> Tuple[bool, float]:
+    def check_and_acquire(self, user_id: str = "", chat_id: str = "", tokens: float = 1.0) -> Tuple[bool, float]:
         with self._lock:
             now = time.monotonic()
             keys: List[str] = []
