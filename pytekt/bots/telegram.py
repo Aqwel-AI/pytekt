@@ -278,6 +278,10 @@ class TelegramBot(Bot):
             payload["certificate"] = certificate
         return await self._api_call("setWebhook", payload)
 
+    async def delete_webhook(self, drop_pending_updates: bool = False) -> Dict[str, Any]:
+        """Delete Telegram webhook."""
+        return await self._api_call("deleteWebhook", {"drop_pending_updates": drop_pending_updates})
+
     async def send_invoice(
         self,
         chat_id: str,

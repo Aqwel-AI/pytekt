@@ -123,7 +123,6 @@ def _get_extensions():
                 "pytekt.bots._native_core",
                 sources=bots_sources,
                 include_dirs=include + [bots_dir],
-                extra_compile_args=cxx_args,
                 extra_link_args=link_args,
                 language="c++",
             )

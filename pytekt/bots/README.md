@@ -358,6 +358,19 @@ async def start_setup_wizard(ctx: Context):
 
 ## Full API Reference
 
+### `UniversalEvent`
+Normalized platform-independent data structure:
+- `id`: Unique event/message ID string.
+- `chat_id`: Normalized chat or channel identifier.
+- `user_id`: Normalized sender user identifier.
+- `text`: Message or command text.
+- `platform`: `"telegram"`, `"discord"`, or `"generic"`.
+- `event_type`: `"message"`, `"command"`, `"photo"`, `"voice"`, `"callback"`, `"interaction"`.
+- `command`: Clean command name (without `/` or `!`).
+- `args`: List of whitespace-delimited argument strings.
+- `metadata`: Key-value map (usernames, file IDs, dimensions, reply IDs).
+- `timestamp`: UTC epoch timestamp in seconds.
+
 ### `Bot` Class
 - `bot.init_db(source)`: Initialize durable database persistence layer (`bot.db`).
 - `bot.test_client()`: Create in-memory `BotTestClient` for unit testing.
@@ -373,6 +386,8 @@ async def start_setup_wizard(ctx: Context):
 - `@bot.on_payment`: Register payment success handler.
 - `@bot.on_command(cmd)`: Register command handler (`/start`, `!info`).
 - `@bot.on_message(pattern=None)`: Register message handler.
+- `@bot.on_voice()`: Decorator for audio and voice notes.
+- `@bot.on_photo()`: Decorator for image attachments.
 - `@bot.on_button(callback_id=None)`: Register button click handler.
 - `@bot.on_modal_submit(custom_id=None)`: Register modal form submission handler.
 - `@bot.rate_limit(user=None, chat=None, global_=None)`: Token-bucket rate limiter.
@@ -386,11 +401,26 @@ async def start_setup_wizard(ctx: Context):
 - `ctx.show_modal(modal)`: Display native popup modal or ForceReply prompt.
 - `ctx.start_wizard(wizard)`: Initiate multi-step interactive guided flow.
 - `ctx.reply_ai(ai, prompt=None, **kwargs)`: Stream/send LLM response with rate-limited edits.
+- `ctx.send_photo(photo, caption=None)`: Send image.
+- `ctx.send_voice(voice, caption=None)`: Send audio.
+- `ctx.send_typing()`: Trigger typing indicator.
+- `ctx.delete()`: Delete triggering message.
 - `ctx.send_invoice(...)`: Send payment invoice to current chat.
 - `ctx.set_state(state, ttl=0.0, persistent=False)`: Set FSM state.
 - `ctx.get_state()` / `ctx.clear_state()`: Retrieve / clear FSM state.
 - `ctx.set_data(key, val, ttl=0.0, persistent=False)`: Store session data.
 - `ctx.get_data(key)` / `ctx.clear_data()`: Retrieve / clear session data.
+
+### `AI` Class (`pytekt.bots.ai`)
+- `AI(provider, model=None, system=..., memory_ttl=3600, memory_limit=20)`: Construct AI interface.
+- `await ai.ask(text, chat_id=None, use_kb=False, ...)`: Complete chat with memory & tools.
+- `async for chunk in ai.ask_stream(...)`: Stream completion chunks.
+- `@ai.tool`: Register Python skill/tool for autonomous invocation.
+- `await ai.transcribe(audio)`: Speech-to-text.
+- `await ai.vision(image, prompt=...)`: Image analysis.
+- `ai.knowledge_base(source)`: Index RAG document collection.
+- `await ai.remember(chat_id, fact)` / `await ai.forget(chat_id)`: Long-term fact store.
+- `await ai.moderate(text)`: Safety check returning `True` if toxic/flagged.
 
 ---
 
