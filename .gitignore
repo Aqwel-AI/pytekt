@@ -178,3 +178,8 @@ r_pytekt/src/*.dll
 r_pytekt/src/symbols.rds
 .Rhistory
 .RData
+
+# Roadmap & TODO files
+TODO_v0.2.2.md
+TODO*.md
+
