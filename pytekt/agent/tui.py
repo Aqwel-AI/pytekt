@@ -219,7 +219,7 @@ def _live_select(
         if subtitle:
             print("  " + gray(subtitle))
         for i, (_, lbl) in enumerate(all_opts):
-            star = bold(coral("❯")) + " " if i == idx else "  "
+            star = bold(coral(">")) + " " if i == idx else "  "
             print(f"  {star}{bold(cyan(str(i + 1)))}. {lbl}")
         print()
         raw = _prompt_input(f"Enter number [1-{n}]", str(idx + 1))
@@ -253,7 +253,7 @@ def _live_select(
 
         for i, (_, lbl) in enumerate(all_opts):
             if i == idx:
-                row = "  " + bold(coral("❯")) + " " + bold(white(f" {lbl} "))
+                row = "  " + bold(coral(">")) + " " + bold(white(f" {lbl} "))
             else:
                 row = "    " + dim(lbl)
             out.append(_clear_line() + row)
@@ -607,7 +607,7 @@ def _render_error_card(title: str, message: str, hint: Optional[str] = None) -> 
     """Render a Claude-style error card with rounded frame and helpful hints."""
     w = min(W() - 4, 92)
     inner_w = w - 4
-    header = f" ✖ {title} "
+    header = f" [ERR] {title} "
     print()
     print("  " + dark_gray("╭─") + red(bold(header)) + dark_gray("─" * max(2, inner_w - len(header)) + "╮"))
     
@@ -631,24 +631,24 @@ def print_tool_start(name: str, args: Dict[str, Any]) -> None:
     """Print tool invocation header in Claude Code style."""
     if name == "read_file":
         path = args.get("path", "")
-        print(f"\n  {coral('●')} {bold(white('Read'))} {cyan(path)}")
+        print(f"\n  {coral('>')} {bold(white('Read'))} {cyan(path)}")
     elif name == "write_file":
         path = args.get("path", "")
-        print(f"\n  {coral('●')} {bold(white('Write'))} {cyan(path)}")
+        print(f"\n  {coral('>')} {bold(white('Write'))} {cyan(path)}")
     elif name == "edit_file":
         path = args.get("path", "")
-        print(f"\n  {coral('●')} {bold(white('Edit'))} {cyan(path)}")
+        print(f"\n  {coral('>')} {bold(white('Edit'))} {cyan(path)}")
     elif name == "run_command":
         cmd = args.get("command", "")
-        print(f"\n  {coral('●')} {bold(white('Bash'))} {green(cmd)}")
+        print(f"\n  {coral('>')} {bold(white('Bash'))} {green(cmd)}")
     elif name in ("search_files", "glob_search"):
         pat = args.get("pattern", "")
-        print(f"\n  {coral('●')} {bold(white('Search'))} {yellow(f'pattern=\"{pat}\"')}")
+        print(f"\n  {coral('>')} {bold(white('Search'))} {yellow(f'pattern=\"{pat}\"')}")
     elif name == "list_files":
         path = args.get("path", ".")
-        print(f"\n  {coral('●')} {bold(white('List directory'))} {cyan(path)}")
+        print(f"\n  {coral('>')} {bold(white('List directory'))} {cyan(path)}")
     else:
-        print(f"\n  {coral('●')} {bold(white(name))}")
+        print(f"\n  {coral('>')} {bold(white(name))}")
 
 
 def print_tool_finish(name: str, result: str, args: Optional[Dict[str, Any]] = None) -> None:
@@ -662,22 +662,22 @@ def print_tool_finish(name: str, result: str, args: Optional[Dict[str, Any]] = N
         path = args.get("path", "")
         if old_s and new_s:
             _render_diff_card(path, old_s, new_s)
-        print(f"    {dark_gray('└─')} {green('✔')} {gray('applied replacement')}")
+        print(f"    {dark_gray('└─')} {green('[OK]')} {gray('applied replacement')}")
     elif name == "run_command":
         if result and not is_err:
             _render_output_card("output", result, max_lines=6)
-            print(f"    {dark_gray('└─')} {green('✔')} {gray('completed with exit code 0')}")
+            print(f"    {dark_gray('└─')} {green('[OK]')} {gray('completed with exit code 0')}")
         elif is_err:
             _render_output_card("error", result, max_lines=6)
-            print(f"    {dark_gray('└─')} {red('✖')} {red('command failed')}")
+            print(f"    {dark_gray('└─')} {red('[ERR]')} {red('command failed')}")
     elif name == "read_file" and not is_err:
         line_count = len(result.split("\n"))
-        print(f"    {dark_gray('└─')} {green('✔')} {gray(f'read {line_count} lines ({len(result)} bytes)')}")
+        print(f"    {dark_gray('└─')} {green('[OK]')} {gray(f'read {line_count} lines ({len(result)} bytes)')}")
     elif is_err:
-        print(f"    {dark_gray('└─')} {red('✖')} {red(str(result)[:80])}")
+        print(f"    {dark_gray('└─')} {red('[ERR]')} {red(str(result)[:80])}")
     else:
         summary = str(result).split("\n")[0][:70]
-        print(f"    {dark_gray('└─')} {green('✔')} {gray(summary)}")
+        print(f"    {dark_gray('└─')} {green('[OK]')} {gray(summary)}")
 
 
 # ---------------------------------------------------------------------------
@@ -685,10 +685,20 @@ def print_tool_finish(name: str, result: str, args: Optional[Dict[str, Any]] = N
 # ---------------------------------------------------------------------------
 
 PROVIDERS: Dict[str, Dict[str, Any]] = {
+    "ollama": {
+        "label":       "Ollama (Local)",
+        "subtitle":    "Run local models without API keys",
+        "icon":        "[ollama]",
+        "needs_key":   False,
+        "env_key":     None,
+        "default_model": "llama3.2",
+        "models":      [],
+        "color":       purple,
+    },
     "anthropic": {
         "label":       "Anthropic",
         "subtitle":    "Claude 3.5 Sonnet, Claude 3.5 Haiku, Opus",
-        "icon":        "🧠",
+        "icon":        "[anthropic]",
         "needs_key":   True,
         "env_key":     "ANTHROPIC_API_KEY",
         "default_model": "claude-3-5-sonnet-latest",
@@ -701,7 +711,7 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
     "openai": {
         "label":       "OpenAI",
         "subtitle":    "GPT-4o, GPT-4o-mini, o1, o3-mini",
-        "icon":        "🤖",
+        "icon":        "[openai]",
         "needs_key":   True,
         "env_key":     "OPENAI_API_KEY",
         "default_model": "gpt-4o",
@@ -711,7 +721,7 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
     "gemini": {
         "label":       "Google Gemini",
         "subtitle":    "Gemini 2.0 Flash, Gemini 1.5 Pro",
-        "icon":        "✨",
+        "icon":        "[gemini]",
         "needs_key":   True,
         "env_key":     "GEMINI_API_KEY",
         "default_model": "gemini-2.0-flash",
@@ -721,20 +731,10 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
         ],
         "color":       blue,
     },
-    "ollama": {
-        "label":       "Ollama (Local)",
-        "subtitle":    "Run local models (no API key required)",
-        "icon":        "🦙",
-        "needs_key":   False,
-        "env_key":     None,
-        "default_model": "llama3.2",
-        "models":      [],
-        "color":       purple,
-    },
     "deepseek": {
         "label":       "DeepSeek",
         "subtitle":    "DeepSeek V3, DeepSeek R1 (reasoning)",
-        "icon":        "🔬",
+        "icon":        "[deepseek]",
         "needs_key":   True,
         "env_key":     "DEEPSEEK_API_KEY",
         "default_model": "deepseek-chat",
@@ -744,7 +744,7 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
     "nvidia": {
         "label":       "NVIDIA NIM",
         "subtitle":    "LLaMA 3.3 70B, Mistral, Nemotron",
-        "icon":        "⚡",
+        "icon":        "[nvidia]",
         "needs_key":   True,
         "env_key":     "NVIDIA_API_KEY",
         "default_model": "meta/llama-3.1-70b-instruct",
@@ -759,7 +759,7 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
     "openai_compatible": {
         "label":       "Custom OpenAI-Compatible",
         "subtitle":    "LM Studio, vLLM, llama.cpp, LocalAI",
-        "icon":        "🔧",
+        "icon":        "[custom]",
         "needs_key":   False,
         "env_key":     None,
         "default_model": "local-model",
@@ -811,14 +811,14 @@ def print_banner(version: str, provider: str, model: str, mode: str, workspace: 
         rel_ws = os.path.basename(os.path.abspath(workspace))
     
     _mode_tags = {
-        "code": green("⚡ CODE"),
-        "talk": purple("💬 TALK"),
-        "ml": blue("📊 ML"),
-        "bot": cyan("🤖 BOT"),
-        "fix": yellow("🛠 FIX"),
-        "review": magenta("🔍 REVIEW"),
+        "code": green("[CODE]"),
+        "talk": purple("[TALK]"),
+        "ml": blue("[ML]"),
+        "bot": cyan("[BOT]"),
+        "fix": yellow("[FIX]"),
+        "review": magenta("[REVIEW]"),
     }
-    mode_tag = _mode_tags.get(mode.lower(), green(f"⚡ {mode.upper()}"))
+    mode_tag = _mode_tags.get(mode.lower(), green(f"[{mode.upper()}]"))
     
     print()
     print("  " + dark_gray("╭─ ") + coral(bold("pytekt agent")) + dark_gray(f" v{version} ─") + dark_gray("─" * max(2, w - 24 - len(version)) + "╮"))
@@ -832,7 +832,7 @@ def print_banner(version: str, provider: str, model: str, mode: str, workspace: 
 
 def render_prompt_line(workspace: str, provider: str, model: str, mode: str) -> str:
     """Claude Code-style single prompt glyph."""
-    return "\n  " + coral(bold("❯")) + " "
+    return "\n  " + coral(bold(">")) + " "
 
 
 # ---------------------------------------------------------------------------
@@ -850,14 +850,14 @@ def print_status(
     w = min(W() - 4, 80)
     branch = _get_git_branch(workspace)
     _mode_tags = {
-        "code": green("⚡ CODE Mode (Autonomous agent)"),
-        "talk": purple("💬 TALK Mode (Technical thought partner)"),
-        "ml": blue("📊 ML Mode (Data science & research)"),
-        "bot": cyan("🤖 BOT Mode (Bot architect)"),
-        "fix": yellow("🛠 FIX Mode (Self-healing test runner)"),
-        "review": magenta("🔍 REVIEW Mode (Git diff auditor)"),
+        "code": green("[CODE] Mode (Autonomous agent)"),
+        "talk": purple("[TALK] Mode (Technical thought partner)"),
+        "ml": blue("[ML] Mode (Data science & research)"),
+        "bot": cyan("[BOT] Mode (Bot architect)"),
+        "fix": yellow("[FIX] Mode (Self-healing test runner)"),
+        "review": magenta("[REVIEW] Mode (Git diff auditor)"),
     }
-    mode_str = _mode_tags.get(mode.lower(), green(f"⚡ {mode.upper()} Mode"))
+    mode_str = _mode_tags.get(mode.lower(), green(f"[{mode.upper()}] Mode"))
     
     print()
     print("  " + dark_gray("╭─ ") + bold(white("Session Status")) + dark_gray(" ─" * (w - 18) + "╮"))
@@ -871,16 +871,16 @@ def print_status(
     keys_cfg = cfg.get("keys") or {}
     for pname, pinfo in PROVIDERS.items():
         if not pinfo["needs_key"]:
-            status = green("✔  (no key required)")
+            status = green("[OK]  (no key required)")
         else:
             env_var = pinfo["env_key"] or ""
             if os.environ.get(env_var):
-                status = green(f"✔  env:{env_var}")
+                status = green(f"[OK]  env:{env_var}")
             elif keys_cfg.get(f"{pname}_api_key"):
-                status = green("✔  saved in config")
+                status = green("[OK]  saved in config")
             else:
-                status = dark_gray("○  not configured")
-        print(f"  {dark_gray('│')}  {pinfo['icon']} {white(pname):<18} {status}")
+                status = dark_gray("[--]  not configured")
+        print(f"  {dark_gray('│')}  {white(pinfo['icon']):<12} {white(pname):<16} {status}")
     
     print("  " + dark_gray("╰" + "─" * w + "╯"))
     print()
@@ -931,12 +931,12 @@ HELP_SCREEN = """
 
   {h}Agent Modes{r}
   {hr}
-  {grn}⚡ CODE{r}   Reads files, performs precision diffs, runs tests and shell commands.
-  {mg}💬 TALK{r}   High-level technical conversation, architecture reviews, debugging.
-  {bl}📊 ML{r}     Explores datasets, trains PyTekt models, plots metrics & ROC curves.
-  {cy}🤖 BOT{r}    Scaffolds Telegram/Discord/Slack bots and validates with BotTestClient.
-  {yl}🛠 FIX{r}    Autonomously diagnoses failing tests, edits code, and self-heals.
-  {mg}🔍 REVIEW{r} Audits uncommitted changes, scans for secrets, drafts commit messages.
+  {grn}[CODE]{r}   Reads files, performs precision diffs, runs tests and shell commands.
+  {mg}[TALK]{r}   High-level technical conversation, architecture reviews, debugging.
+  {bl}[ML]{r}     Explores datasets, trains PyTekt models, plots metrics & ROC curves.
+  {cy}[BOT]{r}    Scaffolds Telegram/Discord/Slack bots and validates with BotTestClient.
+  {yl}[FIX]{r}    Autonomously diagnoses failing tests, edits code, and self-heals.
+  {mg}[REVIEW]{r} Audits uncommitted changes, scans for secrets, drafts commit messages.
 
   {h}Tips{r}
   {hr}
@@ -1002,7 +1002,7 @@ def _pick_provider(current: str) -> int:
     options: List[Tuple[str, str]] = []
     for key, info in PROVIDERS.items():
         key_badge = dim(" (no key)") if not info["needs_key"] else dim(" (API key)")
-        active = "  " + green("● active") if key == current else ""
+        active = "  " + green("[active]") if key == current else ""
         label = (
             f"{info['icon']}  " +
             info["color"](bold(f"{info['label']:<18}")) +
@@ -1037,13 +1037,14 @@ def _pick_model(key: str, info: Dict[str, Any], existing_key: str = "") -> str:
         models = list(info["models"]) or [info["default_model"]]
 
     show = models[:14]
-    default = info["default_model"]
+    if models and default not in models:
+        default = models[0]
     try:
         default_idx = show.index(default)
     except ValueError:
         default_idx = 0
 
-    options = [(m, (coral("★ ") if m == default else "  ") + m) for m in show]
+    options = [(m, (coral("* ") if m == default else "  ") + m) for m in show]
 
     idx = _live_select(
         options,
@@ -1063,7 +1064,7 @@ def _pick_model(key: str, info: Dict[str, Any], existing_key: str = "") -> str:
 
 def run_connect(cfg: Dict[str, Any], current_provider: str, current_model: str) -> Tuple[str, str, Dict[str, Any]]:
     print()
-    print("  " + bold(white("⟳  Switch AI Provider")))
+    print("  " + bold(white("[+]  Switch AI Provider")))
     print("  " + dark_gray(f"Current: {current_provider} / {current_model}"))
     print()
 
@@ -1092,7 +1093,7 @@ def run_connect(cfg: Dict[str, Any], current_provider: str, current_model: str) 
         existing_key = env_val or cfg_val
 
         if not existing_key:
-            print("  " + yellow("⚡") + f"  API key required for {bold(info['label'])}.")
+            print("  " + yellow("[!]") + f"  API key required for {bold(info['label'])}.")
             new_key = _prompt_input("API key", secret=True)
             if new_key:
                 existing_key = new_key
@@ -1103,7 +1104,7 @@ def run_connect(cfg: Dict[str, Any], current_provider: str, current_model: str) 
     cfg["agent"]["model"] = chosen_model
 
     print()
-    print("  " + green("✔") + "  Connected: " + info["color"](bold(chosen_key)) + gray(" / ") + yellow(chosen_model))
+    print("  " + green("[OK]") + "  Connected: " + info["color"](bold(chosen_key)) + gray(" / ") + yellow(chosen_model))
     print()
     return chosen_key, chosen_model, cfg
 
@@ -1150,13 +1151,13 @@ def run_tui(
         session = session_factory(provider=provider, model=model, mode=mode, workspace_root=workspace, cfg=cfg)
         has_key = getattr(session, "has_key", True)
         if not has_key and provider != "ollama":
-            spin.stop(green("  ✔") + gray(f"  Ready ({mode.upper()} mode)") + yellow("  ⚠ No API key configured"))
+            spin.stop(green("  [OK]") + gray(f"  Ready ({mode.upper()} mode)") + yellow("  [!] No API key configured"))
             print(dark_gray("     → Type ") + cyan("/connect") + dark_gray(" to set up your API key, or export ") + cyan(f"{provider.upper()}_API_KEY") + dark_gray("."))
         else:
-            spin.stop(green("  ✔") + gray(f"  Ready ({mode.upper()} mode)"))
+            spin.stop(green("  [OK]") + gray(f"  Ready ({mode.upper()} mode)"))
     except Exception as exc:
         spin.stop()
-        print(red(f"  ✖  Could not initialize session: {exc}"))
+        print(red(f"  [ERR] Could not initialize session: {exc}"))
         print(gray("  → Use /connect to configure a provider or enter an API key."))
         session = None
 
@@ -1171,7 +1172,7 @@ def run_tui(
             return s
         except Exception as exc:
             sp.stop()
-            print(red(f"  ✖  {exc}"))
+            print(red(f"  [ERR] {exc}"))
             return None
 
     def _do_connect() -> None:
@@ -1195,15 +1196,15 @@ def run_tui(
         if session:
             session.set_mode(mode)
         _tags = {
-            "code": green("⚡ CODE Mode"),
-            "talk": purple("💬 TALK Mode"),
-            "ml": blue("📊 ML Mode"),
-            "bot": cyan("🤖 BOT Mode"),
-            "fix": yellow("🛠 FIX Mode"),
-            "review": magenta("🔍 REVIEW Mode"),
+            "code": green("[CODE] Mode"),
+            "talk": purple("[TALK] Mode"),
+            "ml": blue("[ML] Mode"),
+            "bot": cyan("[BOT] Mode"),
+            "fix": yellow("[FIX] Mode"),
+            "review": magenta("[REVIEW] Mode"),
         }
-        tag = _tags.get(mode, green(f"⚡ {mode.upper()} Mode"))
-        print("  " + green("✔") + f"  Switched to {tag}")
+        tag = _tags.get(mode, green(f"[{mode.upper()}] Mode"))
+        print("  " + green("[OK]") + f"  Switched to {tag}")
 
     def _send(text: str) -> Optional[str]:
         nonlocal turns
@@ -1230,7 +1231,7 @@ def run_tui(
             return reply
         except KeyboardInterrupt:
             spin2.stop()
-            print(yellow("\n  ⚠  Interrupted"))
+            print(yellow("\n  [!]  Interrupted"))
             return None
         except Exception as exc:
             spin2.stop()
@@ -1262,7 +1263,7 @@ def run_tui(
     # ── One-shot mode ───────────────────────────────────────────────────────
     if task:
         if session is None:
-            print(red("  ✖  No active session. Cannot run task."))
+            print(red("  [ERR]  No active session. Cannot run task."))
             return
         reply = _send(task)
         if reply:
@@ -1278,7 +1279,7 @@ def run_tui(
             sys.stdout.flush()
             raw = input()
         except (EOFError, KeyboardInterrupt):
-            print("\n  " + dark_gray("Exiting pytekt agent. Bye! 👋"))
+            print("\n  " + dark_gray("Exiting pytekt agent. Bye!"))
             _save_readline_history()
             break
 
@@ -1313,26 +1314,26 @@ def run_tui(
             elif cmd == "/undo":
                 if session and hasattr(session, "undo_last"):
                     res = session.undo_last()
-                    print("  " + green("✔") + gray(f"  {res}"))
+                    print("  " + green("[OK]") + gray(f"  {res}"))
                 else:
                     print(gray("  Nothing to undo."))
 
             elif cmd == "/fix":
                 if session is None:
-                    print(red("  ✖  No active session."))
+                    print(red("  [ERR]  No active session."))
                     continue
                 try:
                     from .healer import run_self_healing_loop
                     print()
-                    print("  " + bold(white("🛠  Self-Healing Test & Debugger")))
+                    print("  " + bold(white("[FIX]  Self-Healing Test & Debugger")))
                     print("  " + dark_gray("Running pytest diagnostics in workspace..."))
                     def _on_iter(curr, total, msg):
                         print(f"  {cyan(f'[{curr}/{total}]')} {gray(msg)}")
                     ok, summary = run_self_healing_loop(session, workspace, on_iteration=_on_iter)
                     if ok:
-                        print("  " + green("✔") + f"  {summary}")
+                        print("  " + green("[OK]") + f"  {summary}")
                     else:
-                        print("  " + red("✖") + f"  {summary}")
+                        print("  " + red("[ERR]") + f"  {summary}")
                     print()
                 except Exception as exc:
                     _render_error_card("Fix Error", str(exc), hint="• Ensure pytest is installed in your active environment")
@@ -1341,10 +1342,10 @@ def run_tui(
                 try:
                     from .review import audit_git_diff
                     print()
-                    print("  " + bold(white("🔍  Git Diff & Code Review Audit")))
+                    print("  " + bold(white("[REVIEW]  Git Diff & Code Review Audit")))
                     audit = audit_git_diff(workspace)
                     if "error" in audit:
-                        print(red(f"  ✖  {audit['error']}"))
+                        print(red(f"  [ERR]  {audit['error']}"))
                     else:
                         print(f"  {gray('Stat:')}\n{audit['stat']}")
                         if audit["findings"]:
@@ -1353,7 +1354,7 @@ def run_tui(
                                 color_fn = red if f.get("severity") == "high" else yellow
                                 print(f"    {color_fn('•')} {f['description']}")
                         else:
-                            print("\n  " + green("✔ Clean!") + gray(" No leaked secrets or debug statements detected."))
+                            print("\n  " + green("[OK] Clean!") + gray(" No leaked secrets or debug statements detected."))
                     print()
                 except Exception as exc:
                     _render_error_card("Review Error", str(exc))
@@ -1368,7 +1369,7 @@ def run_tui(
                     save_cfg_fn(cfg)
                     session = _rebuild_session()
                     if session:
-                        print("  " + green("✔") + gray(f"  Model set to: {model}"))
+                        print("  " + green("[OK]") + gray(f"  Model set to: {model}"))
                 else:
                     info = PROVIDERS.get(provider, {})
                     existing_key = (cfg.get("keys") or {}).get(f"{provider}_api_key", "") or os.environ.get(info.get("env_key") or "", "")
@@ -1378,7 +1379,7 @@ def run_tui(
                     save_cfg_fn(cfg)
                     session = _rebuild_session()
                     if session:
-                        print("  " + green("✔") + gray(f"  Switched to: {model}"))
+                        print("  " + green("[OK]") + gray(f"  Switched to: {model}"))
 
             elif cmd == "/diff":
                 run_diff_command(workspace)
@@ -1389,7 +1390,7 @@ def run_tui(
             elif cmd == "/reset":
                 if session:
                     session.reset()
-                print("  " + green("✔") + gray("  Conversation history reset."))
+                print("  " + green("[OK]") + gray("  Conversation history reset."))
                 turns = 0
 
             elif cmd == "/clear":
@@ -1400,18 +1401,18 @@ def run_tui(
                 print(HELP_SCREEN)
 
             elif cmd in ("/quit", "/exit", "/q"):
-                print("\n  " + dark_gray("Exiting pytekt agent. Bye! 👋"))
+                print("\n  " + dark_gray("Exiting pytekt agent. Bye!"))
                 _save_readline_history()
                 break
 
             else:
-                print("  " + yellow("⚠") + gray(f"  Unknown command '{cmd}'. Type /help for command list."))
+                print("  " + yellow("[!]") + gray(f"  Unknown command '{cmd}'. Type /help for command list."))
 
             continue
 
         # ── Regular Task Prompt ─────────────────────────────────────────────
         if session is None:
-            print(red("  ✖  No active session. Run /connect to select a provider."))
+            print(red("  [ERR]  No active session. Run /connect to select a provider."))
             continue
 
         reply = _send(line)

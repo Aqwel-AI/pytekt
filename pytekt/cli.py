@@ -274,11 +274,11 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     )
     agent_parser.add_argument(
         "--provider", "-P",
-        default="openai",
+        default=None,
         metavar="NAME",
         help=(
-            "LLM provider: openai, anthropic, gemini, ollama, deepseek, nvidia "
-            "(default: openai)"
+            "LLM provider: ollama, openai, anthropic, gemini, deepseek, nvidia "
+            "(default: auto-detected, prefers local ollama)"
         ),
     )
     agent_parser.add_argument(
@@ -929,23 +929,11 @@ def main():
                 for f in res["findings"]:
                     print(f"  [{f['severity'].upper()}] {f['description']}")
             else:
-                print("\n✔ Clean! No leaked secrets or debug statements found.")
+                print("\n[OK] Clean! No leaked secrets or debug statements found.")
             sys.exit(0)
 
-        # Provider-specific model defaults
-        _default_models = {
-            "openai":    "gpt-4o-mini",
-            "anthropic": "claude-3-5-haiku-latest",
-            "claude":    "claude-3-5-haiku-latest",
-            "gemini":    "gemini-2.0-flash",
-            "google":    "gemini-2.0-flash",
-            "ollama":    "llama3",
-            "deepseek":  "deepseek-chat",
-            "nvidia":    "meta/llama-3.1-8b-instruct",
-            "nim":       "meta/llama-3.1-8b-instruct",
-        }
         provider = args.provider
-        model = args.model or _default_models.get(provider.lower(), "gpt-4o-mini")
+        model = args.model
 
         run_agent_cli(
             task=args.task,

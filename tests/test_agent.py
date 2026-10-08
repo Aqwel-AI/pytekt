@@ -174,3 +174,52 @@ def test_agent_session_send_with_hooks_without_key_raises_provider_error(tmp_pat
     with pytest.raises(ProviderError) as exc_info:
         session.send_with_hooks("echo test")
     assert "/connect" in str(exc_info.value)
+
+
+def test_ollama_model_detection(monkeypatch):
+    import urllib.request
+    from io import BytesIO
+    from pytekt.agent.core import is_ollama_available, get_local_ollama_models
+
+    # Test failure / unavailable
+    assert not is_ollama_available("http://invalid-host-99999:11434")
+    assert get_local_ollama_models("http://invalid-host-99999:11434") == []
+
+    # Mock success response
+    class MockResponse:
+        status = 200
+        def __init__(self, data: bytes):
+            self._data = data
+        def read(self):
+            return self._data
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            pass
+
+    mock_payload = b'{"models": [{"name": "Aks3L/linkai_x_v1_2:latest"}, {"name": "llama3:latest"}]}'
+    monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout=None: MockResponse(mock_payload))
+
+    assert is_ollama_available("http://localhost:11434") is True
+    models = get_local_ollama_models("http://localhost:11434")
+    assert "Aks3L/linkai_x_v1_2:latest" in models
+    assert "llama3:latest" in models
+
+
+def test_no_emojis_in_agent_code():
+    import re
+    # Match standard emoji ranges without touching box-drawing or arrows
+    emoji_pattern = re.compile(
+        r"[\U0001F300-\U0001F6FF"  # Misc Symbols and Pictographs, Emoticons, Transport
+        r"\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
+        r"\U0001FA70-\U0001FAFF"  # Symbols and Pictographs Extended-A
+        r"\u2702-\u27B0"          # Dingbats emojis
+        r"\u2728\u274C\u274E\u2705\u2714\u2716\u26A0\u26A1]"
+    )
+
+    agent_dir = Path(__file__).resolve().parent.parent / "pytekt" / "agent"
+    for py_file in agent_dir.glob("*.py"):
+        content = py_file.read_text(encoding="utf-8")
+        matches = emoji_pattern.findall(content)
+        assert not matches, f"Found emoji(s) {matches} in {py_file.name}"
+

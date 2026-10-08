@@ -168,7 +168,7 @@ def run_connect_interactive(
         base_url=base_url,
     )
     if success:
-        print(" \033[32m✔ Verified!\033[0m")
+        print(" \033[32m[OK] Verified!\033[0m")
         save_provider_connection(
             provider_name=selected_provider,
             api_key=entered_key,
@@ -179,7 +179,7 @@ def run_connect_interactive(
         print(f"  PyTekt Agent is now configured to use \033[1;37m{selected_provider} / {selected_model}\033[0m.\n")
         return 0
     else:
-        print(" \033[31m✖ Failed!\033[0m")
+        print(" \033[31m[ERR] Failed!\033[0m")
         print(f"  \033[31mError:\033[0m {msg}\n")
         save_anyway = input("  Save configuration anyway? [y/N]: ").strip().lower()
         if save_anyway == "y":

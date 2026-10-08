@@ -487,6 +487,27 @@ def _make_session(
 # CLI entrypoint
 # ---------------------------------------------------------------------------
 
+def is_ollama_available(host: str = "http://localhost:11434") -> bool:
+    try:
+        import urllib.request
+        req = urllib.request.Request(f"{host.rstrip('/')}/api/tags", headers={"User-Agent": "pytekt"})
+        with urllib.request.urlopen(req, timeout=0.3) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
+
+def get_local_ollama_models(host: str = "http://localhost:11434") -> List[str]:
+    try:
+        import urllib.request, json
+        req = urllib.request.Request(f"{host.rstrip('/')}/api/tags", headers={"User-Agent": "pytekt"})
+        with urllib.request.urlopen(req, timeout=0.8) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return [m.get("name") for m in data.get("models", []) if m.get("name")]
+    except Exception:
+        return []
+
+
 def run_agent_cli(
     task: Optional[str] = None,
     workspace: Optional[str] = None,
@@ -501,7 +522,7 @@ def run_agent_cli(
     Run the agent with the full TUI.
 
     - Reads ~/.pytekt.yaml for saved provider/model/mode config.
-    - On first run (or if no provider configured), launches the setup wizard.
+    - If Ollama is running locally, auto-selects Ollama and installed local models.
     - If *task* is given (``pytekt agent "fix the bug"``): one-shot mode.
     - Otherwise: interactive TUI REPL with CODE and TALK modes.
     """
@@ -510,20 +531,31 @@ def run_agent_cli(
 
     cfg = get_config()
     agent_cfg = cfg.get("agent", {})
+    ollama_host = agent_cfg.get("ollama_host", "http://localhost:11434")
 
-    # Resolve provider / model / mode (CLI flag > config > defaults)
+    # Resolve provider / model / mode (CLI flag > config > local ollama auto-detect)
     resolved_provider = provider or agent_cfg.get("provider") or None
     resolved_model = model or agent_cfg.get("model") or None
     resolved_mode = mode or agent_cfg.get("mode") or "code"
 
-    # Run setup wizard if no provider configured and not in one-shot with explicit flags
+    # If no provider passed or configured, detect local Ollama or keys
     if resolved_provider is None:
-        cfg = tui.run_setup_wizard(cfg)
-        save_config(cfg)
-        agent_cfg = cfg.get("agent", {})
-        resolved_provider = agent_cfg.get("provider", "openai")
-        resolved_model = agent_cfg.get("model")
-        resolved_mode = agent_cfg.get("mode", "code")
+        if is_ollama_available(ollama_host):
+            resolved_provider = "ollama"
+        elif os.environ.get("OPENAI_API_KEY") or (cfg.get("keys") or {}).get("openai_api_key"):
+            resolved_provider = "openai"
+        elif os.environ.get("ANTHROPIC_API_KEY") or (cfg.get("keys") or {}).get("anthropic_api_key"):
+            resolved_provider = "anthropic"
+        else:
+            resolved_provider = "ollama"
+
+    # Auto-detect installed model for Ollama if not specified
+    if resolved_provider.lower() == "ollama" and not resolved_model:
+        local_models = get_local_ollama_models(ollama_host)
+        if local_models:
+            resolved_model = local_models[0]
+        else:
+            resolved_model = "llama3.2"
 
     # Apply provider-specific model defaults
     _default_models = {
