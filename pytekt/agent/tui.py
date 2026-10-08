@@ -603,6 +603,30 @@ def _render_output_card(title: str, text: str, max_lines: int = 8) -> None:
     print("    " + dark_gray("╰" + "─" * (inner_w + 2) + "╯"))
 
 
+def _render_error_card(title: str, message: str, hint: Optional[str] = None) -> None:
+    """Render a Claude-style error card with rounded frame and helpful hints."""
+    w = min(W() - 4, 92)
+    inner_w = w - 4
+    header = f" ✖ {title} "
+    print()
+    print("  " + dark_gray("╭─") + red(bold(header)) + dark_gray("─" * max(2, inner_w - len(header)) + "╮"))
+    
+    for line in message.strip().split("\n"):
+        truncated = line[:inner_w - 2]
+        pad = " " * max(0, inner_w - _visible_len(truncated))
+        print("  " + dark_gray("│ ") + white(truncated) + pad + dark_gray(" │"))
+    
+    if hint:
+        print("  " + dark_gray("│" + " " * (inner_w + 2) + "│"))
+        for hline in hint.strip().split("\n"):
+            truncated = hline[:inner_w - 2]
+            pad = " " * max(0, inner_w - _visible_len(truncated))
+            print("  " + dark_gray("│ ") + cyan(truncated) + pad + dark_gray(" │"))
+            
+    print("  " + dark_gray("╰" + "─" * (inner_w + 2) + "╯"))
+    print()
+
+
 def print_tool_start(name: str, args: Dict[str, Any]) -> None:
     """Print tool invocation header in Claude Code style."""
     if name == "read_file":
@@ -1124,7 +1148,12 @@ def run_tui(
     spin.start()
     try:
         session = session_factory(provider=provider, model=model, mode=mode, workspace_root=workspace, cfg=cfg)
-        spin.stop(green("  ✔") + gray(f"  Ready ({mode.upper()} mode)"))
+        has_key = getattr(session, "has_key", True)
+        if not has_key and provider != "ollama":
+            spin.stop(green("  ✔") + gray(f"  Ready ({mode.upper()} mode)") + yellow("  ⚠ No API key configured"))
+            print(dark_gray("     → Type ") + cyan("/connect") + dark_gray(" to set up your API key, or export ") + cyan(f"{provider.upper()}_API_KEY") + dark_gray("."))
+        else:
+            spin.stop(green("  ✔") + gray(f"  Ready ({mode.upper()} mode)"))
     except Exception as exc:
         spin.stop()
         print(red(f"  ✖  Could not initialize session: {exc}"))
@@ -1196,17 +1225,39 @@ def run_tui(
                 reply = session.send_with_hooks(text, on_tool=_on_tool, on_tool_done=_on_tool_done)
             else:
                 reply = session.send(text)
-        except RuntimeError as exc:
             spin2.stop()
-            print(red(f"\n  ✖  Agent error: {exc}"))
-            return None
+            turns += 1
+            return reply
         except KeyboardInterrupt:
             spin2.stop()
             print(yellow("\n  ⚠  Interrupted"))
             return None
-        spin2.stop()
-        turns += 1
-        return reply
+        except Exception as exc:
+            spin2.stop()
+            err_msg = str(exc).strip()
+            friendly = getattr(exc, "friendly_message", None)
+            if callable(friendly):
+                try:
+                    err_msg = friendly()
+                except Exception:
+                    pass
+
+            p_label = provider.capitalize()
+            hint = f"• Type /connect to configure or test your API key\n• Or export {provider.upper()}_API_KEY=... in your shell"
+            _render_error_card(f"{p_label} Error", err_msg, hint=hint)
+
+            lower_err = str(exc).lower()
+            if any(k in lower_err for k in ("unauthorized", "401", "rejected", "api key", "no api key", "forbidden", "403")):
+                if not task:
+                    try:
+                        sys.stdout.write("  " + bold(cyan("Would you like to configure your API key now? [y/N]: ")))
+                        sys.stdout.flush()
+                        ans = input().strip().lower()
+                        if ans in ("y", "yes"):
+                            _do_connect()
+                    except (EOFError, KeyboardInterrupt):
+                        print()
+            return None
 
     # ── One-shot mode ───────────────────────────────────────────────────────
     if task:
@@ -1270,36 +1321,42 @@ def run_tui(
                 if session is None:
                     print(red("  ✖  No active session."))
                     continue
-                from .healer import run_self_healing_loop
-                print()
-                print("  " + bold(white("🛠  Self-Healing Test & Debugger")))
-                print("  " + dark_gray("Running pytest diagnostics in workspace..."))
-                def _on_iter(curr, total, msg):
-                    print(f"  {cyan(f'[{curr}/{total}]')} {gray(msg)}")
-                ok, summary = run_self_healing_loop(session, workspace, on_iteration=_on_iter)
-                if ok:
-                    print("  " + green("✔") + f"  {summary}")
-                else:
-                    print("  " + red("✖") + f"  {summary}")
-                print()
+                try:
+                    from .healer import run_self_healing_loop
+                    print()
+                    print("  " + bold(white("🛠  Self-Healing Test & Debugger")))
+                    print("  " + dark_gray("Running pytest diagnostics in workspace..."))
+                    def _on_iter(curr, total, msg):
+                        print(f"  {cyan(f'[{curr}/{total}]')} {gray(msg)}")
+                    ok, summary = run_self_healing_loop(session, workspace, on_iteration=_on_iter)
+                    if ok:
+                        print("  " + green("✔") + f"  {summary}")
+                    else:
+                        print("  " + red("✖") + f"  {summary}")
+                    print()
+                except Exception as exc:
+                    _render_error_card("Fix Error", str(exc), hint="• Ensure pytest is installed in your active environment")
 
             elif cmd == "/review":
-                from .review import audit_git_diff
-                print()
-                print("  " + bold(white("🔍  Git Diff & Code Review Audit")))
-                audit = audit_git_diff(workspace)
-                if "error" in audit:
-                    print(red(f"  ✖  {audit['error']}"))
-                else:
-                    print(f"  {gray('Stat:')}\n{audit['stat']}")
-                    if audit["findings"]:
-                        print("\n  " + yellow(bold("Findings detected:")))
-                        for f in audit["findings"]:
-                            color_fn = red if f.get("severity") == "high" else yellow
-                            print(f"    {color_fn('•')} {f['description']}")
+                try:
+                    from .review import audit_git_diff
+                    print()
+                    print("  " + bold(white("🔍  Git Diff & Code Review Audit")))
+                    audit = audit_git_diff(workspace)
+                    if "error" in audit:
+                        print(red(f"  ✖  {audit['error']}"))
                     else:
-                        print("\n  " + green("✔ Clean!") + gray(" No leaked secrets or debug statements detected."))
-                print()
+                        print(f"  {gray('Stat:')}\n{audit['stat']}")
+                        if audit["findings"]:
+                            print("\n  " + yellow(bold("Findings detected:")))
+                            for f in audit["findings"]:
+                                color_fn = red if f.get("severity") == "high" else yellow
+                                print(f"    {color_fn('•')} {f['description']}")
+                        else:
+                            print("\n  " + green("✔ Clean!") + gray(" No leaked secrets or debug statements detected."))
+                    print()
+                except Exception as exc:
+                    _render_error_card("Review Error", str(exc))
 
             elif cmd == "/connect":
                 _do_connect()

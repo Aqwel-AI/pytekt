@@ -194,6 +194,7 @@ class AgentSession:
 
         # Build provider kwargs
         key = api_key or resolve_api_key(provider_name, cfg)
+        self.has_key = bool(key) or (provider_name == "ollama")
         provider_kwargs: Dict[str, Any] = {"model": model}
         if key:
             provider_kwargs["api_key"] = key
@@ -299,6 +300,21 @@ class AgentSession:
         else:
             self.messages.insert(0, {"role": "system", "content": prompt})
 
+    def _env_key_for_provider(self) -> str:
+        name = self.provider_name.lower().strip()
+        env_map = {
+            "openai": "OPENAI_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY",
+            "claude": "ANTHROPIC_API_KEY",
+            "gemini": "GEMINI_API_KEY",
+            "google": "GEMINI_API_KEY",
+            "deepseek": "DEEPSEEK_API_KEY",
+            "nvidia": "NVIDIA_API_KEY",
+            "nim": "NVIDIA_API_KEY",
+            "openrouter": "OPENROUTER_API_KEY",
+        }
+        return env_map.get(name, f"{name.upper()}_API_KEY")
+
     def undo_last(self) -> str:
         """Undo last file modification."""
         from .undo import undo_manager
@@ -308,6 +324,22 @@ class AgentSession:
         """
         Add a user message, run the tool loop, and return the assistant reply.
         """
+        # Guard: check if API key is missing for cloud providers
+        if not self.has_key and not getattr(self.provider, "is_mock", False) and type(self.provider).__name__ != "FakeToolProvider":
+            from ..providers.errors import ProviderError
+            env_var = self._env_key_for_provider()
+            raise ProviderError(
+                f"No API key configured for provider '{self.provider_name}'.\n\n"
+                f"Run `/connect` to set up your API key, or export {env_var} in your shell."
+            )
+
+        if self.provider is None:
+            from ..providers.errors import ProviderError
+            raise ProviderError(
+                f"No AI provider initialized for '{self.provider_name}'. Run `/connect` to configure.",
+                status=500,
+            )
+
         from ..tools.loop import run_tool_loop
         from .context import expand_prompt_context
 
@@ -317,16 +349,32 @@ class AgentSession:
         
         tools = self._get_tools_for_mode()
         
-        final_text, self.messages = run_tool_loop(
-            self.provider,
-            self.messages,
-            tools,
-            self.registry if tools else None,
-            max_rounds=self.max_rounds if tools else 1,
-            temperature=0.2 if self.mode != "talk" else 0.7,
-            max_tokens=4096,
-        )
-        return final_text or ""
+        try:
+            final_text, self.messages = run_tool_loop(
+                self.provider,
+                self.messages,
+                tools,
+                self.registry if tools else None,
+                max_rounds=self.max_rounds if tools else 1,
+                temperature=0.2 if self.mode != "talk" else 0.7,
+                max_tokens=4096,
+            )
+            return final_text or ""
+        except Exception as exc:
+            from ..providers.errors import ProviderError
+            if isinstance(exc, ProviderError):
+                raise
+            import urllib.error
+            if isinstance(exc, urllib.error.HTTPError):
+                raise ProviderError(
+                    f"HTTP {exc.code}: {exc.reason}",
+                    status=exc.code,
+                ) from exc
+            if isinstance(exc, urllib.error.URLError):
+                raise ProviderError(
+                    f"Network connection failed: {exc.reason}",
+                ) from exc
+            raise
 
     def send_with_hooks(
         self,
@@ -338,6 +386,21 @@ class AgentSession:
         Like ``send`` but fires callbacks before/after each tool call so the TUI
         can display live tool progress.
         """
+        if not self.has_key and not getattr(self.provider, "is_mock", False) and type(self.provider).__name__ != "FakeToolProvider":
+            from ..providers.errors import ProviderError
+            env_var = self._env_key_for_provider()
+            raise ProviderError(
+                f"No API key configured for provider '{self.provider_name}'.\n\n"
+                f"Run `/connect` to set up your API key, or export {env_var} in your shell."
+            )
+
+        if self.provider is None:
+            from ..providers.errors import ProviderError
+            raise ProviderError(
+                f"No AI provider initialized for '{self.provider_name}'. Run `/connect` to configure.",
+                status=500,
+            )
+
         from ..tools.loop import run_tool_loop
         from .context import expand_prompt_context
 
@@ -346,32 +409,48 @@ class AgentSession:
         
         tools = self._get_tools_for_mode()
 
-        # Try hook-aware loop first
         try:
-            final_text, self.messages = run_tool_loop(
-                self.provider,
-                self.messages,
-                tools,
-                self.registry if tools else None,
-                max_rounds=self.max_rounds if tools else 1,
-                temperature=0.2 if self.mode != "talk" else 0.7,
-                max_tokens=4096,
-                on_tool_call=on_tool if tools else None,
-                on_tool_result=on_tool_done if tools else None,
-            )
-        except TypeError:
-            # run_tool_loop doesn't accept hook kwargs — fall back
-            final_text, self.messages = run_tool_loop(
-                self.provider,
-                self.messages,
-                tools,
-                self.registry if tools else None,
-                max_rounds=self.max_rounds if tools else 1,
-                temperature=0.2 if self.mode != "talk" else 0.7,
-                max_tokens=4096,
-            )
+            # Try hook-aware loop first
+            try:
+                final_text, self.messages = run_tool_loop(
+                    self.provider,
+                    self.messages,
+                    tools,
+                    self.registry if tools else None,
+                    max_rounds=self.max_rounds if tools else 1,
+                    temperature=0.2 if self.mode != "talk" else 0.7,
+                    max_tokens=4096,
+                    on_tool_call=on_tool if tools else None,
+                    on_tool_result=on_tool_done if tools else None,
+                )
+            except TypeError:
+                # run_tool_loop doesn't accept hook kwargs — fall back
+                final_text, self.messages = run_tool_loop(
+                    self.provider,
+                    self.messages,
+                    tools,
+                    self.registry if tools else None,
+                    max_rounds=self.max_rounds if tools else 1,
+                    temperature=0.2 if self.mode != "talk" else 0.7,
+                    max_tokens=4096,
+                )
 
-        return final_text or ""
+            return final_text or ""
+        except Exception as exc:
+            from ..providers.errors import ProviderError
+            if isinstance(exc, ProviderError):
+                raise
+            import urllib.error
+            if isinstance(exc, urllib.error.HTTPError):
+                raise ProviderError(
+                    f"HTTP {exc.code}: {exc.reason}",
+                    status=exc.code,
+                ) from exc
+            if isinstance(exc, urllib.error.URLError):
+                raise ProviderError(
+                    f"Network connection failed: {exc.reason}",
+                ) from exc
+            raise
 
     def reset(self) -> None:
         """Clear conversation history (keep system prompt)."""

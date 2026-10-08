@@ -146,3 +146,31 @@ def test_agent_session_send_with_fake_provider(tmp_path):
     reply = session.send("Hello agent")
     assert reply == "Here is the answer."
     assert len(session.messages) >= 2
+
+
+def test_agent_session_send_without_key_raises_provider_error(tmp_path):
+    from pytekt.providers.errors import ProviderError
+    # Session initialized with no key for cloud provider
+    session = AgentSession(workspace_root=str(tmp_path), provider_name="openai", api_key=None)
+    with pytest.raises(ProviderError) as exc_info:
+        session.send("source /venv/bin/activate")
+    
+    assert "/connect" in str(exc_info.value)
+    assert "OPENAI_API_KEY" in str(exc_info.value)
+
+
+def test_render_error_card(capsys):
+    from pytekt.agent.tui import _render_error_card
+    _render_error_card("OpenAI Error", "Your API key was rejected.", hint="• Type /connect to set up your key")
+    captured = capsys.readouterr().out
+    assert "OpenAI Error" in captured
+    assert "rejected" in captured
+    assert "/connect" in captured
+
+
+def test_agent_session_send_with_hooks_without_key_raises_provider_error(tmp_path):
+    from pytekt.providers.errors import ProviderError
+    session = AgentSession(workspace_root=str(tmp_path), provider_name="openai", api_key=None)
+    with pytest.raises(ProviderError) as exc_info:
+        session.send_with_hooks("echo test")
+    assert "/connect" in str(exc_info.value)
