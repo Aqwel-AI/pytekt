@@ -178,7 +178,54 @@ r_pytekt/src/symbols.rds
 .Rhistory
 .RData
 
-# Roadmap & TODO files
+# Roadmap, tasks, and private local markdown notes
+# ------------------------------------------------
 TODO_v0.2.2.md
 TODO*.md
+AGENT_TASKS.md
+*task*.md
+*TASKS*.md
+*secret*.md
+*SECRET*.md
+*credential*.md
+*CREDENTIAL*.md
+*token*.md
+*TOKEN*.md
+*key*.md
+*KEY*.md
+*private*.md
+*PRIVATE*.md
+*draft*.md
+*scratch*.md
+*notes*.md
+*note*.md
+local_*.md
+local_*.txt
+auth_*.md
+*.secret
+*.secrets
+*.secret.*
+*.secrets.*
+*.token
+*.tokens
+*.auth
+*.auth.*
+auth.json
+tokens.json
+*token*.json
+*secret*.json
+*key*.json
+api_keys.*
+keys.json
+id_ed25519*
+id_ecdsa*
+
+# Explicit whitelist for core repository documentation
+!README.md
+!CHANGELOG.md
+!CONTRIBUTING.md
+!SECURITY.md
+!RELEASE_*.md
+!r_pytekt/README.md
+
 

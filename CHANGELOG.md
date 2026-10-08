@@ -7,8 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2026-08-28
 
+### Added — Autonomous Terminal Coding Agent (`pytekt agent`)
+- **Terminal Coding Assistant (Claude Code / Antigravity CLI architecture)**:
+  - Interactive shell session with full tool-calling loop: `read_file`, `write_file`, `edit_file`, `run_command`, `list_files`, `glob_search`, `grep_search`.
+  - **Local Ollama Priority & Auto-Detection**: Probes `http://localhost:11434` on launch, detects installed local models, and operates completely offline with zero API keys or configuration needed.
+  - **Zero-Emoji Clean Developer UI**: Replaced all emojis with standardized high-contrast text badges: `[CODE]`, `[TALK]`, `[ML]`, `[BOT]`, `[FIX]`, `[REVIEW]`, `[OK]`, `[ERR]`, `[!]`, `*`, `>`.
+  - **Multi-Provider Support**: Seamless switching between Ollama, Anthropic, OpenAI, Google Gemini, DeepSeek, and NVIDIA NIM.
+  - **Reversible Actions (`/undo`)**: `UndoManager` records pre-edit file states for instantaneous rollback.
+  - **Smart Prompt Expansions**: Resolves `@file`, `@git`, `@diff`, and `@tests` directly in user prompts.
+  - **Specialized Operating Modes**:
+    - `[CODE]`: Workspace file manipulation and shell execution with safety prompts.
+    - `[TALK]`: Conversational reasoning without file modifications.
+    - `[ML]`: Automated tabular dataset profiling (`profile_dataset`) and baseline classifier training (`fit_baseline_classifier`).
+    - `[BOT]`: Full-stack bot scaffolding (`scaffold_bot_project`) for Telegram, Discord, and Slack.
+    - `[FIX]`: Autonomous self-healing debugger parsing pytest failures and iteratively fixing code.
+    - `[REVIEW]`: Git diff code review and secret auditing.
+
 ### Added — High-Performance Native Bots Framework (`pytekt.bots`)
-- **Native C++ Engine (`_pytekt_bots_core`)**:
+- **Native C++ Engine (`_pytekt_bots_core` / `_native_core`)**:
   - **`StreamPacer`**: High-frequency streaming message editor with adaptive pacing, semantic boundary flushing, and platform 429 rate limit backoff.
   - **`Dispatcher`**: Compiled Trie routing, prefix matching, and universal event parsing.
   - **`RateLimiter`**: Token-bucket flood control with user/chat/global limits and HTTP 429 tracking.
@@ -31,8 +47,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced `train_test_split` supporting multiple synchronous arrays (e.g. `X, y`), preserving NumPy arrays, and supporting `test_size` and `random_state` aliases.
 
 ### Fixed & Infrastructure
-- Cleaned up obsolete agent test references and registered custom pytest marks in `pyproject.toml`.
-- Upgraded GitHub Actions CI workflow to build C++ pybind11 extensions and run the full test suite across Python versions.
+- Added missing `<vector>` include in `pytekt/bots/_core/ratelimiter.hpp` and `.cpp` for GCC/Linux compilation compatibility.
+- Fixed f-string backslash syntax in `pytekt/agent/tui.py` for Python 3.10 compatibility.
+- Fixed CI build failure in Python 3.12 by installing `setuptools` and `wheel` before invoking `setup.py build_ext`.
+- Added comprehensive `.gitignore` rules for secret markdown files, credentials, local tasks, and roadmap documents.
+- 100% pass rate across all 407 unit and integration tests.
 
 
 ## [0.2.0] - 2026-07-22
