@@ -643,7 +643,8 @@ def print_tool_start(name: str, args: Dict[str, Any]) -> None:
         print(f"\n  {coral('>')} {bold(white('Bash'))} {green(cmd)}")
     elif name in ("search_files", "glob_search"):
         pat = args.get("pattern", "")
-        print(f"\n  {coral('>')} {bold(white('Search'))} {yellow(f'pattern=\"{pat}\"')}")
+        pattern_str = f'pattern="{pat}"'
+        print(f"\n  {coral('>')} {bold(white('Search'))} {yellow(pattern_str)}")
     elif name == "list_files":
         path = args.get("path", ".")
         print(f"\n  {coral('>')} {bold(white('List directory'))} {cyan(path)}")
