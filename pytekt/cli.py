@@ -295,9 +295,9 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     )
     agent_parser.add_argument(
         "--mode", "-M",
-        choices=["code", "talk"],
+        choices=["code", "talk", "ml", "bot", "fix", "review"],
         default="code",
-        help="Agent mode: 'code' (autonomous coding like Cursor) or 'talk' (technical chat & questions) (default: code)",
+        help="Agent mode: code, talk, ml, bot, fix, review (default: code)",
     )
     agent_parser.add_argument(
         "--workspace", "-w",
@@ -319,11 +319,11 @@ Use the same commands as: python3 -m pytekt …   (example: python3 -m pytekt mo
     )
     subparsers.add_parser(
         "api",
-        help="API connect (not available in this version)",
+        help="Interactive AI API key connection wizard",
     )
     subparsers.add_parser(
         "auth",
-        help="Auth commands (not available in this version)",
+        help="Authenticate and configure AI providers",
     )
 
     # config
@@ -908,6 +908,30 @@ def main():
     if args.command == "agent":
         from .agent import run_agent_cli
 
+        task_arg = (args.task or "").strip().lower()
+
+        # Direct subcommand shortcuts: 'pytekt agent connect', 'pytekt agent review', 'pytekt agent fix'
+        if task_arg == "connect":
+            from .agent.connect import run_connect_interactive
+            sys.exit(run_connect_interactive(provider=args.provider, api_key=args.api_key, model=args.model))
+
+        if task_arg == "review":
+            from .agent.review import audit_git_diff
+            workspace = args.workspace or os.getcwd()
+            res = audit_git_diff(workspace)
+            if "error" in res:
+                print(f"Error: {res['error']}")
+                sys.exit(1)
+            print("=== Git Diff Audit ===")
+            print(res["stat"])
+            if res["findings"]:
+                print("\nFindings:")
+                for f in res["findings"]:
+                    print(f"  [{f['severity'].upper()}] {f['description']}")
+            else:
+                print("\n✔ Clean! No leaked secrets or debug statements found.")
+            sys.exit(0)
+
         # Provider-specific model defaults
         _default_models = {
             "openai":    "gpt-4o-mini",
@@ -935,10 +959,9 @@ def main():
         )
         return
 
-
     if args.command in ("api", "auth"):
-        print(f"pytekt {args.command} — not available in 0.2.1.")
-        return
+        from .agent.connect import run_connect_interactive
+        sys.exit(run_connect_interactive())
 
     if args.command == "bots":
         if getattr(args, "bots_command", None) == "new":

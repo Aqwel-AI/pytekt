@@ -76,8 +76,14 @@ def write_file(workspace: Workspace, path: str, content: str) -> str:
     """Create or overwrite a file."""
     try:
         p = workspace.resolve(path)
+        existing_content = p.read_text(encoding="utf-8") if p.is_file() else None
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(content, encoding="utf-8")
+        try:
+            from ..agent.undo import undo_manager
+            undo_manager.record_write(path, str(p), existing_content)
+        except Exception:
+            pass
         lines = content.count("\n") + (1 if content and not content.endswith("\n") else 0)
         return f"Wrote {path} ({lines} lines, {len(content)} bytes)."
     except PermissionError as e:
@@ -115,6 +121,11 @@ def edit_file(
             )
         updated = text.replace(old_string, new_string, 1)
         p.write_text(updated, encoding="utf-8")
+        try:
+            from ..agent.undo import undo_manager
+            undo_manager.record_edit(path, str(p), text)
+        except Exception:
+            pass
         old_lines = old_string.count("\n") + 1
         new_lines = new_string.count("\n") + 1
         return f"Edited {path}: replaced {old_lines} line(s) with {new_lines} line(s)."

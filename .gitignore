@@ -153,9 +153,8 @@ example_output/
 pytekt/former/examples_results/*.png
 pytekt/former/examples_results/*.png
 
-# Legacy empty package dirs (use pytekt/cli_agent/ and code.py only)
-# ---------------------------------------------------------------
-pytekt/agent/
+# Legacy empty package dirs (use pytekt/code/ or cli)
+# ---------------------------------------------------
 pytekt/code/
 
 # Archived code (kept locally, not shipped)
