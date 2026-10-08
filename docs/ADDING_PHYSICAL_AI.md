@@ -42,7 +42,7 @@ Start with **one domain** (e.g. classical mechanics). Expand later.
 | Python ↔ C++ bridge | `pytekt/universe/_native.py` |
 | Public exports | `pytekt/universe/__init__.py` |
 | CLI subcommands | `pytekt/universe/cli.py`, `pytekt/cli.py` |
-| Agent slash commands | Not available in 0.2.0 (`archived/pytekt_agent/` when restored) |
+| Agent slash commands | Not available in 0.2.1 (`archived/pytekt_agent/` when restored) |
 | Native extension build | `setup.py` → `_get_extensions()` |
 | Tests | `tests/test_universe_*.py` |
 | Module README | `pytekt/universe/README.md` |
@@ -283,9 +283,9 @@ physics = [
 
 ---
 
-## Step 8 — Agent integration (not available in 0.2.0)
+## Step 8 — Agent integration (not available in 0.2.1)
 
-Physical AI agent slash commands / tools land when the **terminal agent** returns. In **0.2.0**, `pytekt agent` is **not available** — ship the library CLI (`pytekt physics …`) first.
+Physical AI agent slash commands / tools land when the **terminal agent** returns. In **0.2.1**, `pytekt agent` is **not available** — ship the library CLI (`pytekt physics …`) first.
 
 ### 8.1 Slash commands (future)
 
@@ -519,4 +519,4 @@ Add dashboard, thermodynamics, and control in v2.
 - [Project structure](PROJECT_STRUCTURE.md)
 - [Universe module README](../pytekt/universe/README.md)
 - [Physics module README](../pytekt/physics/README.md)
-- [Main README](../README.md) (terminal agent: not available in 0.2.0)
+- [Main README](../README.md) (terminal agent: not available in 0.2.1)

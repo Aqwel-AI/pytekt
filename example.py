@@ -1,7 +1,7 @@
 """
 Full exercise script for pytekt.algorithms, pytekt.visualization, pdf helpers,
-and post-0.1.9 / 0.2.0 library surface (I/O, LLM stack, RAG, config/env,
-benchmarks, graphs, 3D/report plots). Compatible with PyTekt 0.2.0.
+and post-0.1.9 / 0.2.1 library surface (I/O, LLM stack, RAG, config/env,
+benchmarks, graphs, 3D/report plots). Compatible with PyTekt 0.2.1.
 
 Output is printed for algorithms and infra; standard plots go to example_output/;
 newer extras also write under example_output/v019_examples/.

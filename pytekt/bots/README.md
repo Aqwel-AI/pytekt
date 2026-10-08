@@ -57,7 +57,8 @@ Most popular Python bot frameworks (*python-telegram-bot*, *aiogram*, *discord.p
     |   Native C++ Core (pybind11)            |                     |   Pure-Python Fallback              |
     |   - Dispatcher (Trie & Regex Match)     |                     |   - Dispatcher                      |
     |   - RateLimiter (Token Buckets + 429)   |   <--- Auto --->    |   - RateLimiter                     |
-    |   - FSM (TTL States & Sessions)         |      Fallback       |   - FSM                             |
+    |   - StreamPacer (Adaptive AI Pacer)     |      Fallback       |   - StreamPacer                     |
+    |   - FSM (TTL States & Sessions)         |                     |   - FSM                             |
     |   - Cache (In-Process TTL Key-Value)    |                     |   - Cache                           |
     |   - AntiSpam (Bloom Filter & Heuristics)|                     |   - AntiSpam                        |
     |   - Metrics (Prometheus Text Exporter)  |                     |   - Metrics                         |
@@ -78,6 +79,9 @@ pytekt bots new my_telegram_bot --platform telegram
 
 # Scaffold Discord bot
 pytekt bots new my_discord_bot --platform discord
+
+# Scaffold Slack bot
+pytekt bots new my_slack_bot --platform slack
 ```
 
 Generated project layout:
@@ -356,6 +360,37 @@ async def start_setup_wizard(ctx: Context):
 
 ---
 
+## 11. Adaptive AI Streaming with C++ Rate Pacing (`ctx.stream()`)
+
+Telegram (~1 edit/sec per chat) and Discord (~5 edits per 5s) enforce strict rate limits on message edits. Trying to edit a message on every LLM token inevitably triggers `HTTP 429 Too Many Requests`.
+
+`pytekt.bots` compiles a dedicated **`StreamPacer`** engine into C++ that:
+1. **Accumulates tokens in native memory** and dynamically paces message edits (default 0.75s for Telegram, 1.0s for Discord).
+2. **Flushes preferentially on semantic boundaries** (`. `, `! `, `? `, `\n\n`, code fences) for human-readable typewriter updates.
+3. **Paces adaptively**: scales cadence as responses grow long to prevent platform flood-control penalties.
+4. **Handles 429 auto-backoff**: catches platform retry-after hints and pauses pacing automatically.
+5. **Auto-splits long messages**: handles Discord 2,000-char and Telegram 4,096-char limits without throwing `MESSAGE_TOO_LONG`.
+6. **Animated typewriter cursor**: smoothly appends ` ▍` while generating and removes it cleanly on completion.
+
+```python
+from pytekt.bots import TelegramBot, Context, AI
+
+bot = TelegramBot()
+ai = AI(provider="openai", model="gpt-4o-mini")
+
+@bot.on_command("ask")
+async def handle_ask(ctx: Context):
+    # Stream AI completion live with C++ rate pacing
+    await ctx.stream(ai.stream(ctx.text, chat_id=ctx.chat_id))
+
+@bot.on_message()
+async def chat_handler(ctx: Context):
+    # ctx.reply_ai automatically uses StreamPacer under the hood
+    await ctx.reply_ai(ai)
+```
+
+---
+
 ## Full API Reference
 
 ### `UniversalEvent`
@@ -364,7 +399,7 @@ Normalized platform-independent data structure:
 - `chat_id`: Normalized chat or channel identifier.
 - `user_id`: Normalized sender user identifier.
 - `text`: Message or command text.
-- `platform`: `"telegram"`, `"discord"`, or `"generic"`.
+- `platform`: `"telegram"`, `"discord"`, `"slack"`, or `"generic"`.
 - `event_type`: `"message"`, `"command"`, `"photo"`, `"voice"`, `"callback"`, `"interaction"`.
 - `command`: Clean command name (without `/` or `!`).
 - `args`: List of whitespace-delimited argument strings.
@@ -398,9 +433,10 @@ Normalized platform-independent data structure:
 - `ctx.lang`: User's language code from platform metadata.
 - `ctx.t(key, **kwargs)`: Translate string for the current user's language.
 - `ctx.reply(text, ui=None, **kwargs)`: Send reply with optional `Keyboard` or `Card`.
+- `ctx.stream(stream_source, cursor=" ▍", ...)`: Stream LLM token generator with C++ rate pacing & auto-splitting.
+- `ctx.reply_ai(ai, prompt=None, **kwargs)`: Stream/send LLM response throttled through `StreamPacer`.
 - `ctx.show_modal(modal)`: Display native popup modal or ForceReply prompt.
 - `ctx.start_wizard(wizard)`: Initiate multi-step interactive guided flow.
-- `ctx.reply_ai(ai, prompt=None, **kwargs)`: Stream/send LLM response with rate-limited edits.
 - `ctx.send_photo(photo, caption=None)`: Send image.
 - `ctx.send_voice(voice, caption=None)`: Send audio.
 - `ctx.send_typing()`: Trigger typing indicator.
@@ -421,6 +457,17 @@ Normalized platform-independent data structure:
 - `ai.knowledge_base(source)`: Index RAG document collection.
 - `await ai.remember(chat_id, fact)` / `await ai.forget(chat_id)`: Long-term fact store.
 - `await ai.moderate(text)`: Safety check returning `True` if toxic/flagged.
+
+### `StreamPacer` (`pytekt.bots.StreamPacer`)
+- `StreamPacer(min_interval=0.75, max_interval=1.5, min_delta_chars=12, max_length=4096, adaptive=True, cursor=" ▍")`: C++ adaptive streaming rate pacer.
+- `decision = pacer.feed(chunk)`: Feed token chunk; returns `PacerDecision(should_flush, text_with_cursor, text_final, needs_new_message, overflow_text)`.
+- `pacer.should_flush()`: Query flush eligibility.
+- `pacer.flush()`: Force flush active buffer with cursor.
+- `pacer.flush_final()`: Finalize stream and return clean text without cursor.
+- `pacer.record_429(retry_after_seconds)`: Signal platform HTTP 429 rate limit backoff.
+- `pacer.get_retry_after()`: Remaining backoff seconds.
+- `pacer.get_metrics()`: Stream statistics (`total_chars`, `total_chunks`, `flush_count`, `edits_avoided`, `elapsed_seconds`).
+- `StreamPacer.is_semantic_boundary(text)`: Static predicate checking if text ends on sentence/code boundary.
 
 ---
 

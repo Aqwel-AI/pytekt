@@ -10,32 +10,95 @@ T = TypeVar("T")
 
 
 def train_test_split(
-    data: Sequence[T],
-    *,
-    test_ratio: float = 0.2,
+    *arrays: Any,
+    test_ratio: Optional[float] = None,
+    test_size: Optional[float] = None,
     shuffle: bool = True,
     seed: Optional[int] = None,
-    stratify_key: Optional[Callable[[T], Any]] = None,
-) -> Tuple[List[T], List[T]]:
+    random_state: Optional[int] = None,
+    stratify_key: Optional[Callable[[Any], Any]] = None,
+) -> Any:
     """
-    Split *data* into train and test sets.
+    Split one or more datasets into train and test sets.
+
+    Supports both single datasets (returning ``(train, test)``) and multiple
+    arrays such as ``X, y`` (returning ``(X_train, X_test, y_train, y_test)``).
+    Preserves NumPy array types when provided.
 
     Parameters
     ----------
-    test_ratio : float
+    *arrays : sequence or ndarray
+        One or more datasets of the same length to split.
+    test_ratio, test_size : float, default=0.2
         Fraction of data for the test set (0..1).
+    shuffle : bool, default=True
+        Whether to shuffle data before splitting.
+    seed, random_state : int, optional
+        Random seed for reproducibility.
     stratify_key : callable, optional
-        Function mapping each item to a class label for stratified splitting.
+        Function mapping each item to a class label for stratified splitting
+        (only applicable when splitting a single dataset).
     """
-    if stratify_key is not None:
-        return _stratified_split(data, [1 - test_ratio, test_ratio], stratify_key, shuffle, seed)[:2]  # type: ignore[return-value]
+    if not arrays:
+        raise ValueError("At least one array or dataset must be passed to train_test_split")
 
-    items = list(data)
+    ratio = test_size if test_size is not None else (test_ratio if test_ratio is not None else 0.2)
+    resolved_seed = random_state if random_state is not None else seed
+
+    if len(arrays) == 1:
+        data = arrays[0]
+        if stratify_key is not None:
+            return _stratified_split(data, [1 - ratio, ratio], stratify_key, shuffle, resolved_seed)[:2]
+
+        n = len(data)
+        split = int(n * (1 - ratio))
+        indices = list(range(n))
+        if shuffle:
+            rng = random.Random(resolved_seed)
+            rng.shuffle(indices)
+
+        train_idx = indices[:split]
+        test_idx = indices[split:]
+
+        try:
+            import numpy as np
+            if isinstance(data, np.ndarray):
+                return data[train_idx], data[test_idx]
+        except ImportError:
+            pass
+
+        items = list(data)
+        return [items[i] for i in train_idx], [items[i] for i in test_idx]
+
+    # Multiple arrays (e.g. X, y)
+    lengths = [len(a) for a in arrays]
+    if len(set(lengths)) > 1:
+        raise ValueError(f"All arrays must have the same length. Got lengths: {lengths}")
+
+    n = lengths[0]
+    split = int(n * (1 - ratio))
+    indices = list(range(n))
     if shuffle:
-        rng = random.Random(seed)
-        rng.shuffle(items)
-    split = int(len(items) * (1 - test_ratio))
-    return items[:split], items[split:]
+        rng = random.Random(resolved_seed)
+        rng.shuffle(indices)
+
+    train_idx = indices[:split]
+    test_idx = indices[split:]
+
+    res = []
+    try:
+        import numpy as np
+    except ImportError:
+        np = None
+
+    for a in arrays:
+        if np is not None and isinstance(a, np.ndarray):
+            res.extend([a[train_idx], a[test_idx]])
+        else:
+            items = list(a)
+            res.extend([[items[i] for i in train_idx], [items[i] for i in test_idx]])
+
+    return tuple(res)
 
 
 def train_val_test_split(

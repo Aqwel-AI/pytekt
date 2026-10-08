@@ -4,7 +4,7 @@
 
 # PyTekt
 
-**Official open-source product from [Aqwel AI](https://aqwelai.xyz/) · v0.2.0**
+**Official open-source product from [Aqwel AI](https://aqwelai.xyz/) · v0.2.1**
 
 [![PyPI](https://img.shields.io/pypi/v/pytekt?label=PyPI)](https://pypi.org/project/pytekt/)
 [![Python](https://img.shields.io/pypi/pyversions/pytekt?label=Python)](https://pypi.org/project/pytekt/)
@@ -12,13 +12,13 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Aqwel AI](https://img.shields.io/badge/Product-Aqwel%20AI-0066cc)](https://aqwelai.xyz/)
 
-**PyTekt** is the flagship Python research library from **Aqwel AI**: one install for **research-grade ML** in notebooks, optional **C++ acceleration** for hot paths, plus **physics**, **astronomy**, and **computer vision** modules. Apache-2.0, published on [PyPI](https://pypi.org/project/pytekt/) as `pytekt`.
+**PyTekt** is the flagship Python research library from **Aqwel AI**: one install for **research-grade ML** in notebooks, optional **C++ acceleration** for hot paths, **high-performance bots**, plus **physics**, **astronomy**, and **computer vision** modules. Apache-2.0, published on [PyPI](https://pypi.org/project/pytekt/) as `pytekt`.
 
 | Focus | Audience | Entry point |
 |-------|----------|-------------|
-| **Research library** (ships in 0.2.0) | AI researchers, data scientists, ML engineers | `import pytekt` |
+| **Research library & Bot framework** (ships in 0.2.1) | AI researchers, data scientists, ML engineers, bot creators | `import pytekt` |
 
-Shared stack: **`pytekt.providers`**, **`pytekt.tools`**, **`pytekt.rag`**, Core ML, physics, universe, vision. Install only what you need: `[ai]`, `[viz]`, `[vision]`, `[physics]`, `[universe]`, `[full]`.
+Shared stack: **`pytekt.bots`**, **`pytekt.providers`**, **`pytekt.tools`**, **`pytekt.rag`**, Core ML, physics, universe, vision. Install only what you need: `[ai]`, `[viz]`, `[vision]`, `[physics]`, `[universe]`, `[full]`.
 
 **Official links:** [Aqwel AI website](https://aqwelai.xyz/) · [Product docs](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/pytekt/) · [This repo — structure](docs/PROJECT_STRUCTURE.md) · [Security](SECURITY.md) · [`.env.example`](.env.example)
 
@@ -163,7 +163,7 @@ print(accuracy_score(ds.target, clf.predict(X)))
 
 CLI helpers: `pytekt start`, `pytekt usage`, `pytekt physics`, `pytekt universe`, `pytekt vision`, `pytekt embed`, `pytekt eval`, `pytekt benchmark`, `pytekt doctor` — see [Getting Started](#getting-started) and [Features](#features).
 
-### Not in 0.2.0
+### Not in 0.2.1
 
 The terminal coding agent (`pytekt agent`) and in-package ReAct framework (`pytekt.agents`) are **not shipped**. CLI stubs for `pytekt agent` / `api` / `auth` print a notice. For LLM workflows, use **`pytekt.providers`** and **`pytekt.tools`** from Python.
 
@@ -172,6 +172,7 @@ The terminal coding agent (`pytekt agent`) and in-package ReAct framework (`pyte
 | I am a… | Do this |
 |---------|---------|
 | **Data scientist / researcher** | `pip install "pytekt[ai]"` → `import pytekt` → see [Getting Started](#getting-started) |
+| **Bot developer** | `pip install "pytekt"` → `from pytekt.bots import TelegramBot, DiscordBot, SlackBot` |
 | **Physics / astronomy** | `pip install "pytekt[physics,universe]"` → `pytekt physics` / `pytekt universe` |
 | **Computer vision** | `pip install "pytekt[vision]"` → see [`pytekt/vision/README.md`](pytekt/vision/README.md) |
 | **R user** | `devtools::install_github("aqwel/pytekt", subdir = "r_pytekt")` → `library(pytekt)` → see [`r_pytekt/README.md`](r_pytekt/README.md) |
@@ -185,9 +186,9 @@ The terminal coding agent (`pytekt agent`) and in-package ReAct framework (`pyte
 
 | Name | Role | GitHub | LinkedIn |
 |------|------|--------|----------|
-| Aksel Aghajanyan | Main developer · CEO · Data Scientist | [@Aksel588](https://github.com/Aksel588) | [Aksel Aghajanyan](https://www.linkedin.com/in/aksel-aghajanyan/) |
+| Aksel Aghajanyan | Author · CEO · Data Scientist | [@Aksel588](https://github.com/Aksel588) | [Aksel Aghajanyan](https://www.linkedin.com/in/aksel-aghajanyan/) |
 
-**Created by:** Aqwel AI · **Main developer:** Aksel Aghajanyan
+**Author:** Aksel Aghajanyan · **Developed by:** Aqwel AI Team
 
 ---
 
@@ -198,11 +199,11 @@ The terminal coding agent (`pytekt agent`) and in-package ReAct framework (`pyte
 - [PyTekt product documentation](#pytekt-product-documentation)
   - [Documentation map](#documentation-map)
   - [Research library](#research-library-import-pytekt)
-  - [Not in 0.2.0](#not-in-020)
+  - [Not in 0.2.1](#not-in-021)
   - [Quick start — choose your path](#quick-start-choose-your-path)
 - [Author](#author)
 - [Overview](#overview)
-  - [What's new in 0.2.0](#whats-new-in-020)
+  - [What's new in 0.2.1](#whats-new-in-021)
   - [Everything new since v0.1.9](#everything-new-since-v019)
 - [Architecture and structure](#architecture-and-structure)
 - [Package architecture and diagrams](#package-architecture-and-diagrams)
@@ -225,19 +226,19 @@ The terminal coding agent (`pytekt agent`) and in-package ReAct framework (`pyte
 
 ## Overview
 
-**PyTekt** is an **Aqwel AI research library**: one coherent **import surface** for work that usually spans half a dozen ad-hoc utilities — **linear algebra and stats**, **classical algorithms**, a **Core ML stack**, **plotting**, **embeddings and evaluation**, **physics / astronomy / vision**, plus **LLM-era** helpers (`providers`, `tools`, `rag`).
+**PyTekt** is an **Aqwel AI research library**: one coherent **import surface** for work that usually spans half a dozen ad-hoc utilities — **linear algebra and stats**, **classical algorithms**, a **Core ML stack**, **bot framework**, **plotting**, **embeddings and evaluation**, **physics / astronomy / vision**, plus **LLM-era** helpers (`providers`, `tools`, `rag`).
 
-**New in 0.2.0 (ships now):** Core ML modules, datasets/data restore, tokenizer, pipeline, store, tracker, llm_eval, structures, serve, ui/hub, db, **universe**, **physics**, **vision** (`[vision]`), usage dashboard, install splash (`pytekt welcome`), experiments/doctor/benchmark.
+**New in 0.2.1 (ships now):** Multi-platform Bot Framework (`pytekt.bots` for Telegram, Discord, Slack) with C++ `StreamPacer` and `_native_core`, Core ML additions (`roc_curve`, `precision_recall_curve`, `average_precision_score`, multi-array `train_test_split`), Core ML modules, datasets/data restore, tokenizer, pipeline, store, tracker, llm_eval, structures, serve, ui/hub, db, **universe**, **physics**, **vision** (`[vision]`), usage dashboard, install splash (`pytekt welcome`), experiments/doctor/benchmark.
 
-See [Not in 0.2.0](#not-in-020) for features that are not shipped in this release.
+See [Not in 0.2.1](#not-in-021) for features that are not shipped in this release.
 
 The design goal is simple: **progressive disclosure**—core installs stay small; heavy stacks are behind **named extras** (`[viz]`, `[ai]`, `[vision]`, `[physics]`, `[universe]`, `[full]`, and others).
 
 ---
 
-## What's new in 0.2.0
+## What's new in 0.2.1
 
-Version 0.2.0 expands the **research library** — Core ML, datasets, serving, Hub UI, **physics**, **universe**, **vision**, and install splash.
+Version 0.2.1 introduces the **multi-platform bot framework** (`pytekt.bots`), C++ streaming rate pacer, new Core ML metrics and data splitting utilities, while maintaining the entire research library — Core ML, datasets, serving, Hub UI, **physics**, **universe**, and **vision**.
 
 ### Everything new since v0.1.9
 
@@ -268,12 +269,13 @@ v0.1.9 already included `pytekt.tools`, `pytekt.rag`, `pytekt.config`, `pytekt.e
 | 19 | **Install splash** | `pytekt welcome` | PYTEKT logo animation on install/upgrade |
 | 20 | **New extras** | `pyproject.toml` | `[serve]`, `[db]`, `[universe]`, `[physics]`, `[vision]`, `[ui]`, … |
 | 21 | **Bug fixes** | `pytekt.algorithms` | `matrix_*`, scaling helpers; `a_star`/`pagerank` import fixes |
+| 22 | **Bots Framework** | `pytekt.bots` · `pytekt bots` | Multi-platform bots (Telegram, Discord, Slack), C++ StreamPacer, native core |
 
-### Not available in 0.2.0
+### Not available in 0.2.1
 
-See [Not in 0.2.0](#not-in-020) near the top of this README.
+See [Not in 0.2.1](#not-in-021) near the top of this README.
 
-> **Note:** `pytekt.data` and `pytekt.datasets` were removed in v0.1.9 and **brought back in v0.2.0**.
+> **Note:** `pytekt.data` and `pytekt.datasets` were removed in v0.1.9 and **brought back in v0.2.0/v0.2.1**.
 
 ### Physics (`pytekt.physics`)
 - Classical mechanics, kinematics, thermo, EM, optics, relativity, integrators, NL query router.
@@ -813,9 +815,9 @@ PYTEKT_NO_SPLASH=1 pytekt …
 
 ```python
 import pytekt
-print(pytekt.__version__)     # 0.2.0
+print(pytekt.__version__)     # 0.2.1
 print(pytekt.__author__)      # Aksel Aghajanyan
-print(pytekt.__developer__)   # Aqwel AI Team (package metadata; main developer: Aksel Aghajanyan)
+print(pytekt.__developer__)   # Aqwel AI Team
 ```
 
 ### Minimal example (no optional deps)
@@ -1721,7 +1723,7 @@ from pytekt.providers import OpenAIProvider
 app = create_app(provider=OpenAIProvider())
 # Run with: uvicorn module:app --port 8000
 # POST /chat  {"messages": [{"role": "user", "content": "Hello"}]}
-# GET  /health → {"status": "ok", "version": "0.2.0"}
+# GET  /health → {"status": "ok", "version": "0.2.1"}
 ```
 
 ### PyTekt Former — transformer training (optional: pip install pytekt[former])
@@ -1811,7 +1813,7 @@ Package entry point and version:
 
 ```python
 import pytekt
-print(pytekt.__version__)  # 0.2.0
+print(pytekt.__version__)  # 0.2.1
 ```
 
 ---
@@ -1878,9 +1880,10 @@ See `pytekt.parser` and `pytekt.code` for language-specific behavior and APIs.
 | `pytekt start` / `pytekt ui` | PyTekt Hub browser UI |
 | `pytekt embed`, `pytekt eval`, `pytekt rag`, `pytekt prompt` | Research / LLM utilities |
 | `pytekt benchmark`, `pytekt doctor` | ML benchmarks and environment check |
+| `pytekt bots new <name>` | Multi-platform bot scaffolding |
 | `pytekt welcome` | Install animation overview |
 | `pytekt --help` / `pytekt help` | Full command catalog |
-| `pytekt agent` / `api` / `auth` | Not shipped in 0.2.0 — see [Not in 0.2.0](#not-in-020) |
+| `pytekt agent` / `api` / `auth` | Not shipped in 0.2.1 — see [Not in 0.2.1](#not-in-021) |
 
 ### Testing
 
@@ -1945,9 +1948,9 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 **PyTekt** is an **Aqwel AI** open-source product.
 
 - **Product:** PyTekt  
-- **Created by:** [Aqwel AI](https://aqwelai.xyz/)  
-- **Main developer:** Aksel Aghajanyan  
-- **Company:** [Aqwel AI](https://aqwelai.xyz/) · **Contact:** aqwelai.company@gmail.com  
+- **Author:** Aksel Aghajanyan  
+- **Developed by:** Aqwel AI Team  
+- **Company:** [Aqwel AI](https://aqwelai.xyz/)  
 - **Copyright:** 2025–2026 Aqwel AI  
 - **License:** Apache-2.0 (see [LICENSE](LICENSE))
 
@@ -1971,4 +1974,4 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 **PyTekt** is built so you can move from **numeric and algorithmic baselines** through **classical ML** (preprocess → train → evaluate → tune) to **LLM-assisted workflows**, **retrieval**, **experiment tracking**, **physics / astronomy / vision**, and **production serving**—all in one **Aqwel AI** product with clear optional extras.
 
-*Aqwel AI product · Main developer: Aksel Aghajanyan · [Documentation](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/pytekt/)*
+*Aqwel AI product · Author: Aksel Aghajanyan · Developed by: Aqwel AI Team · [Documentation](https://aqwelai.xyz/#/docs) · [PyPI](https://pypi.org/project/pytekt/)*

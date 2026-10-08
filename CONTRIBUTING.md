@@ -152,7 +152,6 @@ python -c "import pytekt.pdf; pytekt.pdf.generate_complete_documentation('docs')
 ### Communication Channels
 - **GitHub Issues** - Bug reports and feature requests
 - **GitHub Discussions** - General questions and community discussion
-- **Company Gmail** - aqwelai.company@gmail.com for private matters
 
 ### Recognition
 - All contributors will be acknowledged in the CONTRIBUTORS.md file
@@ -187,4 +186,4 @@ By contributing to PyTekt, you agree that your contributions will be licensed un
 
 **Thank you for helping make PyTekt the premier AI research and development library!**
 
-For questions about contributing, contact us at aqwelai.company@gmail.com (Company Gmail).
+For questions about contributing, please open a topic in GitHub Discussions.

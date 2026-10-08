@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-PyTekt v0.2.0 - AI Research Library
-=======================================
+PyTekt v0.2.1 - AI Research & Bots Library
+=========================================
 
 Open-source Python library by Aqwel AI for AI research, machine learning,
-data science, physics, astronomy, and classic computer vision.
+data science, high-performance bots, physics, astronomy, and classic computer vision.
 
 This package provides:
 - Mathematical and statistical operations
@@ -12,6 +12,7 @@ This package provides:
 - Visualization (1D/2D/3D plots, training metrics, matrices, heatmaps)
 - Core ML stack (preprocessing, classical models, metrics, hyperparameter search)
 - Text embeddings, prompts, RAG, and LLM provider clients
+- High-performance native bots framework (Telegram, Discord, Slack) with C++ acceleration
 - Physics and astronomy toolkits (optional C++ acceleration)
 - Computer vision helpers on NumPy arrays (`[vision]` extra)
 - Documentation generation, code analysis, files/Git utilities
@@ -19,12 +20,10 @@ This package provides:
 - Persistent stores, experiment tracking, LLM evaluation
 - REST serving (FastAPI) and Hub / usage dashboards
 
-- Terminal coding agent (`pytekt agent`) — autonomous file read/edit/run assistant
-
 Author: Aksel Aghajanyan
 Developed by: Aqwel AI Team
 License: Apache-2.0
-Copyright: 2025 Aqwel AI
+Copyright: 2025–2026 Aqwel AI
 
 For documentation and examples, visit:
 https://aqwelai.xyz/

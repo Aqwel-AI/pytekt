@@ -10,6 +10,7 @@
 #include "webhook_server.hpp"
 #include "antispam.hpp"
 #include "metrics.hpp"
+#include "stream_pacer.hpp"
 
 namespace py = pybind11;
 using namespace pytekt::bots;
@@ -170,4 +171,46 @@ PYBIND11_MODULE(_native_core, m) {
         .def("record_latency", &Metrics::record_latency, py::arg("command_name"), py::arg("duration_seconds"))
         .def("export_prometheus", &Metrics::export_prometheus)
         .def("reset", &Metrics::reset);
+
+    // PacerDecision binding
+    py::class_<PacerDecision>(m, "PacerDecision")
+        .def(py::init<>())
+        .def_readwrite("should_flush", &PacerDecision::should_flush)
+        .def_readwrite("text_with_cursor", &PacerDecision::text_with_cursor)
+        .def_readwrite("text_final", &PacerDecision::text_final)
+        .def_readwrite("needs_new_message", &PacerDecision::needs_new_message)
+        .def_readwrite("overflow_text", &PacerDecision::overflow_text)
+        .def_readwrite("flush_count", &PacerDecision::flush_count)
+        .def("__repr__", [](const PacerDecision& d) {
+            return "<PacerDecision should_flush=" + std::string(d.should_flush ? "True" : "False") +
+                   " needs_new_message=" + std::string(d.needs_new_message ? "True" : "False") +
+                   " flush_count=" + std::to_string(d.flush_count) + ">";
+        });
+
+    // StreamPacer binding
+    py::class_<StreamPacer>(m, "StreamPacer")
+        .def(py::init<double, double, size_t, size_t, bool, const std::string&>(),
+             py::arg("min_interval") = 0.75,
+             py::arg("max_interval") = 1.5,
+             py::arg("min_delta_chars") = 12,
+             py::arg("max_length") = 4096,
+             py::arg("adaptive") = true,
+             py::arg("cursor") = " ▍")
+        .def("feed", &StreamPacer::feed, py::arg("chunk"), py::arg("current_time") = 0.0)
+        .def("should_flush", &StreamPacer::should_flush, py::arg("current_time") = 0.0)
+        .def("flush", &StreamPacer::flush, py::arg("current_time") = 0.0)
+        .def("flush_final", &StreamPacer::flush_final)
+        .def("record_429", &StreamPacer::record_429, py::arg("retry_after_seconds"), py::arg("current_time") = 0.0)
+        .def("get_retry_after", &StreamPacer::get_retry_after, py::arg("current_time") = 0.0)
+        .def("reset", &StreamPacer::reset)
+        .def_property("min_interval", &StreamPacer::get_min_interval, &StreamPacer::set_min_interval)
+        .def_property("max_interval", &StreamPacer::get_max_interval, &StreamPacer::set_max_interval)
+        .def_property("min_delta_chars", &StreamPacer::get_min_delta_chars, &StreamPacer::set_min_delta_chars)
+        .def_property("max_length", &StreamPacer::get_max_length, &StreamPacer::set_max_length)
+        .def_property("cursor", &StreamPacer::get_cursor, &StreamPacer::set_cursor)
+        .def_property("adaptive", &StreamPacer::is_adaptive, &StreamPacer::set_adaptive)
+        .def("get_buffer", &StreamPacer::get_buffer)
+        .def("get_flush_count", &StreamPacer::get_flush_count)
+        .def("get_metrics", &StreamPacer::get_metrics)
+        .def_static("is_semantic_boundary", &StreamPacer::is_semantic_boundary, py::arg("text"));
 }

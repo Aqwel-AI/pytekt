@@ -13,7 +13,7 @@ from pytekt.install_splash import (
 def test_static_splash(capsys):
     os.environ["PYTEKT_NO_SPLASH"] = "1"
     try:
-        show_install_splash(animated=False, version="0.2.0-test")
+        show_install_splash(animated=False, version="0.2.1-test")
     finally:
         os.environ.pop("PYTEKT_NO_SPLASH", None)
     out = capsys.readouterr().out

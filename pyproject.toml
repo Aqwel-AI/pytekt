@@ -3,7 +3,7 @@ name = "pytekt"
 version = "0.2.1"
 description = "Open-source AI library for researchers and data scientists (physics, universe, ML, RAG, vision)"
 readme = "README.md"
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
 authors = [
     {name = "Aksel Aghajanyan"}
 ]
@@ -27,7 +27,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Education",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -188,3 +187,9 @@ editable_wheel = "pytekt._install_hooks.EditableWheelCommand"
 [build-system]
 requires = ["setuptools>=64.0", "wheel", "pybind11>=2.10.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: integration tests requiring external systems or live services",
+]

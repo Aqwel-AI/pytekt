@@ -13,7 +13,7 @@ options are still defined but may report that Git is unavailable at runtime.
 Author: Aksel Aghajanyan
 Developed by: Aqwel AI Team
 License: Apache-2.0
-Copyright: 2025 Aqwel AI
+Copyright: 2025–2026 Aqwel AI
 """
 
 import argparse
@@ -937,7 +937,7 @@ def main():
 
 
     if args.command in ("api", "auth"):
-        print(f"pytekt {args.command} — not available in 0.2.0.")
+        print(f"pytekt {args.command} — not available in 0.2.1.")
         return
 
     if args.command == "bots":

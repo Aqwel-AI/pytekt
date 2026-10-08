@@ -62,7 +62,7 @@ pytekt db sync-tracker
 pytekt db demo
 ```
 
-Agent slash commands (**not available** — no `pytekt agent` in 0.2.0):
+Agent slash commands (**not available** — no `pytekt agent` in 0.2.1):
 
 ```
 /db status

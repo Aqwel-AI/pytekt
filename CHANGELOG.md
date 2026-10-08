@@ -5,11 +5,35 @@ All notable changes to the PyTekt project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.1] - 2026-08-16
+## [0.2.1] - 2026-08-28
 
-### Changed
-- Rebranded library and CLI suite from `aion` to `pytekt`.
-- Updated version numbering to `0.2.1`.
+### Added — High-Performance Native Bots Framework (`pytekt.bots`)
+- **Native C++ Engine (`_pytekt_bots_core`)**:
+  - **`StreamPacer`**: High-frequency streaming message editor with adaptive pacing, semantic boundary flushing, and platform 429 rate limit backoff.
+  - **`Dispatcher`**: Compiled Trie routing, prefix matching, and universal event parsing.
+  - **`RateLimiter`**: Token-bucket flood control with user/chat/global limits and HTTP 429 tracking.
+  - **`FSM` & `Cache`**: High-speed in-process finite state machine and TTL key-value session cache.
+  - **`AntiSpam` & `Metrics`**: Duplicate message hashing, Bloom filter detection, and Prometheus metrics exporter.
+  - **`_core_fallback.py`**: 100% pure-Python fallback for environments without C++ compiler.
+- **Platform Adapters**:
+  - **`SlackBot`**: Native Slack adapter supporting Events API, URL verification challenge, Slash commands, interactive block actions, and HMAC-SHA256 signature verification.
+  - **`TelegramBot`** & **`DiscordBot`**: Full gateway/polling/webhook adapters with typing indicators and reply editing.
+- **Ecosystem**:
+  - Declarative UI components: `Keyboard`, `Button`, `Card`, `Modal`, `Wizard`.
+  - Persistence: `BotDB` SQLite backend with conversation and state history.
+  - Testing: `BotTestClient` for synchronous and asynchronous in-memory bot testing.
+
+### Added — ML Metrics and Dataset Splitting
+- **`pytekt.metrics`**:
+  - `roc_curve`, `precision_recall_curve`, and `average_precision_score`.
+  - Safe trapezoidal integration (`_trapz`) ensuring cross-compatibility across NumPy 1.x and 2.x.
+- **`pytekt.data`**:
+  - Enhanced `train_test_split` supporting multiple synchronous arrays (e.g. `X, y`), preserving NumPy arrays, and supporting `test_size` and `random_state` aliases.
+
+### Fixed & Infrastructure
+- Cleaned up obsolete agent test references and registered custom pytest marks in `pyproject.toml`.
+- Upgraded GitHub Actions CI workflow to build C++ pybind11 extensions and run the full test suite across Python versions.
+
 
 ## [0.2.0] - 2026-07-22
 
@@ -187,7 +211,6 @@ We welcome contributions from the AI research community! Please see our [Contrib
 For questions, issues, or feature requests:
 - Visit: https://aqwelai.xyz/
 - Issues: https://github.com/Aqwel-AI/pytekt/issues
-- Company Gmail: aqwelai.company@gmail.com
 
 ---
 

@@ -2,14 +2,14 @@
 
 > **Aqwel AI product** — see [README](../README.md#pytekt-product-documentation).
 
-**PyTekt 0.2.0** ships as a **research library** (`import pytekt`). The terminal coding agent is **not available** in this release (CLI stubs only; source under `archived/pytekt_agent/` locally).
+**PyTekt 0.2.1** ships as a **research and bot development library** (`import pytekt`). The terminal coding agent is **not available** in this release (CLI stubs only; source under `archived/pytekt_agent/` locally).
 
 | Focus | Package path | Entry |
 |-------|--------------|-------|
-| **Research library** | `pytekt/*` | `import pytekt` / `pytekt …` CLI |
-| **Terminal agent** | **Not available** in 0.2.0 | — |
+| **Research library & Bots** | `pytekt/*` | `import pytekt` / `pytekt …` CLI |
+| **Terminal agent** | **Not available** in 0.2.1 | — |
 
-Shared today: `pytekt.providers`, `pytekt.tools`, `pytekt.rag`, Core ML, physics, universe, vision.
+Shared today: `pytekt.bots`, `pytekt.providers`, `pytekt.tools`, `pytekt.rag`, Core ML, physics, universe, vision.
 
 ---
 
@@ -38,7 +38,7 @@ Shared today: `pytekt.providers`, `pytekt.tools`, `pytekt.rag`, Core ML, physics
 
 ## Coding agent (not available)
 
-In 0.2.0:
+In 0.2.1:
 
 - `pytekt agent` / `pytekt api` / `pytekt auth` print **not available**
 - No `pytekt/cli_agent/` in the wheel
@@ -79,7 +79,8 @@ Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[ph
 | Command | Module |
 |---------|--------|
 | `pytekt config` | `pytekt.user_config` |
-| `pytekt agent` / `api` / `auth` | Not available in 0.2.0 |
+| `pytekt bots new` / `pytekt bots dev` | `pytekt.bots.scaffold` / `pytekt.cli` |
+| `pytekt agent` / `api` / `auth` | Not available in 0.2.1 |
 | `pytekt universe` / `pytekt universe-dashboard` | `pytekt.universe.cli` / `pytekt.universe.launch` |
 | `pytekt physics` / `pytekt physics-dashboard` | `pytekt.physics.cli` / `pytekt.physics.launch` |
 | `pytekt vision` | `pytekt.vision.cli` |
@@ -95,4 +96,4 @@ Install extras: `[ai]`, `[viz]`, `[rag]`, `[config]`, `[db]`, `[universe]`, `[ph
 - [ ] No `pytekt/agent/` or `pytekt/code/` directories (only `code.py` module)
 - [ ] No API keys in git — use `~/.pytekt.yaml` or `.env`
 - [ ] `__pycache__/` not committed (in `.gitignore`)
-- [ ] Docs match shipping surface (agent = not available in 0.2.0)
+- [ ] Docs match shipping surface (agent = not available in 0.2.1)

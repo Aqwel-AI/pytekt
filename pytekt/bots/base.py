@@ -22,7 +22,9 @@ from ._core import (
     Dispatcher,
     FSM,
     Metrics,
+    PacerDecision,
     RateLimiter,
+    StreamPacer,
     UniversalEvent,
     WebhookServer,
 )
@@ -381,60 +383,218 @@ class Context:
             return await self.bot.delete_message(chat_id=self.chat_id, message_id=self.id)
         return False
 
+    async def stream(
+        self,
+        stream_source: Any,
+        *,
+        cursor: str = " ▍",
+        min_interval: Optional[float] = None,
+        max_interval: Optional[float] = None,
+        min_delta_chars: int = 12,
+        max_length: Optional[int] = None,
+        adaptive: bool = True,
+        show_typing: bool = True,
+        typing_interval: float = 4.0,
+        **kwargs: Any,
+    ) -> Any:
+        """
+        Stream an LLM token generator or async iterable to the current chat
+        using the compiled C++ StreamPacer (with pure-Python fallback).
+
+        Accumulates tokens and flushes message edits on a smooth cadence (avoiding
+        Telegram/Discord 429 rate limits), with typewriter cursor animation,
+        sentence boundary detection, and automatic message length splitting.
+
+        Parameters
+        ----------
+        stream_source : AsyncIterable[str] | Iterable[str] | Any
+            Async generator, iterable, or callable yielding text token chunks.
+        cursor : str, optional
+            Visual typewriter cursor appended during streaming (default ' ▍').
+            Set to '' to disable.
+        min_interval : float, optional
+            Minimum seconds between edits (defaults to 1.0s on Discord, 0.75s on Telegram).
+        max_interval : float, optional
+            Maximum seconds before forcing an edit regardless of sentence boundary.
+        min_delta_chars : int, optional
+            Minimum accumulated characters before an edit is triggered (default 12).
+        max_length : int, optional
+            Max characters per message (2000 for Discord, 4096 for Telegram).
+        adaptive : bool, optional
+            Dynamically scale edit interval as output grows (default True).
+        show_typing : bool, optional
+            Show typing indicator in chat while streaming (default True).
+        typing_interval : float, optional
+            Cadence to refresh the typing indicator (default 4.0s).
+        """
+        resolved_cursor = cursor or ""
+        if max_length is None:
+            max_length = 2000 if self.platform == "discord" else 4096
+        if min_interval is None:
+            min_interval = 1.0 if self.platform == "discord" else 0.75
+        if max_interval is None:
+            max_interval = max(min_interval * 2.0, 1.5)
+
+        pacer = StreamPacer(
+            min_interval=min_interval,
+            max_interval=max_interval,
+            min_delta_chars=min_delta_chars,
+            max_length=max_length,
+            adaptive=adaptive,
+            cursor=resolved_cursor,
+        )
+
+        typing_task = None
+        stop_typing = asyncio.Event()
+
+        async def _typing_loop() -> None:
+            try:
+                while not stop_typing.is_set():
+                    try:
+                        await self.send_typing()
+                    except Exception:
+                        pass
+                    try:
+                        await asyncio.wait_for(stop_typing.wait(), timeout=typing_interval)
+                    except asyncio.TimeoutError:
+                        pass
+            except asyncio.CancelledError:
+                pass
+
+        if show_typing:
+            typing_task = asyncio.create_task(_typing_loop())
+
+        current_msg = None
+        messages: List[Any] = []
+
+        def _get_msg_id(m: Any) -> Optional[str]:
+            if m is None:
+                return None
+            mid = getattr(m, "id", None) or getattr(m, "message_id", None)
+            if mid is None and isinstance(m, dict):
+                mid = m.get("id") or m.get("message_id")
+            return str(mid) if mid is not None else None
+
+        async def _apply_decision(decision: PacerDecision) -> None:
+            nonlocal current_msg
+            if not decision.should_flush:
+                return
+
+            if decision.needs_new_message:
+                # 1. Finalize the existing message without cursor
+                if current_msg is not None and decision.text_final:
+                    mid = _get_msg_id(current_msg)
+                    if mid:
+                        try:
+                            await self.bot.edit_message_text(
+                                chat_id=self.chat_id,
+                                message_id=mid,
+                                text=decision.text_final,
+                                **kwargs,
+                            )
+                        except Exception:
+                            pass
+                # 2. Spawn next message with overflow + cursor
+                text_to_send = (decision.overflow_text + resolved_cursor) if decision.overflow_text else "..."
+                current_msg = await self.reply(text_to_send, **kwargs)
+                messages.append(current_msg)
+            else:
+                text_to_show = decision.text_with_cursor
+                if not text_to_show:
+                    return
+                if current_msg is None:
+                    current_msg = await self.reply(text_to_show, **kwargs)
+                    messages.append(current_msg)
+                else:
+                    mid = _get_msg_id(current_msg)
+                    if mid:
+                        try:
+                            await self.bot.edit_message_text(
+                                chat_id=self.chat_id,
+                                message_id=mid,
+                                text=text_to_show,
+                                **kwargs,
+                            )
+                        except Exception as exc:
+                            # 429 Retry-After handling
+                            retry_sec = getattr(exc, "retry_after", None)
+                            if retry_sec is None and hasattr(exc, "response"):
+                                try:
+                                    retry_sec = exc.response.headers.get("Retry-After")
+                                except Exception:
+                                    pass
+                            if retry_sec is None:
+                                m_re = re.search(r"retry after (\d+(?:\.\d+)?)", str(exc).lower())
+                                if m_re:
+                                    retry_sec = float(m_re.group(1))
+                            if retry_sec:
+                                try:
+                                    pacer.record_429(float(retry_sec))
+                                except Exception:
+                                    pass
+
+        source = stream_source
+        if inspect.iscoroutine(source):
+            source = await source
+        elif callable(source):
+            res = source()
+            source = (await res) if inspect.iscoroutine(res) else res
+
+        try:
+            if hasattr(source, "__aiter__"):
+                async for chunk in source:
+                    dec = pacer.feed(str(chunk))
+                    await _apply_decision(dec)
+            elif hasattr(source, "__iter__"):
+                for chunk in source:
+                    dec = pacer.feed(str(chunk))
+                    await _apply_decision(dec)
+                    await asyncio.sleep(0)
+            else:
+                dec = pacer.feed(str(source))
+                await _apply_decision(dec)
+        finally:
+            if typing_task is not None:
+                stop_typing.set()
+                typing_task.cancel()
+                try:
+                    await typing_task
+                except (asyncio.CancelledError, Exception):
+                    pass
+
+        # Final flush without cursor
+        final_text = pacer.flush_final()
+        if current_msg is None:
+            current_msg = await self.reply(final_text or "...", **kwargs)
+            messages.append(current_msg)
+        else:
+            mid = _get_msg_id(current_msg)
+            if mid:
+                try:
+                    res = await self.bot.edit_message_text(
+                        chat_id=self.chat_id,
+                        message_id=mid,
+                        text=final_text or "...",
+                        **kwargs,
+                    )
+                    if res:
+                        current_msg = res
+                except Exception:
+                    pass
+
+        return current_msg if len(messages) <= 1 else messages
+
     async def reply_ai(self, ai: Any, prompt: Optional[str] = None, **kwargs: Any) -> Any:
         """
-        Stream or reply with an AI response, throttled through rate limiter
+        Stream or reply with an AI response, throttled through the C++ StreamPacer
         so that live streamed message edits never exceed platform limits.
         """
         text_prompt = prompt or self.text
-        # Trigger typing indicator
-        try:
-            await self.send_typing()
-        except Exception:
-            pass
-
         # Check if AI object has stream capability
-        if hasattr(ai, "ask_stream"):
-            first_msg = None
-            accumulated = ""
-            last_edit_time = 0.0
-            edit_throttle = kwargs.pop("stream_throttle", 0.7)  # max 1 edit per 700ms
-
-            async for chunk in ai.ask_stream(text_prompt, chat_id=self.chat_id, **kwargs):
-                accumulated += chunk
-                now = time.monotonic()
-                if first_msg is None and len(accumulated.strip()) > 0:
-                    first_msg = await self.reply(accumulated + " ▍")
-                    last_edit_time = now
-                elif first_msg is not None and (now - last_edit_time) >= edit_throttle:
-                    msg_id = getattr(first_msg, "id", None) or getattr(first_msg, "message_id", None)
-                    if msg_id is None and isinstance(first_msg, dict):
-                        msg_id = first_msg.get("id") or first_msg.get("message_id")
-                    try:
-                        await self.bot.edit_message_text(
-                            chat_id=self.chat_id,
-                            message_id=str(msg_id),
-                            text=accumulated + " ▍",
-                        )
-                        last_edit_time = now
-                    except Exception:
-                        pass
-
-            # Final edit without cursor
-            if first_msg is not None:
-                msg_id = getattr(first_msg, "id", None) or getattr(first_msg, "message_id", None)
-                if msg_id is None and isinstance(first_msg, dict):
-                    msg_id = first_msg.get("id") or first_msg.get("message_id")
-                try:
-                    return await self.bot.edit_message_text(
-                        chat_id=self.chat_id,
-                        message_id=str(msg_id),
-                        text=accumulated or "...",
-                    )
-                except Exception:
-                    return first_msg
-            else:
-                return await self.reply(accumulated or "...")
+        stream_fn = getattr(ai, "stream", None) or getattr(ai, "ask_stream", None)
+        if stream_fn is not None:
+            gen = stream_fn(text_prompt, chat_id=self.chat_id, **kwargs)
+            return await self.stream(gen, **kwargs)
 
         # Fallback to direct ask
         response = await ai.ask(text_prompt, chat_id=self.chat_id, **kwargs)

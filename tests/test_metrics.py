@@ -65,3 +65,35 @@ def test_nlp_metrics():
 def test_ranking_metrics():
     assert 0.0 <= ndcg_score([3, 2, 1], [0.9, 0.8, 0.1]) <= 1.0
     assert mrr_score([[0, 1, 0], [0, 0, 1]]) > 0
+
+
+def test_roc_and_pr_curves():
+    from pytekt.metrics import (
+        average_precision_score,
+        precision_recall_curve,
+        roc_auc_score,
+        roc_curve,
+    )
+
+    y_true = np.array([0, 0, 1, 1, 1])
+    y_score = np.array([0.1, 0.4, 0.35, 0.8, 0.9])
+
+    # ROC curve
+    fpr, tpr, thresholds = roc_curve(y_true, y_score)
+    assert len(fpr) == len(tpr) == len(thresholds)
+    assert fpr[0] == 0.0 and tpr[0] == 0.0
+    assert fpr[-1] == 1.0 and tpr[-1] == 1.0
+
+    # ROC AUC
+    auc = roc_auc_score(y_true, y_score)
+    assert 0.5 <= auc <= 1.0
+
+    # PR curve
+    precision, recall, pr_thresh = precision_recall_curve(y_true, y_score)
+    assert len(precision) == len(recall)
+    assert precision[-1] == 1.0 and recall[-1] == 0.0
+
+    # Average precision
+    ap = average_precision_score(y_true, y_score)
+    assert 0.5 <= ap <= 1.0
+

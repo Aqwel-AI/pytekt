@@ -15,7 +15,10 @@ from .classification import (
     recall_score,
     f1_score,
     matthews_corrcoef,
+    roc_curve,
     roc_auc_score,
+    precision_recall_curve,
+    average_precision_score,
     classification_report,
 )
 from .regression import (
@@ -39,7 +42,10 @@ __all__ = [
     "recall_score",
     "f1_score",
     "matthews_corrcoef",
+    "roc_curve",
     "roc_auc_score",
+    "precision_recall_curve",
+    "average_precision_score",
     "classification_report",
     "mean_squared_error",
     "root_mean_squared_error",

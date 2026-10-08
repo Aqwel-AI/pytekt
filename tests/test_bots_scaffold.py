@@ -757,6 +757,22 @@ def test_cli_manual_flag_prints_setup():
     assert "```python" in output
 
 
+def test_scaffold_slack_platform():
+    """Verify scaffolding with platform='slack' produces SlackBot and SLACK_BOT_TOKEN."""
+    temp_dir = Path(tempfile.mkdtemp())
+    try:
+        project_dir = generate_project("Slack Workspace Bot", platform="slack", target_dir=temp_dir)
+        main_py = (project_dir / "bot" / "main.py").read_text(encoding="utf-8")
+        assert "from pytekt.bots import SlackBot" in main_py
+        assert "bot = SlackBot(token=settings.bot_token)" in main_py
+
+        env_example = (project_dir / ".env.example").read_text(encoding="utf-8")
+        assert "SLACK_BOT_TOKEN=" in env_example
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+
 
 
 

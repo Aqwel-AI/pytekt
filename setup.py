@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup script for PyTekt v0.1.0
+Setup script for PyTekt v0.2.1
 High-performance data engineering and processing engine built for Python with a C++ core.
 
 Author: Aksel Aghajanyan
@@ -116,6 +116,7 @@ def _get_extensions():
         os.path.join("pytekt", "bots", "_core", "webhook_server.cpp"),
         os.path.join("pytekt", "bots", "_core", "antispam.cpp"),
         os.path.join("pytekt", "bots", "_core", "metrics.cpp"),
+        os.path.join("pytekt", "bots", "_core", "stream_pacer.cpp"),
     ]
     if all(os.path.isfile(os.path.join(root, s)) for s in bots_sources):
         exts.append(

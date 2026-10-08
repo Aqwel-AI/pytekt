@@ -16,7 +16,9 @@ from ._core import (
     Dispatcher,
     FSM,
     Metrics,
+    PacerDecision,
     RateLimiter,
+    StreamPacer,
     UniversalEvent,
     WebhookServer,
     _IS_NATIVE,
@@ -36,6 +38,7 @@ from .payments import (
 from .persistence import BotDB
 from .roles import RoleRegistry, admin_only, requires_role
 from .scheduler import ScheduledJob, Scheduler
+from .slack import SlackBot
 from .telegram import TelegramBot
 from .testing import BotTestClient, TestResponse
 from .ui import (
@@ -71,11 +74,14 @@ __all__ = [
     "Modal",
     "ModalField",
     "NotSupportedError",
+    "PacerDecision",
     "PreCheckoutQuery",
     "RateLimiter",
     "RoleRegistry",
     "ScheduledJob",
     "Scheduler",
+    "SlackBot",
+    "StreamPacer",
     "SuccessfulPayment",
     "TelegramBot",
     "TestResponse",

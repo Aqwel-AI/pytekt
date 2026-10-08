@@ -397,6 +397,9 @@ class AI:
             yield "".join(words[i : i + chunk_size])
             await asyncio.sleep(0.04)
 
+    # Alias for intuitive streaming
+    stream = ask_stream
+
     # ------------------------------------------------------------------
     # Multimodal: Speech-to-Text & Vision
     # ------------------------------------------------------------------

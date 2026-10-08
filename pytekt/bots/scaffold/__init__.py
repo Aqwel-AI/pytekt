@@ -1433,7 +1433,7 @@ def generate_project_files(
     from pytekt.bots.templates import get_template
 
     plat = platform.lower().strip()
-    if plat not in ("telegram", "discord"):
+    if plat not in ("telegram", "discord", "slack"):
         plat = "telegram"
 
     clean_name = name.strip()
@@ -1451,9 +1451,18 @@ def generate_project_files(
         if manifest.minimal:
             minimal = True
 
-    token_var = "TELEGRAM_BOT_TOKEN" if plat == "telegram" else "DISCORD_BOT_TOKEN"
-    default_token = "123456:TEST_TOKEN" if plat == "telegram" else "MOCK_DISCORD_TEST_TOKEN"
-    bot_class = "TelegramBot" if plat == "telegram" else "DiscordBot"
+    if plat == "telegram":
+        token_var = "TELEGRAM_BOT_TOKEN"
+        default_token = "123456:TEST_TOKEN"
+        bot_class = "TelegramBot"
+    elif plat == "discord":
+        token_var = "DISCORD_BOT_TOKEN"
+        default_token = "MOCK_DISCORD_TEST_TOKEN"
+        bot_class = "DiscordBot"
+    else:
+        token_var = "SLACK_BOT_TOKEN"
+        default_token = "xoxb-mock-slack-test-token"
+        bot_class = "SlackBot"
 
     files: Dict[str, str] = {}
 

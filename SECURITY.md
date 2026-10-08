@@ -18,7 +18,7 @@ PyTekt takes security, memory safety, and token protection seriously across all 
 If you discover a security vulnerability within PyTekt (such as a memory safety issue, secret leak, or authentication bypass), **please do not open a public GitHub issue**.
 
 ### Responsible Disclosure Contact
-- **Email:** `security@aqwelai.xyz` (or `aksel@aqwelai.xyz`)
+- **Email:** `security@aqwelai.xyz`
 - **PGP Key:** Available upon request for encrypted disclosure.
 
 ### What to Include

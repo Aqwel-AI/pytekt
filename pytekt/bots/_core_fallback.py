@@ -892,3 +892,242 @@ class WebhookServer:
 
     def get_host(self) -> str:
         return self._host
+
+
+class PacerDecision:
+    """Decision returned by StreamPacer upon feeding chunks."""
+
+    def __init__(
+        self,
+        should_flush: bool = False,
+        text_with_cursor: str = "",
+        text_final: str = "",
+        needs_new_message: bool = False,
+        overflow_text: str = "",
+        flush_count: int = 0,
+    ) -> None:
+        self.should_flush = should_flush
+        self.text_with_cursor = text_with_cursor
+        self.text_final = text_final
+        self.needs_new_message = needs_new_message
+        self.overflow_text = overflow_text
+        self.flush_count = flush_count
+
+    def __repr__(self) -> str:
+        return (
+            f"<PacerDecision should_flush={self.should_flush} "
+            f"needs_new_message={self.needs_new_message} flush_count={self.flush_count}>"
+        )
+
+
+class StreamPacer:
+    """
+    Pure-Python reference fallback for C++ StreamPacer.
+    Adaptive token accumulation, semantic boundary flushing, 429 backoff pacing,
+    and automatic message length splitting for Telegram / Discord.
+    """
+
+    def __init__(
+        self,
+        min_interval: float = 0.75,
+        max_interval: float = 1.5,
+        min_delta_chars: int = 12,
+        max_length: int = 4096,
+        adaptive: bool = True,
+        cursor: str = " ▍",
+    ) -> None:
+        self._lock = threading.Lock()
+        self.min_interval = min_interval if min_interval > 0 else 0.75
+        self.max_interval = max(max_interval, self.min_interval * 2.0)
+        self.min_delta_chars = min_delta_chars
+        self.max_length = max_length
+        self.adaptive = adaptive
+        self.cursor = cursor
+
+        self._active_text = ""
+        self._last_flush_len = 0
+        self._last_flush_time = 0.0
+        self._start_time = 0.0
+        self._retry_after_until = 0.0
+        self._flush_count = 0
+        self._total_chunks = 0
+        self._total_chars = 0
+
+    def _calculate_dynamic_min_interval(self) -> float:
+        if not self.adaptive:
+            return self.min_interval
+        scale = min(1.0, self._flush_count / 12.0)
+        dyn = self.min_interval + scale * (self.max_interval - self.min_interval) * 0.4
+        return min(self.max_interval, dyn)
+
+    @staticmethod
+    def is_semantic_boundary(text: str) -> bool:
+        if not text:
+            return False
+        if text.endswith("\n"):
+            return True
+        if text[-1] in {".", "!", "?", ":", ";"}:
+            return True
+        if len(text) >= 2 and text[-2] in {".", "!", "?", ":"} and text[-1] in {" ", "\t"}:
+            return True
+        if text.endswith("```"):
+            return True
+        return False
+
+    def _find_split_point(self, text: str, limit: int) -> int:
+        if len(text) <= limit:
+            return len(text)
+        search_floor = max(0, limit - 500)
+        pos = text.rfind("\n\n", search_floor, limit)
+        if pos != -1:
+            return pos + 2
+        pos = text.rfind("\n", search_floor, limit)
+        if pos != -1:
+            return pos + 1
+        pos = text.rfind(" ", search_floor, limit)
+        if pos != -1:
+            return pos + 1
+        return limit
+
+    def feed(self, chunk: str, current_time: float = 0.0) -> PacerDecision:
+        with self._lock:
+            now = current_time if current_time > 0.0 else time.monotonic()
+            if self._start_time <= 0.0:
+                self._start_time = now
+
+            self._total_chunks += 1
+            self._total_chars += len(chunk)
+            self._active_text += chunk
+
+            decision = PacerDecision(should_flush=False)
+
+            # 1. Split on max length
+            if self.max_length > 0 and len(self._active_text) >= self.max_length:
+                split_pos = self._find_split_point(self._active_text, self.max_length)
+                current_msg_final = self._active_text[:split_pos]
+                next_text = self._active_text[split_pos:]
+
+                self._flush_count += 1
+                decision.should_flush = True
+                decision.needs_new_message = True
+                decision.text_final = current_msg_final
+                decision.text_with_cursor = current_msg_final
+                decision.overflow_text = next_text
+                decision.flush_count = self._flush_count
+
+                self._active_text = next_text
+                self._last_flush_len = len(self._active_text)
+                self._last_flush_time = now
+                return decision
+
+            # 2. 429 backoff
+            if self._retry_after_until > now:
+                return decision
+
+            # 3. Pacing check
+            dyn_interval = self._calculate_dynamic_min_interval()
+            elapsed = (now - self._last_flush_time) if self._last_flush_time > 0.0 else (now - self._start_time)
+            delta_chars = len(self._active_text) - self._last_flush_len if len(self._active_text) >= self._last_flush_len else len(self._active_text)
+
+            first_flush = (self._flush_count == 0 and len(self._active_text) > 0)
+            interval_met = (elapsed >= dyn_interval)
+            max_interval_met = (elapsed >= self.max_interval)
+            has_min_chars = (delta_chars >= self.min_delta_chars)
+            is_boundary = self.is_semantic_boundary(self._active_text)
+
+            if first_flush or (interval_met and has_min_chars and is_boundary) or (max_interval_met and has_min_chars):
+                self._flush_count += 1
+                decision.should_flush = True
+                decision.text_with_cursor = self._active_text + self.cursor
+                decision.text_final = self._active_text
+                decision.flush_count = self._flush_count
+                self._last_flush_len = len(self._active_text)
+                self._last_flush_time = now
+
+            return decision
+
+    def should_flush(self, current_time: float = 0.0) -> bool:
+        with self._lock:
+            now = current_time if current_time > 0.0 else time.monotonic()
+            if self._retry_after_until > now or not self._active_text:
+                return False
+            if self.max_length > 0 and len(self._active_text) >= self.max_length:
+                return True
+            dyn_interval = self._calculate_dynamic_min_interval()
+            elapsed = (now - self._last_flush_time) if self._last_flush_time > 0.0 else (now - self._start_time)
+            delta_chars = len(self._active_text) - self._last_flush_len if len(self._active_text) >= self._last_flush_len else len(self._active_text)
+
+            if self._flush_count == 0 and len(self._active_text) > 0:
+                return True
+            if elapsed >= self.max_interval and delta_chars >= self.min_delta_chars:
+                return True
+            if elapsed >= dyn_interval and delta_chars >= self.min_delta_chars and self.is_semantic_boundary(self._active_text):
+                return True
+            return False
+
+    def flush(self, current_time: float = 0.0) -> PacerDecision:
+        with self._lock:
+            now = current_time if current_time > 0.0 else time.monotonic()
+            self._flush_count += 1
+            decision = PacerDecision(
+                should_flush=True,
+                text_with_cursor=self._active_text + self.cursor,
+                text_final=self._active_text,
+                flush_count=self._flush_count,
+            )
+            self._last_flush_len = len(self._active_text)
+            self._last_flush_time = now
+            return decision
+
+    def flush_final(self) -> str:
+        with self._lock:
+            now = time.monotonic()
+            self._flush_count += 1
+            self._last_flush_len = len(self._active_text)
+            self._last_flush_time = now
+            return self._active_text
+
+    def record_429(self, retry_after_seconds: float, current_time: float = 0.0) -> None:
+        with self._lock:
+            now = current_time if current_time > 0.0 else time.monotonic()
+            self._retry_after_until = now + retry_after_seconds
+            self.min_interval = max(self.min_interval, 1.0)
+
+    def get_retry_after(self, current_time: float = 0.0) -> float:
+        with self._lock:
+            now = current_time if current_time > 0.0 else time.monotonic()
+            if self._retry_after_until > now:
+                return self._retry_after_until - now
+            return 0.0
+
+    def reset(self) -> None:
+        with self._lock:
+            self._active_text = ""
+            self._last_flush_len = 0
+            self._last_flush_time = 0.0
+            self._start_time = 0.0
+            self._retry_after_until = 0.0
+            self._flush_count = 0
+            self._total_chunks = 0
+            self._total_chars = 0
+
+    def get_buffer(self) -> str:
+        with self._lock:
+            return self._active_text
+
+    def get_flush_count(self) -> int:
+        with self._lock:
+            return self._flush_count
+
+    def get_metrics(self) -> Dict[str, float]:
+        with self._lock:
+            now = time.monotonic()
+            elapsed = (now - self._start_time) if self._start_time > 0.0 else 0.0
+            avoided = max(0.0, float(self._total_chunks - self._flush_count))
+            return {
+                "total_chars": float(self._total_chars),
+                "total_chunks": float(self._total_chunks),
+                "flush_count": float(self._flush_count),
+                "edits_avoided": avoided,
+                "elapsed_seconds": elapsed,
+            }
